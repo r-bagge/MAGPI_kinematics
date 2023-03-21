@@ -841,29 +841,29 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
 
                     hdr = fits.Header()
                     hdr["COMMENT"] = '========================================================================'
-                    hdr["COMMENT"] = 'This FITS file contains the observed velocity field and kinemetry models'
-                    hdr["COMMENT"] = 'for the target. Each of the extensions are detailed below. EXT[1] '
-                    hdr["COMMENT"] = 'contains the observed velocity field. EXT[2] contains the fitted'
-                    hdr["COMMENT"] = 'circular velocity model containing only one cosine term '
-                    hdr["COMMENT"] = 'eg. k1*cos(theta). EXT[3] contains the fitted circular velocity model'
-                    hdr["COMMENT"] = 'containing ALL cosine and sine terms eg. A_n*(n theta) + B_n*cos(n*theta).'
-                    hdr["COMMENT"] = 'EXT[4] the difference between the data and VelKin eg. what Im calling'
-                    hdr["COMMENT"] = 'v_bar or residual eg. what Im calling v_bar or residual '
-                    hdr["COMMENT"] = 'asymmetry, at the moment. FITS headers for each EXT[XX] is '
-                    hdr["COMMENT"] = 'from the MAGPIXX_GIST_EmissionLines.fits file.'
+                    hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
+                    hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
+                    hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
+                    hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
+                    hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
+                    hdr["COMMENT"] = ' [10]'
+                    # hdr["COMMENT"] = 'EXT[4] the difference between the data and VelKin eg. what Im calling'
+                    # hdr["COMMENT"] = 'v_bar or residual eg. what Im calling v_bar or residual '
+                    # hdr["COMMENT"] = 'asymmetry, at the moment. FITS headers for each EXT[XX] is '
+                    # hdr["COMMENT"] = 'from the MAGPIXX_GIST_EmissionLines.fits file.'
                     hdr["COMMENT"] = '========================================================================'
                     hdr["OBJECT"] = str(file_name[f])
                     n = None
                     hdu0 = fits.PrimaryHDU(n, header=hdr)
                     hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
-                    hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
-                    hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
-                    hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
+                    hdu2 = fits.ImageHDU(g_velo, name="Gas Velo", header=hdr)
+                    hdu3 = fits.ImageHDU(kg.velcirc, name="Gas Velcirc", header=hdr)
+                    hdu4 = fits.ImageHDU(kg.velkin, name="Gas VelKin", header=hdr)
                     hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
                     hdu6 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
-                    hdu7 = fits.ImageHDU(s_velo, name="Data", header=hdr)
-                    hdu8 = fits.ImageHDU(ks.velcirc, name="Velcirc", header=hdr)
-                    hdu9 = fits.ImageHDU(ks.velkin, name="VelKin", header=hdr)
+                    hdu7 = fits.ImageHDU(s_velo, name="Stars Velo", header=hdr)
+                    hdu8 = fits.ImageHDU(ks.velcirc, name="Stars Velcirc", header=hdr)
+                    hdu9 = fits.ImageHDU(ks.velkin, name="Stars VelKin", header=hdr)
                     hdu10 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
                     hdr["BUNIT"] = None
 
