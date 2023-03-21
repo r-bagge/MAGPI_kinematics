@@ -1694,6 +1694,6 @@ df = pd.DataFrame({"MAGPIID": new_galaxies,
                    "Vrot_Gas":new_vrot_gs,
                    "Vrot_Stars":new_vrot_ss})
 print("Sample size is " + str(len(df)) + "!\n")
-df.to_csv("MAGPI_kinemetry_sample.csv", index=False)
+df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv", index=False)
 
-BPT_plots("MAGPI_kinemetry_sample_BPT.csv", "MAGPI_kinemetry_sample.csv")
+BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
