@@ -1261,7 +1261,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                     v_asym_gs.append(np.nanmean(v_asym_tot_mc))
                     v_asym_gs_err.append(np.nanstd(v_asym_tot_mc))
                     v_asym_ss.append(np.nan)
-                    v_asym_ss_err.append()
+                    v_asym_ss_err.append(np.nan)
                     pa_gs.append(np.nan)
                     #pa_ss.append(pa_s)
                     d_pas.append(np.nan)
