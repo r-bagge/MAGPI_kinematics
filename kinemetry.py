@@ -499,45 +499,47 @@ from scipy.interpolate import LinearNDInterpolator
 from plotbin.plot_velfield import plot_velfield
 from matplotlib.patches import Ellipse
 
-
 from kin_mpfit import mpfit
 import matplotlib.ticker
 import matplotlib as mpl
+
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
-    
-#used for debugging
-#import pdb #use with pdb.set_trace() 
-#import time
 
-#----------------------------------------------------------------------------
-def kin_range(x1,x2,n):
+
+# used for debugging
+# import pdb #use with pdb.set_trace()
+# import time
+
+# ----------------------------------------------------------------------------
+def kin_range(x1, x2, n):
     # retunrs an array of n numbers between x1 and x2 values
-    
-    val = x1 + (x2-x1)/(n-1)*np.arange(n)
-    
+
+    val = x1 + (x2 - x1) / (n - 1) * np.arange(n)
+
     return val
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 def kinem_trigrid_irregular(xbin, ybin, moment, xnew, ynew, missing=None):
-    
     """
      Given a set of irregular input coordinates and corresponding values for
      output coordinates, which are also irregular, it gives an interpolated 
      values at the output positions. Used for interpolating back to the original
      grid of data points (IFU maps)
     """
-    
+
     assert xbin.size == ybin.size == moment.size, 'XBIN, YBIN and VELBIN must have the same size'
-    
+
     assert xnew.size == ynew.size, 'XNEW and YNEW must have the same size'
-    points = np.transpose(np.array([xbin,ybin]))
+    points = np.transpose(np.array([xbin, ybin]))
     momNew = griddata(points, moment, (xnew, ynew), method='linear', fill_value=missing)
-    
+
     return momNew
-   
-#----------------------------------------------------------------------------    
-def kinem_lstsq_solve(a,b, errors=False):
+
+
+# ----------------------------------------------------------------------------
+def kinem_lstsq_solve(a, b, errors=False):
     """
     v1.0 Davor Krajnovic, Potsdam, 27 June 2018
 
@@ -561,20 +563,19 @@ def kinem_lstsq_solve(a,b, errors=False):
     assert sa[0] == sb[0], 'LSSQT Solve Error: incompatible dimensions'
 
     weights = np.linalg.lstsq(a, b, rcond=None)[0]
-    
-        
+
     if errors:
         U, s, Vh = np.linalg.svd(a, full_matrices=False)
-        w = s > np.finfo(float).eps*max(a.shape)*s[0]
-        cov = (Vh[w].T/s[w]**2) @ Vh[w]
+        w = s > np.finfo(float).eps * max(a.shape) * s[0]
+        cov = (Vh[w].T / s[w] ** 2) @ Vh[w]
         perr = np.sqrt(np.diag(cov))
         return weights, perr
     else:
         return weights
 
-#----------------------------------------------------------------------------
-def kinem_fit_trig_series(x, y, w, nterms, err, All=False, even=False, vsys=False):
 
+# ----------------------------------------------------------------------------
+def kinem_fit_trig_series(x, y, w, nterms, err, All=False, even=False, vsys=False):
     """
     v1.0 Davor Krajnovic, Potsdam, 27 June 2018.
          Translated from the IDL version. 
@@ -614,31 +615,31 @@ def kinem_fit_trig_series(x, y, w, nterms, err, All=False, even=False, vsys=Fals
     
     """
 
-    arr = np.zeros(shape=(x[w].size,nterms+1))
-    arr1 = np.zeros(shape=(x.size,nterms+1))  #for extrapolated values
+    arr = np.zeros(shape=(x[w].size, nterms + 1))
+    arr1 = np.zeros(shape=(x.size, nterms + 1))  # for extrapolated values
     #
     # if keyword vsys set, do not extract zero-th term
     #
     if vsys:
-        arr[:,0] = 0.
-        arr1[:,0] = 0.
+        arr[:, 0] = 0.
+        arr1[:, 0] = 0.
     else:
-        arr[:,0] = 1.
-        arr1[:,0] = 1.
- 
+        arr[:, 0] = 1.
+        arr1[:, 0] = 1.
+
     if (All == True) | (even == True):
-        for j in np.arange(1,nterms,2):
-            arr[:,j]=np.sin( ((j+1)/2)*x[w])
-            arr[:,j+1]=np.cos(((j+1)/2)*x[w])
-            arr1[:,j]=np.sin( ((j+1)/2)*x)
-            arr1[:,j+1]=np.cos(((j+1)/2)*x)
-            
+        for j in np.arange(1, nterms, 2):
+            arr[:, j] = np.sin(((j + 1) / 2) * x[w])
+            arr[:, j + 1] = np.cos(((j + 1) / 2) * x[w])
+            arr1[:, j] = np.sin(((j + 1) / 2) * x)
+            arr1[:, j + 1] = np.cos(((j + 1) / 2) * x)
+
     else:
-        for j in np.arange(1,nterms,2):
-            arr[:,j]=np.sin(j*x[w])
-            arr[:,j+1]=np.cos(j*x[w])
-            arr1[:,j]=np.sin(j*x)
-            arr1[:,j+1]=np.cos(j*x)
+        for j in np.arange(1, nterms, 2):
+            arr[:, j] = np.sin(j * x[w])
+            arr[:, j + 1] = np.cos(j * x[w])
+            arr1[:, j] = np.sin(j * x)
+            arr1[:, j + 1] = np.cos(j * x)
 
     #
     # divide by errors
@@ -646,24 +647,25 @@ def kinem_fit_trig_series(x, y, w, nterms, err, All=False, even=False, vsys=Fals
     if err is None:
         coeff = kinem_lstsq_solve(arr, y, errors=False)
     else:
-        y1 = y/err
-        brr = arr*0.
-        for j in range(nterms+1):
-            brr[:,j]=arr[:,j]/err
+        y1 = y / err
+        brr = arr * 0.
+        for j in range(nterms + 1):
+            brr[:, j] = arr[:, j] / err
 
         coeff, er_coeff = kinem_lstsq_solve(brr, y1, errors=True)
 
-    yfit = np.matmul(arr,coeff)
-    yfit1 = np.matmul(arr1,coeff)
+    yfit = np.matmul(arr, coeff)
+    yfit1 = np.matmul(arr1, coeff)
 
     if err is None:
         return coeff, yfit, yfit1
     else:
         return coeff, yfit, yfit1, er_coeff
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 def kinem_fitfunc_ellipse(p, nterms, r, xbar=None, ybar=None, moment=None, interp=None,
-                          even=False, allterms=False, img=None, x0=None, y0=None, badpix=None, 
+                          even=False, allterms=False, img=None, x0=None, y0=None, badpix=None,
                           er_interp=None, vsys=None, mpf=False, grid=False, fixcen=True, fjac=None):
     """
     The main subroutine used for calling subroutines that extract values along ellipses and
@@ -690,41 +692,41 @@ def kinem_fitfunc_ellipse(p, nterms, r, xbar=None, ybar=None, moment=None, inter
     ang = np.radians(p[0] - 90)
     sp = p.size
 
-    #construction of elliptical coordinates on which kin.moment is
-    #interpolated; expansion of kin.profile in harmonic series;
-    #used by both 'brute force' and MPFIT minimisation
-        
-    mi = (360./(180/10))
-    theta = kin_range(0.0, 2*np.pi, np.clip(mi, 10*r, 100))
-    #theta = -1*np.arctan(np.tan(theta))
-    x = r*np.cos(theta)
-    y = r*np.sin(theta)*p[1]
-    if sp == 4:
-        xell = p[2] + x*np.cos(ang) - y*np.sin(ang)
-        yell = p[3] + x*np.sin(ang) + y*np.cos(ang)
-    else:
-        xell = x0 + x*np.cos(ang) - y*np.sin(ang)
-        yell = y0 + x*np.sin(ang) + y*np.cos(ang)
+    # construction of elliptical coordinates on which kin.moment is
+    # interpolated; expansion of kin.profile in harmonic series;
+    # used by both 'brute force' and MPFIT minimisation
 
-    #call results of interpolation and interpolate to points along the ellipse
+    mi = (360. / (180 / 10))
+    theta = kin_range(0.0, 2 * np.pi, np.clip(mi, 10 * r, 100))
+    # theta = -1*np.arctan(np.tan(theta))
+    x = r * np.cos(theta)
+    y = r * np.sin(theta) * p[1]
+    if sp == 4:
+        xell = p[2] + x * np.cos(ang) - y * np.sin(ang)
+        yell = p[3] + x * np.sin(ang) + y * np.cos(ang)
+    else:
+        xell = x0 + x * np.cos(ang) - y * np.sin(ang)
+        yell = y0 + x * np.sin(ang) + y * np.cos(ang)
+
+    # call results of interpolation and interpolate to points along the ellipse
     momEll = interp(xell, yell)
     if er_interp is None:
-        er_momEll = np.full_like(momEll, 1.)  #if no errors were passed
+        er_momEll = np.full_like(momEll, 1.)  # if no errors were passed
     else:
         er_momEll = er_interp(xell, yell)
-            
-    #remove "missing values"
-    w=np.where(momEll != 12345678)
+
+    # remove "missing values"
+    w = np.where(momEll != 12345678)
     if w[0].size == 0:
         return 1e30
     momEll = momEll[w]
-    er_momEll =er_momEll[w]
-    
-    
+    er_momEll = er_momEll[w]
+
     #
     # The Fourier analysis and the calculation of coefficients, with options for ALL, EVEN or Vsys
     #
-    coeff, momFit, momFitExtr, er_coeff  = kinem_fit_trig_series(theta, momEll, w, nterms, er_momEll, All=allterms, even=even, vsys=vsys)
+    coeff, momFit, momFitExtr, er_coeff = kinem_fit_trig_series(theta, momEll, w, nterms, er_momEll, All=allterms,
+                                                                even=even, vsys=vsys)
 
     if even == True:
         #
@@ -735,12 +737,12 @@ def kinem_fitfunc_ellipse(p, nterms, r, xbar=None, ybar=None, moment=None, inter
         # in the 'odd' case)	
         #
         if mpf == True:
-            return coeff[[1,2,3,4]]#, coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr
+            return coeff[[1, 2, 3, 4]]  # , coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr
         elif grid == True:
-            return np.sum(coeff[[1,2,3,4]]**2)#, coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr
+            return np.sum(coeff[[1, 2, 3, 4]] ** 2)  # , coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr
         else:
             return coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff
-        
+
     else:
         #
         # Fowllowing eq(1) of Jedrzejewski (1987), but for odd
@@ -749,231 +751,225 @@ def kinem_fitfunc_ellipse(p, nterms, r, xbar=None, ybar=None, moment=None, inter
         # In case of centre fitting, a1,a2,b2,a3 and b3 are used 
         # (see Fig. B3 in Krajnovic et al. 2006)
         #
-        if (mpf == True) & (fixcen==True):
-            return coeff[[1,3,4]]  #a1,a3,b3
-        elif (mpf == True) & (fixcen==False):
-            return coeff[[1,3,4,5,6]] #a1,a2,b2, a3, b3
+        if (mpf == True) & (fixcen == True):
+            return coeff[[1, 3, 4]]  # a1,a3,b3
+        elif (mpf == True) & (fixcen == False):
+            return coeff[[1, 3, 4, 5, 6]]  # a1,a2,b2, a3, b3
         elif grid == True:
-            return np.sum(coeff[[1,3,4]]**2) #a1,a3,b3
+            return np.sum(coeff[[1, 3, 4]] ** 2)  # a1,a3,b3
         else:
             return coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 def kinemetry(xbin=None, ybin=None, moment=None, img=None, x0=0., y0=0.,
-             ntrm=6, error=None, scale=1, nrad=100, name=None, paq=None, 
-             npa=21, nq=21, rangeQ=None, rangePA=None, allterms=False, 
-             even=False, bmodel=True, ring=None, radius=None, cover=0.75, 
-             plot=True, verbose=True, nogrid=False, fixcen=True, badpix=None,
-             sky=None, vsys=None, output_file = None): 
+              ntrm=6, error=None, scale=1, nrad=100, name=None, paq=None,
+              npa=21, nq=21, rangeQ=None, rangePA=None, allterms=False,
+              even=False, bmodel=True, ring=None, radius=None, cover=0.75,
+              plot=True, verbose=True, nogrid=False, fixcen=True, badpix=None,
+              sky=None, vsys=None, output_file=None):
 
     ## Defining the Result Class ================================
-    class Results :
-       def __init__(self):
-          self.type = "kinemetry analysis"
+    class Results:
+        def __init__(self):
+            self.type = "kinemetry analysis"
+
     ## ===========================================================
 
     ## Here is the result structure which will be filled in at the end
     results = Results()
     ## ===========================================================
 
-
-    
-    #make sure keywords are set correctly
+    # make sure keywords are set correctly
     odd = True
     if even:
         odd = False
-                        
+
     #
     # check if using 2D image or 3x1D arrays, xbin,ybin,moment
     # if using 2D image, resample it to 3 1D arrays
     #
     if img is not None:
-        ny,nx=img.shape
+        ny, nx = img.shape
         mx_img = np.max(img.shape)
-        x = (np.arange(0,nx))
-        y = (np.arange(0,ny))
+        x = (np.arange(0, nx))
+        y = (np.arange(0, ny))
         xx, yy = np.meshgrid(x, y)
         xbin = xx.ravel()
         ybin = yy.ravel()
         moment = img.ravel()
         if error is not None:
             error = error.ravel()
-        scale=1
+        scale = 1
     else:
-        #pdb.set_trace()
+        # pdb.set_trace()
         assert xbin.size == ybin.size == moment.size, 'XBIN, YBIN and VELBIN must have the same size'
 
+    # change to pixels
+    xbar = xbin / scale
+    ybar = ybin / scale
+    x0 = x0 / scale
+    y0 = y0 / scale
 
-    #change to pixels
-    xbar = xbin/scale
-    ybar = ybin/scale
-    x0 = x0/scale
-    y0 = y0/scale
-        
-    #setting radii
-    if radius is None:        
+    # setting radii
+    if radius is None:
         pix = np.arange(nrad)
-        rad = pix + 1.1**pix  # geometric progression
+        rad = pix + 1.1 ** pix  # geometric progression
     else:
         rad = radius
         nrad = radius.size
-            
 
     #
     # The central pixel is left unchanged in the reconstruction.
     # Shifting of the first radius in case of a central hole.
     #
-    if ring is not None: 
-        rad = ring/scale  +  rad
-        xellip = np.zeros(1)#np.array([])
-        yellip = np.zeros(1)#np.array([])
-        eccano = np.zeros(1)#np.zeros([])
-        ex_mom = np.zeros(1)#np.zeros([])
-        vv = np.zeros(1)#np.array([])
-        vrec = np.zeros(1)#np.array([])
+    if ring is not None:
+        rad = ring / scale + rad
+        xellip = np.zeros(1)  # np.array([])
+        yellip = np.zeros(1)  # np.array([])
+        eccano = np.zeros(1)  # np.zeros([])
+        ex_mom = np.zeros(1)  # np.zeros([])
+        vv = np.zeros(1)  # np.array([])
+        vrec = np.zeros(1)  # np.array([])
     else:
         if img is not None:
-            xellip =np.zeros(1)
-            yellip =np.zeros(1)
+            xellip = np.zeros(1)
+            yellip = np.zeros(1)
             eccano = np.zeros(1)
             ex_mom = np.zeros(1)
-            vv =np.zeros(1)
-            vrec =np.zeros(1)
+            vv = np.zeros(1)
+            vrec = np.zeros(1)
             xellip[0] = x0
             yellip[0] = y0
             vv[0] = img[int(round(x0)), int(round(y0))]
             vrec[0] = img[int(round(x0)), int(round(y0))]
         else:
-            mini=np.min(np.sqrt(xbar**2 + ybar**2))
-            ww = np.where(np.sqrt(xbar**2 + ybar**2) == mini)
+            mini = np.min(np.sqrt(xbar ** 2 + ybar ** 2))
+            ww = np.where(np.sqrt(xbar ** 2 + ybar ** 2) == mini)
             xellip = xbin[ww]
             yellip = ybin[ww]
             eccano = np.zeros(1)
             ex_mom = np.zeros(1)
             vv = moment[ww]
             vrec = moment[ww]
-    
-        
+
     #
     # Initialised vectors of results
     #
-    pa    = np.zeros(nrad)
-    q     = np.zeros(nrad)
-    cf    = np.zeros((nrad,ntrm+1))
-    xc    = np.zeros(nrad)
-    yc    = np.zeros(nrad)
-    er_cf = np.zeros((nrad,ntrm+1))
+    pa = np.zeros(nrad)
+    q = np.zeros(nrad)
+    cf = np.zeros((nrad, ntrm + 1))
+    xc = np.zeros(nrad)
+    yc = np.zeros(nrad)
+    er_cf = np.zeros((nrad, ntrm + 1))
     er_pa = np.zeros(nrad)
-    er_q  = np.zeros(nrad)
+    er_q = np.zeros(nrad)
     er_xc = np.zeros(nrad)
     er_yc = np.zeros(nrad)
     nelem = np.zeros(nrad)
-        
+
     #
     #  Initialize parameters for MPFIT in ODD case
     #
-    if odd == True:             
-        parinfo = [{'step':1.0,'limits':[0.0,0.0],'limited':[1,1]} for i in range(2)]
+    if odd == True:
+        parinfo = [{'step': 1.0, 'limits': [0.0, 0.0], 'limited': [1, 1]} for i in range(2)]
         if rangePA:
-            parinfo[0]['limits'] = [rangePA[0],rangePA[1]]
+            parinfo[0]['limits'] = [rangePA[0], rangePA[1]]
         else:
-            parinfo[0]['limits'] = [-95.,95.]  # PA limits in degrees
+            parinfo[0]['limits'] = [-95., 95.]  # PA limits in degrees
         if rangeQ:
-            parinfo[1]['limits'] = [rangeQ[0],rangeQ[1]]
+            parinfo[1]['limits'] = [rangeQ[0], rangeQ[1]]
         else:
-            parinfo[1]['limits'] = [0.2,1.0]  # PQ limits
+            parinfo[1]['limits'] = [0.2, 1.0]  # PQ limits
         parinfo[0]['step'] = 0.5  # Step in degrees (of the order of the expected accuracy)
-        parinfo[1]['step'] = 0.01 # Q
-    
+        parinfo[1]['step'] = 0.01  # Q
+
     #
     # case for ODD and centre free
     #
-    if (odd == True and fixcen == False):             
-        parinfo = [{'step':1.0,'limits':[0.0,0.0],'limited':[1,1], 'fixed':0} for i in range(4)]
+    if (odd == True and fixcen == False):
+        parinfo = [{'step': 1.0, 'limits': [0.0, 0.0], 'limited': [1, 1], 'fixed': 0} for i in range(4)]
         if rangePA:
-            parinfo[0]['limits'] = [rangePA[0],rangePA[1]]
+            parinfo[0]['limits'] = [rangePA[0], rangePA[1]]
         else:
-            parinfo[0]['limits'] = [-95.,95.]  # PA limits in degrees
+            parinfo[0]['limits'] = [-95., 95.]  # PA limits in degrees
         if rangeQ:
-            parinfo[1]['limits'] = [rangeQ[0],rangeQ[1]]
+            parinfo[1]['limits'] = [rangeQ[0], rangeQ[1]]
         else:
-            parinfo[1]['limits'] = [0.2,1.0]  # PQ limits
+            parinfo[1]['limits'] = [0.2, 1.0]  # PQ limits
         parinfo[0]['step'] = 0.5  # Step in degrees (of the order of the expected accuracy)
-        parinfo[1]['step'] = 0.01 # Q
+        parinfo[1]['step'] = 0.01  # Q
         parinfo[2]['step'] = 0.1
         parinfo[3]['step'] = 0.1
-        parinfo[2]['limits'] = [x0-5,x0+5] 
-        parinfo[3]['limits'] = [y0-5,y0+5] 
+        parinfo[2]['limits'] = [x0 - 5, x0 + 5]
+        parinfo[3]['limits'] = [y0 - 5, y0 + 5]
 
-    #
+        #
     # case for higher even moments, e.g. velocity dispersion
     #
     if (even == True and fixcen == False):
-        parinfo = [{'step':1.0,'limits':[0.0,0.0],'limited':[1,1]} for i in range(4)]
+        parinfo = [{'step': 1.0, 'limits': [0.0, 0.0], 'limited': [1, 1]} for i in range(4)]
         if rangePA:
-            parinfo[0]['limits'] = [rangePA[0],rangePA[1]]
+            parinfo[0]['limits'] = [rangePA[0], rangePA[1]]
         else:
-            parinfo[0]['limits'] = [-95.,95.]  # PA limits in degrees
+            parinfo[0]['limits'] = [-95., 95.]  # PA limits in degrees
         if rangeQ:
-            parinfo[1]['limits'] = [rangeQ[0],rangeQ[1]]
+            parinfo[1]['limits'] = [rangeQ[0], rangeQ[1]]
         else:
-            parinfo[1]['limits'] = [0.2,1.0]  # PQ limits
+            parinfo[1]['limits'] = [0.2, 1.0]  # PQ limits
         parinfo[0]['step'] = 0.5  # Step in degrees (of the order of the expected accuracy)
-        parinfo[1]['step'] = 0.01 # Q
+        parinfo[1]['step'] = 0.01  # Q
         parinfo[2]['step'] = 0.1
         parinfo[3]['step'] = 0.1
-        parinfo[2]['limits'] = [x0-5,x0+5] 
-        parinfo[3]['limits'] = [y0-5,y0+5] 
-            
+        parinfo[2]['limits'] = [x0 - 5, x0 + 5]
+        parinfo[3]['limits'] = [y0 - 5, y0 + 5]
 
-    #
+        #
     # keep centre fixed in photometry
     #
     if (even == True and fixcen == True):
-        parinfo = [{'step':1.0,'limits':[0.0,0.0],'limited':[1,1]} for i in range(2)]
+        parinfo = [{'step': 1.0, 'limits': [0.0, 0.0], 'limited': [1, 1]} for i in range(2)]
         if rangePA:
-            parinfo[0]['limits'] = [rangePA[0],rangePA[1]]
+            parinfo[0]['limits'] = [rangePA[0], rangePA[1]]
         else:
-            parinfo[0]['limits'] = [-95.,95.]  # PA limits in degrees
+            parinfo[0]['limits'] = [-95., 95.]  # PA limits in degrees
         if rangeQ:
-            parinfo[1]['limits'] = [rangeQ[0],rangeQ[1]]
+            parinfo[1]['limits'] = [rangeQ[0], rangeQ[1]]
         else:
-            parinfo[1]['limits'] = [0.2,1.0]  # PQ limits
+            parinfo[1]['limits'] = [0.2, 1.0]  # PQ limits
         parinfo[0]['step'] = 0.5  # Step in degrees (of the order of the expected accuracy)
-        parinfo[1]['step'] = 0.01 # Q
-            
+        parinfo[1]['step'] = 0.01  # Q
 
     #
     # fit for centre in photometry
     #
     if (even == True and fixcen == False and img is not None):
-        parinfo = [{'step':1.0,'limits':[0.0,0.0],'limited':[1,1], 'fixed':0} for i in range(4)]
+        parinfo = [{'step': 1.0, 'limits': [0.0, 0.0], 'limited': [1, 1], 'fixed': 0} for i in range(4)]
         if rangePA:
-            parinfo[0]['limits'] = [rangePA[0],rangePA[1]]
+            parinfo[0]['limits'] = [rangePA[0], rangePA[1]]
         else:
-            parinfo[0]['limits'] = [-95.,95.]  # PA limits in degrees
+            parinfo[0]['limits'] = [-95., 95.]  # PA limits in degrees
         if rangeQ:
-            parinfo[1]['limits'] = [rangeQ[0],rangeQ[1]]
+            parinfo[1]['limits'] = [rangeQ[0], rangeQ[1]]
         else:
-            parinfo[1]['limits'] = [0.2,1.0]  # PQ limits
+            parinfo[1]['limits'] = [0.2, 1.0]  # PQ limits
         parinfo[0]['step'] = 0.5  # Step in degrees (of the order of the expected accuracy)
-        parinfo[1]['step'] = 0.01 # Q
+        parinfo[1]['step'] = 0.01  # Q
         parinfo[2]['step'] = 0.1
         parinfo[3]['step'] = 0.1
-        parinfo[2]['limits'] = [x0-100,x0+100] 
-        parinfo[3]['limits'] = [y0-100,y0+100] 
-           
-            
-    #
+        parinfo[2]['limits'] = [x0 - 100, x0 + 100]
+        parinfo[3]['limits'] = [y0 - 100, y0 + 100]
+
+        #
     # Set grids for global minimization
     #
     if rangeQ == None:
         if img is not None:
-            rangeQ=[0.1,1.0]
+            rangeQ = [0.1, 1.0]
         else:
-            rangeQ=[0.2,1.0]
+            rangeQ = [0.2, 1.0]
     if rangePA == None:
-            rangePA = [-90.0, 90.0]
+        rangePA = [-90.0, 90.0]
 
     #
     # speed up the calcultions, without grid, but with initial PA and q values
@@ -984,39 +980,37 @@ def kinemetry(xbin=None, ybin=None, moment=None, img=None, x0=0., y0=0.,
             pa_mpf = paq[0]
             q_mpf = paq[1]
             paq = None
-    
-    xpa = np.linspace(rangePA[0],rangePA[1],npa)
-    xq  = np.linspace(rangeQ[0],rangeQ[1],nq)
+
+    xpa = np.linspace(rangePA[0], rangePA[1], npa)
+    xq = np.linspace(rangeQ[0], rangeQ[1], nq)
     xxpa, xxq = np.meshgrid(xpa, xq)
     pa_grid = xxpa.ravel()
     q_grid = xxq.ravel()
     chi2_grid = np.zeros(pa_grid.size)
 
-
-    #triangulations
-    #print('starting linear interpolation')
+    # triangulations
+    # print('starting linear interpolation')
     # using LinearNDInterpolator
     # see: https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LinearNDInterpolator.html#scipy.interpolate.LinearNDInterpolator
     if img is not None:
-        points = np.transpose(np.array([xbar,ybar]))
+        points = np.transpose(np.array([xbar, ybar]))
         interp = LinearNDInterpolator(points, moment, fill_value=12345678)
         if error is not None:
-            er_interp =  LinearNDInterpolator(points, error, fill_value=12345678)
+            er_interp = LinearNDInterpolator(points, error, fill_value=12345678)
         else:
             er_interp = None
     else:
-        points = np.transpose(np.array([xbar,ybar]))
+        points = np.transpose(np.array([xbar, ybar]))
         interp = LinearNDInterpolator(points, moment, fill_value=12345678)
         if error is not None:
-            er_interp = LinearNDInterpolator(points, error, fill_value=12345678) 
+            er_interp = LinearNDInterpolator(points, error, fill_value=12345678)
         else:
             er_interp = None
-    #print('finished linear interpolation')
+    # print('finished linear interpolation')
 
-    
     if plot:
-        f,ax=plt.subplots(figsize=(8,9))
- 
+        f, ax = plt.subplots(figsize=(8, 9))
+
     k = 0
     #
     # loop over radii
@@ -1033,305 +1027,337 @@ def kinemetry(xbin=None, ybin=None, moment=None, img=None, x0=0., y0=0.,
             # (nogrid eq 0 means that keyword nogrid was not used, hence
             # minimization is done one the grid...)
             if nogrid == False:
-                for j in range(npa*nq):
-                    chi2_grid[j] = kinem_fitfunc_ellipse(np.array([pa_grid[j], q_grid[j], x0,y0]),
-                                 nterms=4, r=rad[i], xbar=xbar, ybar=ybar, moment=moment, interp=interp,
-                                 even=even, img=img, x0=x0, y0=y0, badpix=badpix,
-                                 er_interp=er_interp, grid=True)
+                for j in range(npa * nq):
+                    chi2_grid[j] = kinem_fitfunc_ellipse(np.array([pa_grid[j], q_grid[j], x0, y0]),
+                                                         nterms=4, r=rad[i], xbar=xbar, ybar=ybar, moment=moment,
+                                                         interp=interp,
+                                                         even=even, img=img, x0=x0, y0=y0, badpix=badpix,
+                                                         er_interp=er_interp, grid=True)
                 pa_mpf = pa_grid[np.argmin(chi2_grid)]
                 q_mpf = q_grid[np.argmin(chi2_grid)]
-               
 
-            #Perform least-squares minimization of the harmonic coefficients
-            #starting from the best values of the global minimization.
-	        #In case of the EVEN moment minimize a1,b1,a2,b2. In case of 
-	        #the ODD moment minimize a1,a3,b3.
+            # Perform least-squares minimization of the harmonic coefficients
+            # starting from the best values of the global minimization.
+            # In case of the EVEN moment minimize a1,b1,a2,b2. In case of
+            # the ODD moment minimize a1,a3,b3.
             if img is not None:
                 if even:
                     if fixcen:
                         par = np.array([pa_mpf, q_mpf])
-                        fa = {'nterms':4, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment, 'interp':interp, 'even':True, 'img':img, 'x0':x0, 'y0':y0, 'badpix':badpix, 'er_interp':er_interp, 'mpf':True}
-                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1) 
+                        fa = {'nterms': 4, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'interp': interp,
+                              'even': True, 'img': img, 'x0': x0, 'y0': y0, 'badpix': badpix, 'er_interp': er_interp,
+                              'mpf': True}
+                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
                         PA_min = sol.params[0]
                         q_min = sol.params[1]
                         x0s = x0
                         y0s = y0
                         er_PA_min = sol.perror[0]
-                        er_q_min  = sol.perror[1] 
+                        er_q_min = sol.perror[1]
                         er_x0s = 0
                         er_y0s = 0
-                    else: #fixcen
+                    else:  # fixcen
                         par = np.array([pa_mpf, q_mpf, x0, y0])
-                        fa = {'nterms':4, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment, 'interp':interp, 'even':True, 'img':img, 'x0':x0, 'y0':y0, 'badpix':badpix, 'er_interp':er_interp, 'mpf':True}
+                        fa = {'nterms': 4, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'interp': interp,
+                              'even': True, 'img': img, 'x0': x0, 'y0': y0, 'badpix': badpix, 'er_interp': er_interp,
+                              'mpf': True}
                         sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
                         PA_min = sol.params[0]
                         q_min = sol.params[1]
                         x0s = sol.params[2]
                         y0s = sol.params[3]
-                        er_PA_min = sol.perror[0] 
-                        er_q_min  = sol.perror[1] 
+                        er_PA_min = sol.perror[0]
+                        er_q_min = sol.perror[1]
                         er_x0s = sol.perror[2]
                         er_y0s = sol.perror[3]
-                else:#
+                else:  #
                     if fixcen:
-                        if q_mpf<0.2:
-                            q_mpf=0.2
+                        if q_mpf < 0.2:
+                            q_mpf = 0.2
                         par = np.array([pa_mpf, q_mpf])
-                        fa = {'nterms':4, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment, 'interp':interp, 'even':even, 'img':img, 'x0':x0, 'y0':y0, 'er_interp':er_interp, 'mpf':True}
-                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1) 
+                        fa = {'nterms': 4, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'interp': interp,
+                              'even': even, 'img': img, 'x0': x0, 'y0': y0, 'er_interp': er_interp, 'mpf': True}
+                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
                         PA_min = sol.params[0]
                         q_min = sol.params[1]
                         x0s = x0
                         y0s = y0
-                        er_PA_min = sol.perror[0] 
-                        er_q_min  = sol.perror[1] 
+                        er_PA_min = sol.perror[0]
+                        er_q_min = sol.perror[1]
                         er_x0s = 0
                         er_y0s = 0
-                    else: #fixcen
-                        if q_mpf<0.2:
-                            q_mpf=0.2
+                    else:  # fixcen
+                        if q_mpf < 0.2:
+                            q_mpf = 0.2
                         par = np.array([pa_mpf, q_mpf, x0, y0])
-                        fa = {'nterms':6, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment, 'interp':interp, 'even':even, 'img':img, 'x0':x0, 'y0':y0, 'er_interp':er_interp, 'mpf':True, 'fixcen':False, 'allterms':True}
-                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1) 
+                        fa = {'nterms': 6, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'interp': interp,
+                              'even': even, 'img': img, 'x0': x0, 'y0': y0, 'er_interp': er_interp, 'mpf': True,
+                              'fixcen': False, 'allterms': True}
+                        sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
                         PA_min = sol.params[0]
                         q_min = sol.params[1]
                         x0s = sol.params[2]
                         y0s = sol.params[3]
-                        er_PA_min = sol.perror[0] 
-                        er_q_min  = sol.perror[1] 
+                        er_PA_min = sol.perror[0]
+                        er_q_min = sol.perror[1]
                         er_x0s = sol.perror[2]
-                        er_y0s = sol.perror[3]                    
-            else: #img
+                        er_y0s = sol.perror[3]
+            else:  # img
                 if fixcen:
                     par = np.array([pa_mpf, q_mpf])
-                    fa = {'nterms':4, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment,'x0':x0, 'y0':y0, 'interp':interp, 'er_interp':er_interp, 'mpf':True, 'even':even}
-                    sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1) 
+                    fa = {'nterms': 4, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'x0': x0, 'y0': y0,
+                          'interp': interp, 'er_interp': er_interp, 'mpf': True, 'even': even}
+                    sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
                     PA_min = sol.params[0]
                     q_min = sol.params[1]
                     x0s = x0
                     y0s = y0
-                    er_PA_min = sol.perror[0] 
-                    er_q_min  = sol.perror[1] 
+                    er_PA_min = sol.perror[0]
+                    er_q_min = sol.perror[1]
                     er_x0s = 0
-                    er_y0s = 0                    
+                    er_y0s = 0
                 else:
                     par = np.array([pa_mpf, q_mpf, x0, y0])
-                    fa = {'nterms':6, 'r':rad[i], 'xbar':xbar, 'ybar':ybar, 'moment':moment, 'interp':interp, 'er_interp':er_interp, 'x0':x0, 'y0':y0, 'mpf':True, 'even':even, 'fixcen':False, 'allterms':True}
-                    #pdb.set_trace() 
-                    sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1) 
-                    #pdb.set_trace() 
+                    fa = {'nterms': 6, 'r': rad[i], 'xbar': xbar, 'ybar': ybar, 'moment': moment, 'interp': interp,
+                          'er_interp': er_interp, 'x0': x0, 'y0': y0, 'mpf': True, 'even': even, 'fixcen': False,
+                          'allterms': True}
+                    # pdb.set_trace()
+                    sol = mpfit(kinem_fitfunc_ellipse, par, parinfo=parinfo, functkw=fa, quiet=1)
+                    # pdb.set_trace()
                     PA_min = sol.params[0]
-                    q_min = sol.params[1]                   
+                    q_min = sol.params[1]
                     x0s = sol.params[2]
                     y0s = sol.params[3]
-                    er_PA_min = sol.perror[0] 
-                    er_q_min  = sol.perror[1] 
+                    er_PA_min = sol.perror[0]
+                    er_q_min = sol.perror[1]
                     er_x0s = sol.perror[2]
                     er_y0s = sol.perror[3]
-        else: # PA and Q are set to fixed values: skip all minimization
+        else:  # PA and Q are set to fixed values: skip all minimization
             #
             # check if PAQ is an array of (nrad*2) values or has just 2 values
-	        # 
+            #
             if paq.shape[0] > 2:
                 PA_min = paq[k]
-                q_min = paq[k+1]
-                k = k+2
+                q_min = paq[k + 1]
+                k = k + 2
             else:
-               PA_min = paq[0]
-               q_min = paq[1]
-               
+                PA_min = paq[0]
+                q_min = paq[1]
+
             x0s = x0
             y0s = y0
             er_x0s = 0.
             er_y0s = 0.
             er_PA_min = 0.
-            er_q_min =0.
-                 
-            
+            er_q_min = 0.
+
         if (img is not None) & even:
-            coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff = kinem_fitfunc_ellipse(np.array([PA_min, q_min, x0s,y0s]), 
-                                                                                 nterms=ntrm, r=rad[i], xbar=xbar, ybar=ybar, moment=moment, interp=interp,
-                                                                                 even=True, allterms=True, img=img, x0=x0, y0=y0, badpix=badpix,
-                                                                                 er_interp=er_interp)
+            coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff = kinem_fitfunc_ellipse(
+                np.array([PA_min, q_min, x0s, y0s]),
+                nterms=ntrm, r=rad[i], xbar=xbar, ybar=ybar, moment=moment, interp=interp,
+                even=True, allterms=True, img=img, x0=x0, y0=y0, badpix=badpix,
+                er_interp=er_interp)
         else:
-            coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff, = kinem_fitfunc_ellipse(np.array([PA_min, q_min, x0s,y0s]), 
-                                                                                 nterms=ntrm, r=rad[i], xbar=xbar, ybar=ybar, moment=moment, interp=interp,
-                                                                                 even=even, allterms=allterms, img=None, x0=x0, y0=y0, vsys=vsys,
-                                                                                 er_interp=er_interp)    
-    
-    
-        
-        #Stops the fit when there are less than 3/4 of the pixels sampled
-        #along the best fitting ellipse. Use COVER keyword to relax this 
-        #condition (e.g. when also setting PAQ). In case of IMG keyword
-        #stop when lenght of the ellipse semi-major axis is 10% larger than 
-        #the larger side of the image. Stop also if keyword sky is set and the
-        #intensity is 0.5xSKY.
-                
-        if w[0].size < xell.size*cover:
+            coeff, xell, yell, theta, momEll, er_momEll, momFit, momFitExtr, w, er_coeff, = kinem_fitfunc_ellipse(
+                np.array([PA_min, q_min, x0s, y0s]),
+                nterms=ntrm, r=rad[i], xbar=xbar, ybar=ybar, moment=moment, interp=interp,
+                even=even, allterms=allterms, img=None, x0=x0, y0=y0, vsys=vsys,
+                er_interp=er_interp)
+
+            # Stops the fit when there are less than 3/4 of the pixels sampled
+        # along the best fitting ellipse. Use COVER keyword to relax this
+        # condition (e.g. when also setting PAQ). In case of IMG keyword
+        # stop when lenght of the ellipse semi-major axis is 10% larger than
+        # the larger side of the image. Stop also if keyword sky is set and the
+        # intensity is 0.5xSKY.
+
+        if w[0].size < xell.size * cover:
             print('cover fraction limit reached')
             break
         if sky is not None:
             if coeff[0] < sky:
                 print('sky limit reached')
                 break
-        if (img is not None) and (radius is None): 
-            if rad[i] > mx_img/2 +mx_img*0.1:
+        if (img is not None) and (radius is None):
+            if rad[i] > mx_img / 2 + mx_img * 0.1:
                 print('edge of the image reached')
                 break
-    
+
         if verbose:
             if i == 0:
-            	print('       Radius,    RAD,   PA,     Q,    Xcen[pix],  Ycen[pix],   num. of ellipse elements')
-            	f = open(output_file + "/kinemetry_outputs.txt","w")
-            	f.write('       Radius,    RAD,   PA,     Q,    Xcen[pix],  Ycen[pix],   num. of ellipse elements\n')
-            	f.close()
-            print('%3i %11s %5.2f %7.2f %7.3f %7.1f %7.1f %3i' % (i, '-th radius  ', rad[i]*scale, PA_min, q_min, x0s,y0s, w[0].size )   )
-            f = open(output_file + "/kinemetry_outputs.txt","a")
-            f.write('%3i %11s %5.2f %7.2f %7.3f %7.1f %7.1f %3i\n' % (i, '-th radius  ', rad[i]*scale, PA_min, q_min, x0s,y0s, w[0].size )   )
+                print('       Radius,    RAD,   PA,     Q,    Xcen[pix],  Ycen[pix],   num. of ellipse elements')
+                f = open(output_file + "/kinemetry_outputs.txt", "w")
+                f.write('       Radius,    RAD,   PA,     Q,    Xcen[pix],  Ycen[pix],   num. of ellipse elements\n')
+                f.close()
+            print('%3i %11s %5.2f %7.2f %7.3f %7.1f %7.1f %3i' % (
+            i, '-th radius  ', rad[i] * scale, PA_min, q_min, x0s, y0s, w[0].size))
+            f = open(output_file + "/kinemetry_outputs.txt", "a")
+            f.write('%3i %11s %5.2f %7.2f %7.3f %7.1f %7.1f %3i\n' % (
+            i, '-th radius  ', rad[i] * scale, PA_min, q_min, x0s, y0s, w[0].size))
             f.close()
         # assining vsys to zeroth term
         if vsys is not None:
-            coeff[0] = vsys 
+            coeff[0] = vsys
             er_coeff[0] = 0.
-   
 
         pa[i] = PA_min
         q[i] = q_min
-        cf[i,:] = coeff
+        cf[i, :] = coeff
 
-        er_cf[i,:] = er_coeff
+        er_cf[i, :] = er_coeff
         er_pa[i] = er_PA_min
         er_q[i] = er_q_min
-        
+
         xc[i] = x0s
         yc[i] = y0s
         er_xc[i] = er_x0s
         er_yc[i] = er_y0s
-        
+
         nelem[i] = w[0].size
-        
+
         #
         # reconstruction of moments
         #
-        xellip = np.concatenate([xellip,xell[w]])
-        yellip = np.concatenate([yellip,yell[w]])
+        xellip = np.concatenate([xellip, xell[w]])
+        yellip = np.concatenate([yellip, yell[w]])
         eccano = np.concatenate([eccano, theta[w]])
         ex_mom = np.concatenate([ex_mom, momEll])
         vrec = np.concatenate([vrec, momFit])
         if even:
-            vv = np.concatenate([vv, coeff[0]+ 0*coeff[2]*np.cos(theta[w])])
+            vv = np.concatenate([vv, coeff[0] + 0 * coeff[2] * np.cos(theta[w])])
         else:
-            vv = np.concatenate([vv, coeff[0] + coeff[2]*np.cos(theta[w])])
-               
- 
+            vv = np.concatenate([vv, coeff[0] + coeff[2] * np.cos(theta[w])])
+
         #
-        #optional plotting
+        # optional plotting
         #                     
         if plot:
             if even:
                 if img is not None:
                     plt.clf()
-                    xmin = int(round(x0s))-2*rad[i]
-                    xmax = int(round(x0s))+2*rad[i]
-                    ymin = int(round(y0s))-2*rad[i]
-                    ymax = int(round(y0s))+2*rad[i]
+                    xmin = int(round(x0s)) - 2 * rad[i]
+                    xmax = int(round(x0s)) + 2 * rad[i]
+                    ymin = int(round(y0s)) - 2 * rad[i]
+                    ymax = int(round(y0s)) + 2 * rad[i]
                     if xmax < img.shape[0] and ymax < img.shape[1]:
-                        ext=[xmin,xmax,ymin,ymax]
+                        ext = [xmin, xmax, ymin, ymax]
                     else:
-                        ext=[np.min(xbin), np.max(xbin), np.min(ybin), np.max(ybin)] 
+                        ext = [np.min(xbin), np.max(xbin), np.min(ybin), np.max(ybin)]
                     peak = img[int(round(x0s)), int(round(y0s))]
-                    levels = peak * 10**(-0.4*np.arange(0, 10, 0.5)[::-1]) # 0.5 mag/arcsec^2 steps
+                    levels = peak * 10 ** (-0.4 * np.arange(0, 10, 0.5)[::-1])  # 0.5 mag/arcsec^2 steps
 
-                    ax1 = plt.subplot(411)   
-                    ax1.imshow(np.log10(img), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='gray')          
-                    ax1.contour(np.log10(img), levels=np.log10(levels), colors='black', linewidths=1, origin='lower', extent=ext)         
-                    plt.plot(xell*scale, yell*scale, '+')
-                    ellipse = Ellipse(xy=(x0s, y0s), width=2*rad[i]*scale, height=2*rad[i]*scale*(q_min), angle=PA_min-90, edgecolor='r', fc='None', lw=2)        
-                    plt.plot(x0s+np.array([-rad[i]*scale,rad[i]*scale])*np.cos(np.radians(PA_min-90)), y0s+np.array([-rad[i]*scale,rad[i]*scale])*np.sin(np.radians(PA_min-90)), c='r', lw=2 )
+                    ax1 = plt.subplot(411)
+                    ax1.imshow(np.log10(img), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)),
+                               origin='lower', extent=ext, cmap='gray')
+                    ax1.contour(np.log10(img), levels=np.log10(levels), colors='black', linewidths=1, origin='lower',
+                                extent=ext)
+                    plt.plot(xell * scale, yell * scale, '+')
+                    ellipse = Ellipse(xy=(x0s, y0s), width=2 * rad[i] * scale, height=2 * rad[i] * scale * (q_min),
+                                      angle=PA_min - 90, edgecolor='r', fc='None', lw=2)
+                    plt.plot(x0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.cos(np.radians(PA_min - 90)),
+                             y0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.sin(np.radians(PA_min - 90)), c='r',
+                             lw=2)
                     ax1.add_patch(ellipse)
                     if name:
                         ax1.set_title(name)
-                    pr_rad = round(rad[i]*scale,2)                 
-                    
+                    pr_rad = round(rad[i] * scale, 2)
+
                     plt.subplot(412)
-#                    pdb.set_trace()  
+                    #                    pdb.set_trace()
                     if (nogrid is False):
                         plt.tricontour(pa_grid, q_grid, chi2_grid, linewidths=0.5, colors='k')
                         plt.tricontourf(pa_grid, q_grid, chi2_grid, cmap="RdBu_r")
-                    plt.plot(pa_grid, q_grid, '.', c='k', ms=1)        
+                    plt.plot(pa_grid, q_grid, '.', c='k', ms=1)
                     plt.xlabel('PA [deg]', fontweight='bold')
-                    plt.ylabel('q', fontweight='bold')     
-                    plt.title('Grid fit for radius R=' + np.str(pr_rad))           
+                    plt.ylabel('q', fontweight='bold')
+                    plt.title('Grid fit for radius R=' + np.str(pr_rad))
                     plt.tick_params(axis='both', which='both', top=True, right=True)
                     if paq is None:
                         plt.plot(pa_mpf, q_mpf, 'o', c='k')
                     plt.plot(PA_min, q_min, 'o', c='red')
 
                     plt.subplot(413)
-                    plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker = '.', ls='none', c='k')
+                    plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker='.', ls='none', c='k')
                     plt.plot(np.degrees(theta[w]), momFit, c='red', label='kinemetry fit (all terms)', zorder=10)
-                    plt.plot(np.degrees(theta[w]), coeff[0]*(theta[w]*0+1), c='blue', label=r'a$_0$')
+                    plt.plot(np.degrees(theta[w]), coeff[0] * (theta[w] * 0 + 1), c='blue', label=r'a$_0$')
                     plt.plot(np.degrees(theta), momFitExtr, c='skyblue', label='kin fit (extraplated)')
                     plt.xlabel(r'$\theta$ [degr]')
-                    plt.ylabel('moment')    
+                    plt.ylabel('moment')
                     plt.tick_params(axis='both', which='both', top=True, right=True)
-                
+
                     plt.subplot(414)
-                    plt.errorbar(np.degrees(theta[w]), momEll - coeff[0]*(theta[w]*0+1), yerr=er_momEll, marker='.', ls='none', c='k')
-                    plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[2]*np.cos(theta[w]) + coeff[3]*np.sin(2*theta[w]) + coeff[4]*np.cos(2*theta[w]), c='red',label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta)$')
-                    plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[2]*np.cos(theta[w]) + coeff[3]*np.sin(2*theta[w]) + coeff[4]*np.cos(2*theta[w])  + coeff[7]*np.sin(4*theta[w]) + coeff[8]*np.cos(4*theta[w]), c='green',label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta) + a_4\sin(4\theta)+b_4\cos(4\theta)$')
+                    plt.errorbar(np.degrees(theta[w]), momEll - coeff[0] * (theta[w] * 0 + 1), yerr=er_momEll,
+                                 marker='.', ls='none', c='k')
+                    plt.plot(np.degrees(theta[w]),
+                             coeff[1] * np.sin(theta[w]) + coeff[2] * np.cos(theta[w]) + coeff[3] * np.sin(
+                                 2 * theta[w]) + coeff[4] * np.cos(2 * theta[w]), c='red',
+                             label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta)$')
+                    plt.plot(np.degrees(theta[w]),
+                             coeff[1] * np.sin(theta[w]) + coeff[2] * np.cos(theta[w]) + coeff[3] * np.sin(
+                                 2 * theta[w]) + coeff[4] * np.cos(2 * theta[w]) + coeff[7] * np.sin(4 * theta[w]) +
+                             coeff[8] * np.cos(4 * theta[w]), c='green',
+                             label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta) + a_4\sin(4\theta)+b_4\cos(4\theta)$')
                     plt.xlabel(r'$\theta$ [degr]')
-                    plt.ylabel('moment - a$_0$')    
+                    plt.ylabel('moment - a$_0$')
                     plt.tick_params(axis='both', which='both', top=True, right=True)
 
                     plt.tight_layout()
                     plt.pause(0.01)
-                    
+
                 else:
                     plt.clf()
                     ax1 = plt.subplot(411)
                     plot_velfield(xbin, ybin, moment, colorbar=True, label='km/s', nodots=True)
-                    plt.plot(xell*scale, yell*scale, '+')
-                    ellipse = Ellipse(xy=(x0s, y0s), width=2*rad[i]*scale, height=2*rad[i]*scale*(q_min), angle=PA_min-90, edgecolor='r', fc='None', lw=2)        
-                    plt.plot(x0s+np.array([-rad[i]*scale,rad[i]*scale])*np.cos(np.radians(PA_min-90)), y0s+np.array([-rad[i]*scale,rad[i]*scale])*np.sin(np.radians(PA_min-90)), c='r', lw=2 )
+                    plt.plot(xell * scale, yell * scale, '+')
+                    ellipse = Ellipse(xy=(x0s, y0s), width=2 * rad[i] * scale, height=2 * rad[i] * scale * (q_min),
+                                      angle=PA_min - 90, edgecolor='r', fc='None', lw=2)
+                    plt.plot(x0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.cos(np.radians(PA_min - 90)),
+                             y0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.sin(np.radians(PA_min - 90)), c='r',
+                             lw=2)
                     ax1.add_patch(ellipse)
                     if name:
-                        ax1.set_title(name)     
-                    
-                    pr_rad = round(rad[i]*scale,2)
+                        ax1.set_title(name)
+
+                    pr_rad = round(rad[i] * scale, 2)
 
                     plt.subplot(412)
-                    if paq is None: 
+                    if paq is None:
                         plt.tricontour(pa_grid, q_grid, chi2_grid, linewidths=0.5, colors='k')
                         plt.tricontourf(pa_grid, q_grid, chi2_grid, cmap="RdBu_r")
-                    plt.plot(pa_grid, q_grid, '.', c='k', ms=1)        
+                    plt.plot(pa_grid, q_grid, '.', c='k', ms=1)
                     plt.xlabel('PA [deg]', fontweight='bold')
-                    plt.ylabel('q', fontweight='bold')     
-                    plt.title('Grid fit for radius=' + np.str(pr_rad))           
+                    plt.ylabel('q', fontweight='bold')
+                    plt.title('Grid fit for radius=' + np.str(pr_rad))
                     plt.tick_params(axis='both', which='both', top=True, right=True)
                     if paq is None:
                         plt.plot(pa_mpf, q_mpf, 'o', c='k')
                     plt.plot(PA_min, q_min, 'o', c='red')
 
-
                     plt.subplot(413)
-                    plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker = '.', ls='none', c='k')
+                    plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker='.', ls='none', c='k')
                     plt.plot(np.degrees(theta[w]), momFit, c='red', label='kinemetry fit (all terms)', zorder=10)
-                    plt.plot(np.degrees(theta[w]), coeff[0]*(theta[w]*0+1), c='blue', label=r'a$_0$')
+                    plt.plot(np.degrees(theta[w]), coeff[0] * (theta[w] * 0 + 1), c='blue', label=r'a$_0$')
                     plt.plot(np.degrees(theta), momFitExtr, c='skyblue', label='kin fit (extraplated)')
                     plt.xlabel(r'$\theta$ [degr]')
-                    plt.ylabel('moment')    
+                    plt.ylabel('moment')
                     plt.tick_params(axis='both', which='both', top=True, right=True)
                     plt.legend(loc='best')
-                    
+
                     plt.subplot(414)
-                    plt.errorbar(np.degrees(theta[w]), momEll - coeff[0]*(theta[w]*0+1), yerr=er_momEll, marker='.', ls='none', c='k')
-                    plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[2]*np.cos(theta[w]) + coeff[3]*np.sin(2*theta[w]) + coeff[4]*np.cos(2*theta[w]), c='red', label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta)$')
-                    plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[2]*np.cos(theta[w]) + coeff[3]*np.sin(2*theta[w]) + coeff[4]*np.cos(2*theta[w])  + coeff[7]*np.sin(4*theta[w]) + coeff[8]*np.cos(4*theta[w]), c='green',label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta) + a_4\sin(4\theta)+b_4\cos(4\theta)$')
-#                    plt.plot(np.degrees(theta), momFitExtr, c='blue')
+                    plt.errorbar(np.degrees(theta[w]), momEll - coeff[0] * (theta[w] * 0 + 1), yerr=er_momEll,
+                                 marker='.', ls='none', c='k')
+                    plt.plot(np.degrees(theta[w]),
+                             coeff[1] * np.sin(theta[w]) + coeff[2] * np.cos(theta[w]) + coeff[3] * np.sin(
+                                 2 * theta[w]) + coeff[4] * np.cos(2 * theta[w]), c='red',
+                             label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta)$')
+                    plt.plot(np.degrees(theta[w]),
+                             coeff[1] * np.sin(theta[w]) + coeff[2] * np.cos(theta[w]) + coeff[3] * np.sin(
+                                 2 * theta[w]) + coeff[4] * np.cos(2 * theta[w]) + coeff[7] * np.sin(4 * theta[w]) +
+                             coeff[8] * np.cos(4 * theta[w]), c='green',
+                             label=r'$a_\sin(\theta)+b_1\cos(\theta)+a_2\sin(2\theta)+b_2\cos(2\theta) + a_4\sin(4\theta)+b_4\cos(4\theta)$')
+                    #                    plt.plot(np.degrees(theta), momFitExtr, c='blue')
                     plt.xlabel(r'$\theta$ [degr]')
-                    plt.ylabel('moment - a$_0$')    
+                    plt.ylabel('moment - a$_0$')
                     plt.tick_params(axis='both', which='both', top=True, right=True)
                     plt.legend(loc='best')
                     plt.tight_layout()
@@ -1341,168 +1367,175 @@ def kinemetry(xbin=None, ybin=None, moment=None, img=None, x0=0., y0=0.,
                 plt.clf()
                 ax1 = plt.subplot(411)
                 plot_velfield(xbin, ybin, moment, colorbar=True, label='km/s', nodots=True)
-                plt.plot(xell*scale, yell*scale, '+')
-                ellipse = Ellipse(xy=(x0s, y0s), width=2*rad[i]*scale, height=2*rad[i]*scale*(q_min), angle=PA_min-90, edgecolor='r', fc='None', lw=2)        
-                plt.plot(x0s+np.array([-rad[i]*scale,rad[i]*scale])*np.cos(np.radians(PA_min-90)), y0s+np.array([-rad[i]*scale,rad[i]*scale])*np.sin(np.radians(PA_min-90)), c='r', lw=2 )
+                plt.plot(xell * scale, yell * scale, '+')
+                ellipse = Ellipse(xy=(x0s, y0s), width=2 * rad[i] * scale, height=2 * rad[i] * scale * (q_min),
+                                  angle=PA_min - 90, edgecolor='r', fc='None', lw=2)
+                plt.plot(x0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.cos(np.radians(PA_min - 90)),
+                         y0s + np.array([-rad[i] * scale, rad[i] * scale]) * np.sin(np.radians(PA_min - 90)), c='r',
+                         lw=2)
                 ax1.add_patch(ellipse)
-                if name: 
+                if name:
                     ax1.set_title(name)
-                
-                pr_rad = round(rad[i]*scale,2)
+
+                pr_rad = round(rad[i] * scale, 2)
 
                 plt.subplot(412)
                 if paq is None:
                     plt.tricontour(pa_grid, q_grid, chi2_grid, linewidths=0.5, colors='k')
                     plt.tricontourf(pa_grid, q_grid, chi2_grid, cmap="RdBu_r")
-                plt.plot(pa_grid, q_grid, '.', c='k', ms=1)        
+                plt.plot(pa_grid, q_grid, '.', c='k', ms=1)
                 plt.xlabel('PA [deg]', fontweight='bold')
-                plt.ylabel('q', fontweight='bold')     
-                plt.title('Grid fit for radius R=' + np.str(pr_rad))           
+                plt.ylabel('q', fontweight='bold')
+                plt.title('Grid fit for radius R=' + np.str(pr_rad))
                 plt.tick_params(axis='both', which='both', top=True, right=True)
                 if paq is None:
                     plt.plot(pa_mpf, q_mpf, 'o', c='k')
                 plt.plot(PA_min, q_min, 'o', c='red')
 
-
                 plt.subplot(413)
-                plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker = '.', ls='none', c='k')
+                plt.errorbar(np.degrees(theta[w]), momEll, yerr=er_momEll, marker='.', ls='none', c='k')
                 plt.plot(np.degrees(theta[w]), momFit, c='red', label='kinemetry fit (all terms)', zorder=10)
-                plt.plot(np.degrees(theta[w]), coeff[0]+coeff[2]*np.cos(theta[w]), c='blue', label=r'$a_0+b_1 \cos(\theta)$')
+                plt.plot(np.degrees(theta[w]), coeff[0] + coeff[2] * np.cos(theta[w]), c='blue',
+                         label=r'$a_0+b_1 \cos(\theta)$')
                 plt.plot(np.degrees(theta), momFitExtr, c='skyblue', label='kin fit (extrapolated)')
                 plt.xlabel(r'$\theta$ [degr]')
-                plt.ylabel(r'velocity V')    
+                plt.ylabel(r'velocity V')
                 plt.tick_params(axis='both', which='both', top=True, right=True)
                 plt.legend(loc='best')
-                
+
                 plt.subplot(414)
-                plt.errorbar(np.degrees(theta[w]), momEll - coeff[0]-coeff[2]*np.cos(theta[w]), yerr=er_momEll, marker='.', ls='none', c='k')
-                plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[3]*np.sin(3*theta[w]) + coeff[4]*np.cos(3*theta[w]), c='red', label=r'$a_1 \sin(\theta) + a_3 \sin(\theta) + b_3 \cos(\theta)$')
-                plt.plot(np.degrees(theta[w]), coeff[1]*np.sin(theta[w]) + coeff[3]*np.sin(3*theta[w]) + coeff[4]*np.cos(3*theta[w])  + coeff[5]*np.sin(5*theta[w]) + coeff[6]*np.cos(5*theta[w]), c='green', label=r'$a_1 \sin(\theta) + a_3 \sin(3\theta) + b_3 \cos(3\theta)+ a_5 \sin(5\theta) + b_5 \cos(5\theta)$')
+                plt.errorbar(np.degrees(theta[w]), momEll - coeff[0] - coeff[2] * np.cos(theta[w]), yerr=er_momEll,
+                             marker='.', ls='none', c='k')
+                plt.plot(np.degrees(theta[w]),
+                         coeff[1] * np.sin(theta[w]) + coeff[3] * np.sin(3 * theta[w]) + coeff[4] * np.cos(
+                             3 * theta[w]), c='red', label=r'$a_1 \sin(\theta) + a_3 \sin(\theta) + b_3 \cos(\theta)$')
+                plt.plot(np.degrees(theta[w]),
+                         coeff[1] * np.sin(theta[w]) + coeff[3] * np.sin(3 * theta[w]) + coeff[4] * np.cos(
+                             3 * theta[w]) + coeff[5] * np.sin(5 * theta[w]) + coeff[6] * np.cos(5 * theta[w]),
+                         c='green',
+                         label=r'$a_1 \sin(\theta) + a_3 \sin(3\theta) + b_3 \cos(3\theta)+ a_5 \sin(5\theta) + b_5 \cos(5\theta)$')
                 plt.xlabel(r'$\theta$ [degr]')
-                plt.ylabel(r'$V - V_{sys}-V_{rot}(R)\cos(\theta)$')    
+                plt.ylabel(r'$V - V_{sys}-V_{rot}(R)\cos(\theta)$')
                 plt.tick_params(axis='both', which='both', top=True, right=True)
                 plt.legend(loc='best')
-                
-                plt.savefig(fname = output_file + "/" + str(i) +".png")
+
+                plt.savefig(fname=output_file + "/" + str(i) + ".png")
                 plt.tight_layout()
                 plt.pause(0.01)
-    
-    #END OF MAIN LOOP
+
+    # END OF MAIN LOOP
     #
     # Final outputs (back to physical scale (arcsec))
     #
-    wz = np.where(q != 0) # remove unused array elements
- 
-    xellip=xellip*scale
-    yellip=yellip*scale
+    wz = np.where(q != 0)  # remove unused array elements
 
-    rad   = rad[wz]*scale
-    pa    = pa[wz]
-    q     = q[wz]
-    cf    = cf[wz[0],:]
-    er_cf = er_cf[wz[0],:]
+    xellip = xellip * scale
+    yellip = yellip * scale
+
+    rad = rad[wz] * scale
+    pa = pa[wz]
+    q = q[wz]
+    cf = cf[wz[0], :]
+    er_cf = er_cf[wz[0], :]
     er_pa = er_pa[wz]
-    er_q  = er_q[wz]
-    er_xc = er_xc[wz]*scale
-    er_yc = er_yc[wz]*scale
-    xc = xc[wz]*scale
-    yc = yc[wz]*scale
- 
-    #exclude the central pixel in the ring case
+    er_q = er_q[wz]
+    er_xc = er_xc[wz] * scale
+    er_yc = er_yc[wz] * scale
+    xc = xc[wz] * scale
+    yc = yc[wz] * scale
+
+    # exclude the central pixel in the ring case
     if ring is not None:
-        xellip=xellip[1:]
-        yellip=yellip[1:]
+        xellip = xellip[1:]
+        yellip = yellip[1:]
         vv = vv[1:]
         vrec = vrec[1:]
         eccano = eccano[1:]
         ex_mom = ex_mom[1:]
 
-
-
-#
-# calculation of the circular velocity (not for the photometry mode): 
-# (VELCIRC and VELKIN are calculated above before plotting and final outputs)
-#   - fixed PA and q
-#   - using only cf[*,2] terms (cosine terms)
-#   - xellipF and yellipF are new ellipes along which gascirc is calculated
-#     Each ellipse has 100 points - they are different from xellip,yellip
-#
-    qfix=np.median(q[1:-1])
-    PAfix=np.radians(np.median(pa[1:-1]))
+    #
+    # calculation of the circular velocity (not for the photometry mode):
+    # (VELCIRC and VELKIN are calculated above before plotting and final outputs)
+    #   - fixed PA and q
+    #   - using only cf[*,2] terms (cosine terms)
+    #   - xellipF and yellipF are new ellipes along which gascirc is calculated
+    #     Each ellipse has 100 points - they are different from xellip,yellip
+    #
+    qfix = np.median(q[1:-1])
+    PAfix = np.radians(np.median(pa[1:-1]))
     xellipF = np.array([])
     yellipF = np.array([])
-    vvF=np.array([])
+    vvF = np.array([])
     for i in range(rad.size):
-        theta = kin_range(0.0,2.0*np.pi,100) 
-        xF = rad[i]*np.cos(theta)
-        yF = rad[i]*np.sin(theta)*qfix
-        xEllF = xF*np.cos(PAfix) - yF*np.sin(PAfix) + x0s
-        yEllF = xF*np.sin(PAfix) + yF*np.cos(PAfix) + y0s
-        xellipF = np.concatenate([xellipF,xEllF])
-        yellipF = np.concatenate([yellipF,yEllF])
-        vvF = np.concatenate([vvF, cf[i,2]*np.cos(theta)])
+        theta = kin_range(0.0, 2.0 * np.pi, 100)
+        xF = rad[i] * np.cos(theta)
+        yF = rad[i] * np.sin(theta) * qfix
+        xEllF = xF * np.cos(PAfix) - yF * np.sin(PAfix) + x0s
+        yEllF = xF * np.sin(PAfix) + yF * np.cos(PAfix) + y0s
+        xellipF = np.concatenate([xellipF, xEllF])
+        yellipF = np.concatenate([yellipF, yEllF])
+        vvF = np.concatenate([vvF, cf[i, 2] * np.cos(theta)])
 
     #
     # reconstruction of kinematic moment maps
     #
     if bmodel is True:
-        if img is not None: 
-#            xout=np.arange(img.shape[0])
-#            yout=np.arange(img.shape[1])
-#            velcirc = griddata((xellip, yellip), vv, (xout[None,:], yout[:,None]), method='linear')
-#            velkin = griddata((xellip, yellip), vrec, (xout[None,:], yout[:,None]), method='linear')
-#            gascirc = griddata((xellipF, yellipF), vvF, (xout[None,:], yout[:,None]), method='linear')
-            velcirc = griddata((xellip, yellip), vv, (xx,yy), method='linear')
-            velkin = griddata((xellip, yellip), vrec, (xx,yy), method='linear')
-            gascirc = griddata((xellipF, yellipF), vvF, (xx,yy), method='linear')
-            
-        else: 
-           velcirc = kinem_trigrid_irregular(xellip, yellip, vv, xbin, ybin, missing=123456789)   # circular velocity 
-           velkin = kinem_trigrid_irregular(xellip, yellip, vrec, xbin, ybin, missing=123456789)  # full kinemetry reconstruction 
-           gascirc = kinem_trigrid_irregular(xellipF, yellipF, vvF, xbin, ybin, missing=123456789)# "gas circular velocity", same as velcirc, but for fixed Pa and Q
+        if img is not None:
+            #            xout=np.arange(img.shape[0])
+            #            yout=np.arange(img.shape[1])
+            #            velcirc = griddata((xellip, yellip), vv, (xout[None,:], yout[:,None]), method='linear')
+            #            velkin = griddata((xellip, yellip), vrec, (xout[None,:], yout[:,None]), method='linear')
+            #            gascirc = griddata((xellipF, yellipF), vvF, (xout[None,:], yout[:,None]), method='linear')
+            velcirc = griddata((xellip, yellip), vv, (xx, yy), method='linear')
+            velkin = griddata((xellip, yellip), vrec, (xx, yy), method='linear')
+            gascirc = griddata((xellipF, yellipF), vvF, (xx, yy), method='linear')
+
+        else:
+            velcirc = kinem_trigrid_irregular(xellip, yellip, vv, xbin, ybin, missing=123456789)  # circular velocity
+            velkin = kinem_trigrid_irregular(xellip, yellip, vrec, xbin, ybin,
+                                             missing=123456789)  # full kinemetry reconstruction
+            gascirc = kinem_trigrid_irregular(xellipF, yellipF, vvF, xbin, ybin,
+                                              missing=123456789)  # "gas circular velocity", same as velcirc, but for fixed Pa and Q
     else:
         velcirc = vv
         velkin = vrec
-        gascirc = vvF # disabled as its ellipse (xellipF, yellipF) parameters are not the same the main outouts (xellip, yellip)
-        
-    #==========================================================================
-    #adding relevant arrays into structure
-    #==========================================================================
-    results.rad = rad           # radii for kinemetric analysis
-    results.pa = pa             # ellipse position angle
-    results.q  = q              # ellipse flattening
-    results.cf = cf             # harmonic expansion terms
-    results.xc = xc             # x centre
-    results.yc = yc             # y centre
-    results.er_cf = er_cf       # errors on harmonic expansion terms
-    results.er_q  = er_q        # error on ellipse flattening
-    results.er_pa = er_pa       # error on ellipse position angle
-    results.er_xc = er_xc       # error on the centre location
-    results.er_yc = er_yc       # error on the centre location
-    results.velcirc = velcirc   # reconstructed "circular velocity" (a0 + b1*cos(theta)) map (for xbin and ybin of the input map)
-    results.velkin = velkin     # reconstructed kinemetry map using nterms (for xbin and ybin of the input map)
-    results.gascirc = gascirc   # reconstructed "gas" circular velocity (b1*cos(theta) map when PA and Q are fixed (for xbin and ybin of the input map)
-    results.vsys = vsys         # systemic velocity (a0 term)
-    results.Xellip = xellip     # x- coordiantes of the best fitting ellipses 
-    results.Yellip = yellip     # y- coordiantes of the best ellipses
-    results.XellipC = xellipF   # x- coordiantes of the ellipses with fixed PA and Q, used for gascirc 
-    results.YellipC = yellipF   # y- coordiantes of the ellipses with fixed PA and Q, used for gascirc 
-    results.eccano = eccano     # eccentric anomaly of the best ellipses
-    results.ex_mom = ex_mom     # extracted "data" along the best fit ellispes
-    results.Nelem = nelem       # number of eccentric anomaly points for each extracted ellipse
-    results.vv = vv             # circular velocity along the best fitting ellipse 
-    results.vrec = vrec         # full kinemetry reconstruction along the best fitting ellipse 
-    results.vvF  = vvF          # "gas" circular velocity along the ellipse
+        gascirc = vvF  # disabled as its ellipse (xellipF, yellipF) parameters are not the same the main outouts (xellip, yellip)
+
+    # ==========================================================================
+    # adding relevant arrays into structure
+    # ==========================================================================
+    results.rad = rad  # radii for kinemetric analysis
+    results.pa = pa  # ellipse position angle
+    results.q = q  # ellipse flattening
+    results.cf = cf  # harmonic expansion terms
+    results.xc = xc  # x centre
+    results.yc = yc  # y centre
+    results.er_cf = er_cf  # errors on harmonic expansion terms
+    results.er_q = er_q  # error on ellipse flattening
+    results.er_pa = er_pa  # error on ellipse position angle
+    results.er_xc = er_xc  # error on the centre location
+    results.er_yc = er_yc  # error on the centre location
+    results.velcirc = velcirc  # reconstructed "circular velocity" (a0 + b1*cos(theta)) map (for xbin and ybin of the input map)
+    results.velkin = velkin  # reconstructed kinemetry map using nterms (for xbin and ybin of the input map)
+    results.gascirc = gascirc  # reconstructed "gas" circular velocity (b1*cos(theta) map when PA and Q are fixed (for xbin and ybin of the input map)
+    results.vsys = vsys  # systemic velocity (a0 term)
+    results.Xellip = xellip  # x- coordiantes of the best fitting ellipses
+    results.Yellip = yellip  # y- coordiantes of the best ellipses
+    results.XellipC = xellipF  # x- coordiantes of the ellipses with fixed PA and Q, used for gascirc
+    results.YellipC = yellipF  # y- coordiantes of the ellipses with fixed PA and Q, used for gascirc
+    results.eccano = eccano  # eccentric anomaly of the best ellipses
+    results.ex_mom = ex_mom  # extracted "data" along the best fit ellispes
+    results.Nelem = nelem  # number of eccentric anomaly points for each extracted ellipse
+    results.vv = vv  # circular velocity along the best fitting ellipse
+    results.vrec = vrec  # full kinemetry reconstruction along the best fitting ellipse
+    results.vvF = vvF  # "gas" circular velocity along the ellipse
     results.er_momEll = er_momEll  # "gas" circular velocity along the ellipse
     if sky:
-        results.sky = sky       # passing the value of the sky keyword
+        results.sky = sky  # passing the value of the sky keyword
     if ring:
-        results.ring = ring     # passing the value of the ring keyword
+        results.ring = ring  # passing the value of the ring keyword
 
-#    pdb.set_trace()    
+    #    pdb.set_trace()
     return results
-    
-        
-        
- 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------

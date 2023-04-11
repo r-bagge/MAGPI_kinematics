@@ -43,6 +43,7 @@ def monte_carlo(args):
             except ValueError:
                 v_asym_gmc[h] = np.nan
         out = np.zeros(v_asym_gmc.shape)
+        out[out==0]=np.nan
         return v_asym_gmc, out
     elif catch == 2:
         v_asym_smc = np.zeros(n)
@@ -62,6 +63,7 @@ def monte_carlo(args):
             except ValueError:
                 v_asym_smc[h] = np.nan
         out = np.zeros(v_asym_smc.shape)
+        out[out == 0] = np.nan
         return out, v_asym_smc
     elif catch == 3:
         v_asym_smc = np.zeros(n)
@@ -487,5 +489,5 @@ if __name__ == '__main__':
                        "v_asym_g_err":GasAsymErr,
                        "v_asym_s":StarsAsym,
                        "v_asym_s_err":StarsAsymErr})
-    df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv",index=False)
+    df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv", index=False)
     print("All done!")
