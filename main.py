@@ -383,17 +383,19 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     return results
 
 
-results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", n_ells=5, n_re=2,SNR_Star=3, SNR_Gas=20)
-df = pd.DataFrame({"MAGPIID":results[0],
-                   "PA_g":results[1],
-                   "PA_s":results[2],
-                   "D_PA":results[3],
-                   "V_rot_g":results[4],
-                   "V_rot_s":results[5]})
-
-print(f"Final sample size is {len(results[0]):.0f}!")
-df.to_csv("MAGPI_csv/MAGPI_kinemetry_PA.csv",index=False)
-BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_PA.csv")
+# results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", n_ells=5, n_re=2,SNR_Star=3, SNR_Gas=20)
+# df = pd.DataFrame({"MAGPIID":results[0],
+#                    "PA_g":results[1],
+#                    "PA_s":results[2],
+#                    "D_PA":results[3],
+#                    "V_rot_g":results[4],
+#                    "V_rot_s":results[5]})
+# # df2 = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_PA.csv")
+# # df3 = pd.concat([df,df2], axis=1)
+#
+# print(f"Final sample size is {len(results[0]):.0f}!")
+# df.to_csv("MAGPI_csv/MAGPI_kinemetry_PA.csv",index=False)
+#BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_PA.csv")
 
 
             

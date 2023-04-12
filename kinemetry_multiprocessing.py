@@ -5,23 +5,9 @@ import os
 from kinemetry import kinemetry
 import multiprocessing
 import sys
-
-
-def clean_images(img, pa, a, b, img_err=None):
-    y0, x0 = img.shape
-    y0, x0 = y0 / 2, x0 / 2
-    pa = pa - 90
-    pa = np.radians(pa)
-    for i in range(len(img[:, 0])):
-        for j in range(len(img[0, :])):
-            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
-            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
-                img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < 3:
-                img[i, j] = np.nan
-    return img
-
+from main import MAGPI_kinemetry
+from main_old import BPT_plots
+from main import clean_images
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, k_flux_g, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, k_flux_s = args
@@ -131,7 +117,7 @@ def monte_carlo_parallel(pars):
     return mcs
 
 
-def MAGPI_kinemetry(args):
+def MAGPI_kinemetry_parrallel(args):
     galaxy, pa, q, z, r50, quality = args
     field = str(galaxy)[:4]
     n_re = 2
@@ -471,9 +457,10 @@ if __name__ == '__main__':
     GasAsymErr = []
     StarsAsym = []
     StarsAsymErr = []
+    print("Beginning the hard part...")
     for i in range(len(file)):
         pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
-        args = MAGPI_kinemetry(pars)
+        args = MAGPI_kinemetry_parrallel(pars)
         if args is None:
             continue
         mcs = monte_carlo_parallel(args)
@@ -484,10 +471,20 @@ if __name__ == '__main__':
         print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
         StarsAsym.append(np.nanmean(mcs[1]))
         StarsAsymErr.append(np.nanstd(mcs[1]))
+
+    print("Doing the easy part now...")
+    results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
+                              n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
     df = pd.DataFrame({"MAGPIID":galaxies,
                        "v_asym_g":GasAsym,
                        "v_asym_g_err":GasAsymErr,
                        "v_asym_s":StarsAsym,
-                       "v_asym_s_err":StarsAsymErr})
-    df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv", index=False)
+                       "v_asym_s_err":StarsAsymErr,
+                       "PA_g":results[1],
+                       "PA_s": results[2],
+                       "D_PA": results[3],
+                       "V_rot_g": results[4],
+                       "V_rot_s": results[5]})
+    df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
     print("All done!")
