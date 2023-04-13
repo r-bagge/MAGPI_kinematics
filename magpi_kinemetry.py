@@ -12,7 +12,7 @@ import glob
 from kinemetry import kinemetry
 import cmasher as cmr
 from dust_extinction.parameter_averages import CCM89
-from main_old import BPT_plots
+from kinemetry_plots import BPT_plots
 
 
 def clean_images(img, pa, a, b, img_err=None):
