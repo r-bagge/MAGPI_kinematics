@@ -166,20 +166,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                 pa_gs.append(pa_g)
                 pa_ss.append(pa_s)
                 d_pas.append(d_pa)
-            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8))
-            p1 = ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            #p2 = ax2.imshow(s_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            p3 = ax3.imshow(g_flux / g_flux_err)
-            #p4 = ax4.imshow(s_flux / s_flux_err)
-            for p, ax, label in zip([p1, p3], [ax1, ax2, ax3, ax4],
-                                    [r" Gas V [kms$^{-1}$]", r"Stars V [kms$^{-1}$]", r"SNR [Gas]", r"SNR [Stars]"]):
-                plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047)
-                ax.set_xlim(0, 2 * x0)
-                ax.set_ylim(0, 2 * y0)
-                ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=2 * r50[f], height=2 * r50[f]*q[f], ec="magenta", fc="none"))
-                ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=4 * r50[f], height=4 * r50[f]*q[f], ec="magenta", fc="none"))
-                ax.add_patch(Circle(xy=(5, 5), radius=0.65 / 0.2, ec="k", fc="none"))
-            plt.savefig("plots/flux_velo_plots/" + str(galaxy[f]) + "_fluxplots.pdf", bbox_inches="tight")
 
         # Stellar kinemetry
         if star_file_catch and gas_file_catch==False:
@@ -231,25 +217,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
             v_rot_g.append(np.nan)
-
-            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8))
-            # p1 = ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            p2 = ax2.imshow(s_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            #p3 = ax3.imshow(g_flux / g_flux_err)
-            p4 = ax4.imshow(s_flux)
-            for p, ax, label in zip([p2, p4], [ax1, ax2, ax3, ax4],
-                                    [r" Gas V [kms$^{-1}$]", r"Stars V [kms$^{-1}$]", r"SNR [Gas]", r"SNR [Stars]"]):
-                plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047)
-                ax.set_xlim(0, 2 * x0)
-                ax.set_ylim(0, 2 * y0)
-                ax.add_patch(
-                    Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=2 * r50[f], height=2 * r50[f] * q[f], ec="magenta",
-                            fc="none"))
-                ax.add_patch(
-                    Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=4 * r50[f], height=4 * r50[f] * q[f], ec="magenta",
-                            fc="none"))
-                ax.add_patch(Circle(xy=(5, 5), radius=0.65 / 0.2, ec="k", fc="none"))
-            plt.savefig("plots/flux_velo_plots/" + str(galaxy[f]) + "_fluxplots.pdf", bbox_inches="tight")
             
         if star_file_catch and gas_file_catch:
             starfile = fits.open(star_file)
@@ -323,24 +290,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                         pa_ss.append(pa_s)
                         d_pas.append(d_pa)
 
-                    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8))
-                    p1 = ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-                    # p2 = ax2.imshow(s_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-                    p3 = ax3.imshow(g_flux / g_flux_err)
-                    # p4 = ax4.imshow(s_flux / s_flux_err)
-                    for p, ax, label in zip([p1, p3], [ax1, ax2, ax3, ax4],
-                                            [r" Gas V [kms$^{-1}$]", r"Stars V [kms$^{-1}$]", r"SNR [Gas]",
-                                             r"SNR [Stars]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047)
-                        ax.set_xlim(0, 2 * x0)
-                        ax.set_ylim(0, 2 * y0)
-                        ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=2 * r50[f], height=2 * r50[f] * q[f],
-                                             ec="magenta", fc="none"))
-                        ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=4 * r50[f], height=4 * r50[f] * q[f],
-                                             ec="magenta", fc="none"))
-                        ax.add_patch(Circle(xy=(5, 5), radius=0.65 / 0.2, ec="k", fc="none"))
-                    plt.savefig("plots/flux_velo_plots/" + str(galaxy[f]) + "_fluxplots.pdf", bbox_inches="tight")
-
                     continue
 
             g_clip = np.nanmax(g_flux)
@@ -391,28 +340,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     d_pas.append(d_pa)
                     v_rot_g.append(np.nan)
 
-                    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8))
-                    # p1 = ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-                    p2 = ax2.imshow(s_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-                    # p3 = ax3.imshow(g_flux / g_flux_err)
-                    p4 = ax4.imshow(s_flux)
-                    for p, ax, label in zip([p2, p4], [ax1, ax2, ax3, ax4],
-                                            [r" Gas V [kms$^{-1}$]", r"Stars V [kms$^{-1}$]", r"SNR [Gas]",
-                                             r"SNR [Stars]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047)
-                        ax.set_xlim(0, 2 * x0)
-                        ax.set_ylim(0, 2 * y0)
-                        ax.add_patch(
-                            Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=2 * r50[f], height=2 * r50[f] * q[f],
-                                    ec="magenta",
-                                    fc="none"))
-                        ax.add_patch(
-                            Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=4 * r50[f], height=4 * r50[f] * q[f],
-                                    ec="magenta",
-                                    fc="none"))
-                        ax.add_patch(Circle(xy=(5, 5), radius=0.65 / 0.2, ec="k", fc="none"))
-                    plt.savefig("plots/flux_velo_plots/" + str(galaxy[f]) + "_fluxplots.pdf", bbox_inches="tight")
-
                     continue
 
             start = (0.65 / 2) / 0.2
@@ -450,21 +377,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_gs.append(pa_g)
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
-
-            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8))
-            p1 = ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            p2 = ax2.imshow(s_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
-            p3 = ax3.imshow(g_flux / g_flux_err)
-            p4 = ax4.imshow(s_flux)
-            for p, ax, label in zip([p1, p2, p3, p4], [ax1, ax2, ax3, ax4],
-                                    [r" Gas V [kms$^{-1}$]", r"Stars V [kms$^{-1}$]", r"SNR [Gas]", r"SNR [Stars]"]):
-                plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047)
-                ax.set_xlim(0, 2 * x0)
-                ax.set_ylim(0, 2 * y0)
-                ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=2 * r50[f], height=2 * r50[f]*q[f], ec="magenta", fc="none"))
-                ax.add_patch(Ellipse(xy=(x0, y0), angle=pa[f] - 90, width=4 * r50[f], height=4 * r50[f]*q[f], ec="magenta", fc="none"))
-                ax.add_patch(Circle(xy=(5, 5), radius=0.65 / 0.2, ec="k", fc="none"))
-            plt.savefig("plots/flux_velo_plots/" + str(galaxy[f]) + "_fluxplots.pdf", bbox_inches="tight")
 
     results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s]
     for ls in results:

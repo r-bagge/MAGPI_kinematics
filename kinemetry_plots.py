@@ -448,7 +448,7 @@ def clean_images(img, pa, a, b, img_err=None):
     return img
 
 
-def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas, mc=False, n=100, n_re=2):
+def stellar_gas_plots(field_name=None, cutoff=2, res_cutoff=(0.65/2)/0.2, n_ells=5, SNR_star=3, SNR_gas=20, mc=False, n=100, n_re=2):
     v_asym_ss = []
     v_asym_ss_err = []
     v_asym_gs = []
@@ -459,13 +459,16 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
     d_pas = []
     v_rot_s = []
     v_rot_g = []
-    if os.path.exists("plots/" + field_name):
-        shutil.rmtree("plots/" + field_name)
-    os.mkdir("plots/" + field_name)
-    os.mkdir("plots/" + field_name + "/flux_plots")
-    os.mkdir("plots/" + field_name + "/fits_files")
-    log_file = open("plots/" + field_name + "/" + field_name + "_log_file.txt", "w")
-    csv_file = pd.read_csv("MAGPI_Emission_Lines/" + field_name + "/" + field_name + "_source_catalogue.csv",
+    # if os.path.exists("plots/" + field_name):
+    #     shutil.rmtree("plots/" + field_name)
+    # os.mkdir("plots/" + field_name)
+    # os.mkdir("plots/" + field_name + "/flux_plots")
+    # os.mkdir("plots/" + field_name + "/fits_files")
+    if field_name==None:
+        log_file = open("plots/_log_file.txt", "w")
+    else:
+        log_file = open("plots/" + field_name + "/" + field_name + "_log_file.txt", "w")
+    csv_file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",
                            skiprows=16)
     z = csv_file["z"].to_numpy()
     r50 = csv_file["R50_it"].to_numpy() / 0.2
@@ -476,6 +479,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
     DL = cosmo.luminosity_distance(z).to(u.kpc).value
     pix = np.radians(0.33 / 3600) * DL
     for f in range(len(csv_file)):
+        field_name = str(file_name[f])[:4]
         if z[f] > 0.35:
             print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!")
             log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
@@ -772,7 +776,8 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                              r"V [kms$^{-1}$]",
                                              r"$\sigma$ [kms$^{-1}$]"]):
                         plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+                    print("plots/flux_velo_plots/" + str(file_name[f]) + "_fluxplots.pdf")
+                    plt.savefig("plots/flux_velo_plots/" + str(file_name[f]) + "_fluxplots.pdf", bbox_inches="tight")
                     plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                                 bbox_inches="tight")
 
@@ -839,7 +844,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                              r"V [kms$^{-1}$]",
                                              r"$\sigma$ [kms$^{-1}$]"]):
                         plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+                    plt.savefig("plots/flux_velo_plots/" + str(file_name[f]) + "_fluxplots.pdf", bbox_inches="tight")
                     plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                                 bbox_inches="tight")
 
@@ -1059,7 +1064,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                          r"V [kms$^{-1}$]",
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("plots/flux_velo_plots/" + str(file_name[f])+ "_fluxplots.pdf", bbox_inches="tight")
                 plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                             bbox_inches="tight")
 
@@ -1300,7 +1305,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                              r"V [kms$^{-1}$]",
                                              r"$\sigma$ [kms$^{-1}$]"]):
                         plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+                    plt.savefig("plots/flux_velo_plots/" + str(file_name[f])+ "_fluxplots.pdf", bbox_inches="tight")
                     plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                                 bbox_inches="tight")
 
@@ -1362,7 +1367,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                              r"V [kms$^{-1}$]",
                                              r"$\sigma$ [kms$^{-1}$]"]):
                         plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+                    plt.savefig("plots/flux_velo_plots/" + str(file_name[f]) + "_fluxplots.pdf", bbox_inches="tight")
                     plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                                 bbox_inches="tight")
 
@@ -1529,7 +1534,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                      r"V [kms$^{-1}$]",
                                      r"$\sigma$ [kms$^{-1}$]"]):
                 plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-            # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
+            plt.savefig("plots/flux_velo_plots/" + str(file_name[f]) + "_fluxplots.pdf", bbox_inches="tight")
             plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
                         bbox_inches="tight")
 
