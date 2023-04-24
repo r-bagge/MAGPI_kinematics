@@ -468,7 +468,7 @@ def stellar_gas_plots(field_name=None, cutoff=2, res_cutoff=(0.65/2)/0.2, n_ells
         log_file = open("plots/_log_file.txt", "w")
     else:
         log_file = open("plots/" + field_name + "/" + field_name + "_log_file.txt", "w")
-    csv_file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",
+    csv_file = pd.read_csv("MAGPI_Emission_Lines/"+str(field_name)+"/"+str(field_name)+"_source_catalogue.csv",
                            skiprows=16)
     z = csv_file["z"].to_numpy()
     r50 = csv_file["R50_it"].to_numpy() / 0.2
@@ -480,6 +480,7 @@ def stellar_gas_plots(field_name=None, cutoff=2, res_cutoff=(0.65/2)/0.2, n_ells
     pix = np.radians(0.33 / 3600) * DL
     for f in range(len(csv_file)):
         field_name = str(file_name[f])[:4]
+        print(field_name)
         if z[f] > 0.35:
             print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!")
             log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
