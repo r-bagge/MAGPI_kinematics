@@ -60,17 +60,17 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
                         OIII[i, j] / HB[i, j]) or np.isnan(SII[i, j] / HA[i, j]) \
                         or np.isinf(OIII[i, j] / HB[i, j]) or np.isinf(SII[i, j] / HA[i, j]):
                     BPT_map[i, j] = np.nan
-                    continue
+                    return
                 if np.log10(OIII[i, j] / HB[i, j]) > 1.30 + 0.72 / (
                         np.log10(SII[i, j] / HA[i, j]) - 0.32) and np.log10(
                     OIII[i, j] / HB[i, j]) < 1.89 * np.log10(SII[i, j] / HA[i, j]) + 0.76:
                     BPT_map[i, j] = 3
-                    continue
+                    return
                 if np.log10(OIII[i, j] / HB[i, j]) > 1.30 + 0.72 / (
                         np.log10(SII[i, j] / HA[i, j]) - 0.32) and np.log10(
                     OIII[i, j] / HB[i, j]) > 1.89 * np.log10(SII[i, j] / HA[i, j]) + 0.76:
                     BPT_map[i, j] = 2
-                    continue
+                    return
                 # if np.log10(OIII[i,j] / HB[i,j]) < 1.30 + 0.72 / (
                 #         np.log10(SII[i,j] / HA[i,j]) - 0.32):
                 #     BPT_map[i] = 1
@@ -120,7 +120,7 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
     return BPT_map
 
 
-def BPT_plots(output_file, sample_file, nre):
+def BPT_plots(output_file, sample_file):
     HA_fluxes = []
     HB_fluxes = []
     OI_fluxes = []
@@ -135,9 +135,9 @@ def BPT_plots(output_file, sample_file, nre):
     sample = pd.read_csv(sample_file)
     galaxies = sample["MAGPIID"]
     for g in galaxies:
-        print("Beginning MAGPI" + str(g) + "...\n")
+        print("Beginning MAGPI" + str(g) + "...")
         csv_file = pd.read_csv(
-            "MAGPI_Emission_Line/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[:4] + "_source_catalogue.csv", skiprows=16)
+            "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[:4] + "_source_catalogue.csv", skiprows=16)
         csv_file = csv_file[csv_file["MAGPIID"].isin([g])]
         z = csv_file["z"].to_numpy()[0]
         r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
@@ -151,7 +151,7 @@ def BPT_plots(output_file, sample_file, nre):
             pass
         else:
             print("No gas spectra!")
-            continue
+            return
         file = "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
                                                                       :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             g) + "_GIST_EmissionLines.fits"
@@ -193,13 +193,13 @@ def BPT_plots(output_file, sample_file, nre):
         cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
         plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, nre * r50, nre * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, nre * r50, nre * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, nre * r50, nre * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, nre * r50, nre * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, nre * r50, nre * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, nre * r50, nre * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, nre * r50, nre * r50 * q)
+        HA_flux = aperture_photometry(HA, pa, 2 * r50, 2 * r50 * q)
+        HA_err_flux = aperture_photometry(HA_err, pa, 2 * r50, 2 * r50 * q)
+        HB_flux = aperture_photometry(HB, pa, 2 * r50, 2 * r50 * q)
+        OIII_flux = aperture_photometry(OIII, pa, 2 * r50, 2 * r50 * q)
+        NII_flux = aperture_photometry(NII, pa, 2 * r50, 2 * r50 * q)
+        OI_flux = aperture_photometry(OI, pa, 2 * r50, 2 * r50 * q)
+        SII_flux = aperture_photometry(SII, pa, 2 * r50, 2 * r50 * q)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
@@ -207,8 +207,8 @@ def BPT_plots(output_file, sample_file, nre):
         HA_err_flux = dust_corr(HA_err_flux * 1e-20, balmer, 6562 * u.AA, CCM89)
         lum = HA_flux_corr * (4 * np.pi * DL ** 2)
         lum_err = HA_err_flux * (4 * np.pi * DL ** 2)
-        SFR.append(lum * (10 ** (-41.27)))
-        SFR_err.append(lum_err * (10 ** (-41.27)))
+        SFR.append(lum * 5.5e-42)
+        SFR_err.append(lum_err * 5.5e-42)
 
         HA_fluxes.append(HA_flux)
         HA_err_fluxes.append(HA_err_flux)
@@ -240,7 +240,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 3
-            continue
+            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
@@ -250,7 +250,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(MAGPI[i], "LINER!")
             # print(bpt[i] == 3, "Match!")
             sf_sy_ln[i] = 3
-            continue
+            return
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.89 * np.log10(
                 SII_fluxes[i] / HA_fluxes[i]) + 0.76 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
             OI_fluxes[i] / HA_fluxes[i]) + 1.30:
@@ -258,7 +258,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 2
-            continue
+            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
@@ -268,7 +268,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 2
-            continue
+            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32)) and \
@@ -278,7 +278,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 1
-            continue
+            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47):
@@ -286,7 +286,7 @@ def BPT_plots(output_file, sample_file, nre):
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 0
-            continue
+            return
         else:
             # print(MAGPI[i], "Ambigious!")
             # print(bpt[i], "No Match!")
@@ -303,7 +303,7 @@ def BPT_plots(output_file, sample_file, nre):
             SII_bpt[i] = 2
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32):
             SII_bpt[i] = 1
-    print("All Done!\n")
+    print("All Done!")
 
     df = pd.DataFrame({"MAGPIID": galaxies,
                        "Ha": HA_fluxes,
@@ -361,7 +361,7 @@ def BPT_plots(output_file, sample_file, nre):
     return HA_fluxes, NII_fluxes, OIII_fluxes, HB_fluxes, SII_fluxes, OI_fluxes
 
 
-def ellipse_plots(velo, velo_err, q, r50, field_name, file_name, output_file):
+def ellipse_plots(velo, velo_err, q, r50, field_name, galaxy, output_file):
     os.mkdir(output_file + "/ellipse_plots")
     os.mkdir(output_file + "/ellipse_plots/ellipse_circ")
     y0, x0 = velo.shape
@@ -415,7 +415,7 @@ def ellipse_plots(velo, velo_err, q, r50, field_name, file_name, output_file):
         ax1.legend()
         ax1.set_ylabel(r"V [kms$^{-1}$]")
         # ax2.set_ylim(-0.75, 0.75)
-        ax1.set_title(f'{file_name}, R={k.rad[i - 1] * 0.2:.2f}"({k.rad[i - 1] / r50[f]:.2f} Re)')
+        ax1.set_title(f'{galaxy}, R={k.rad[i - 1] * 0.2:.2f}"({k.rad[i - 1] / r50:.2f} Re)')
         ax2.hlines(y=0, xmin=x[0], xmax=x[-1], colors="gray", ls="dashdot")
         plt.savefig(output_file + "/ellipse_plots/ellipse_circ/ellipse_" + str(p) + ".pdf", bbox_inches="tight")
 
@@ -432,7 +432,7 @@ def list_flat(old_list, new_list):
     return new_list
 
 
-def clean_images(img, pa, a, b, SNR=3, img_err=None):
+def clean_images(img, pa, a, b, img_err=None):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -443,501 +443,147 @@ def clean_images(img, pa, a, b, SNR=3, img_err=None):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR:
+            if img_err is not None and abs(img_err[i, j]) < 3:
                 img[i, j] = np.nan
     return img
 
 
-def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas, n_re=2):
-    v_asym_ss = []
-    v_asym_ss_err = []
-    v_asym_gs = []
-    v_asym_gs_err = []
-    pa_gs = []
-    pa_ss = []
-    galaxies = []
-    d_pas = []
-    v_rot_s = []
-    v_rot_g = []
-    if os.path.exists("plots/" + field_name):
-        shutil.rmtree("plots/" + field_name)
-    os.mkdir("plots/" + field_name)
-    os.mkdir("plots/" + field_name + "/flux_plots")
-    os.mkdir("plots/" + field_name + "/fits_files")
-    log_file = open("plots/" + field_name + "/" + field_name + "_log_file.txt", "w")
-    csv_file = pd.read_csv("MAGPI_Emission_Lines/" + field_name + "/" + field_name + "_source_catalogue.csv",
+def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
+    field_name = str(galaxy)[:4]
+    csv_file = pd.read_csv("MAGPI_Emission_Lines/MAGPI"+str(field_name)+"/MAGPI"+str(field_name)+"_source_catalogue.csv",
                            skiprows=16)
-    z = csv_file["z"].to_numpy()
-    r50 = csv_file["R50_it"].to_numpy() / 0.2
-    q = csv_file["axrat_it"].to_numpy()
-    pa = csv_file["ang_it"].to_numpy()
-    quality = csv_file["QOP"].to_numpy()
-    file_name = csv_file["MAGPIID"].to_numpy()
+    csv_file = csv_file[csv_file['MAGPIID'].isin([galaxy])]
+    z = csv_file["z"].to_numpy()[0]
+    r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
+    q = csv_file["axrat_it"].to_numpy()[0]
+    pa = csv_file["ang_it"].to_numpy()[0]
     DL = cosmo.luminosity_distance(z).to(u.kpc).value
     pix = np.radians(0.33 / 3600) * DL
-    for f in range(len(csv_file)):
-        if z[f] > 0.35:
-            print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!")
-            log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-            continue
-        elif z[f] < 0.28:
-            print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!")
-            log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-            continue
-        elif quality[f] < 3:
-            print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift failed QC check!")
-            log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift failed QC check!\n")
-            continue
-        elif r50[f] < cutoff * res_cutoff:
-            print(f"MAGPIID = {file_name[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
-            log_file.write(f"MAGPIID = {file_name[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
-            continue
-        # elif file_name[f] == int("1530197196") or file_name[f] == int("1502293058"):
-        #     print(f"MAGPIID = {file_name[f]}, garbage galaxy\n")
-        #     log_file.write(f"MAGPIID = {file_name[f]}, garbage galaxy\n")
-        #     continue
-        elif file_name[f] == int("1207128248") or file_name[f] == int("1506117050"):
-            print(f"MAGPIID = {file_name[f]}, fixing PA\n")
-            log_file.write(f"MAGPIID = {file_name[f]}, fixing PA\n")
-            pa[f] = pa[f] - 90
-        elif file_name[f] == int("1207197197"):
-            print(f"MAGPIID = {file_name[f]}, fixing PA\n")
-            log_file.write(f"MAGPIID = {file_name[f]}, fixing PA\n")
-            pa[f] = pa[f] - 180
-        elif file_name[f] == int("1204192193"):
-            print(f"MAGPIID = {file_name[f]}, For Qainhui\n")
-            log_file.write(f"MAGPIID = {file_name[f]}, For Qainhui\n")
-        else:
-            print(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift passed!")
-            print(f"MAGPIID = {file_name[f]}, r50 = {r50[f]:.3f}, Res. passed!")
-            print(f"MAGPIID = {file_name[f]} is {(r50[f] / res_cutoff):.3f} beam elements!")
-            log_file.write(f"MAGPIID = {file_name[f]}, z = {z[f]:.3f}, Redshift passed!\n")
-            log_file.write(f"MAGPIID = {file_name[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
-            log_file.write(f"MAGPIID = {file_name[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
 
-        star_file = "MAGPI_Absorption_Lines/" + field_name + "/galaxies/" + str(
-            file_name[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "MAGPI_Emission_Lines/" + field_name + "/" + field_name + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
-            file_name[f]) + "_GIST_EmissionLines.fits"
+    star_file = "MAGPI_Absorption_Lines/MAGPI" + field_name + "/galaxies/" + str(
+        galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "MAGPI_Emission_Lines/MAGPI" + field_name + "/MAGPI" + field_name + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+        galaxy) + "_GIST_EmissionLines.fits"
 
-        if os.path.exists(gas_file) and os.path.exists(star_file):
-            print("Has gas and stellar kinematics!")
-            log_file.write("Has gas and stellar kinematics!\n")
+    if os.path.exists(gas_file) and os.path.exists(star_file):
+        print("Has gas and stellar kinematics!")
+        starfile = fits.open(star_file)
+        gasfile = fits.open(gas_file)
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
+                                                          gasfile[10].data, gasfile[11].data
+        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = g_flux / g_flux_err
+
+        clip = np.nanmax(s_flux)
+        y0, x0 = s_flux.shape
+        x0 = int(x0 / 2)
+        y0 = int(y0 / 2)
+        print(f"Max Stellar SNR = {clip:.2f}...")
+        if clip < SNR_star:
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            return
+        elif np.isinf(clip) or np.isnan(clip):
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            return
+        ha_check = np.count_nonzero(~np.isnan(g_flux))
+        if ha_check < 50:
+            print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!")
+            print("Finding Brightest Line")
+            max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
+            max_line = max_line[max_line["MAGPIID"].isin([galaxy])]
+            bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            print("Brightest line is " + bright_line)
+            bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
+
+            g_velo = gasfile[9].data
+            g_flux = gasfile[bright_line].data
+            g_flux_err = gasfile[bright_line_err].data
+            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+
+            print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!")
+            bl_check = np.count_nonzero(~np.isnan(g_flux))
+            if ha_check < bl_check:
+                print(bright_line + " is better!")
+            else:
+                print(f"Ha is better")
+                g_velo = gasfile[9].data
+                g_flux = gasfile[49].data
+                g_flux_err = gasfile[50].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = n_re * r50
+            rad = np.arange(start, end, step)
+            if len(rad) < n_ells:
+                print("Not enough ellipses!")
+                return
+            s_velo[np.isnan(s_velo)] = 0
+            g_velo[np.isnan(g_velo)] = 0
+            g_velo_err[np.isnan(g_velo_err)] = 0
+            g_flux[np.isnan(g_flux)] = 0
+            s_flux[np.isnan(s_flux)] = 0
+
+            print("Doing kinemetry on stars and gas!")
+
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
+                           cover=0.95)
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
+                           cover=0.95)
+            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            pa_g = np.nanmedian(kg.pa)
+            pa_s = np.nanmedian(ks.pa)
+
+            fig, ax = plt.subplots()
+            ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+            ax.plot(ks.rad, ks1, zorder=1)
+            ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+            ax.plot(kg.rad, kg1, zorder=1)
+            ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+            ax.set_xlabel("R [pix]")
+            ax.legend()
+            plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                        bbox_inches="tight")
+
+            starfile.close()
+            gasfile.close()
             starfile = fits.open(star_file)
             gasfile = fits.open(gas_file)
-            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
-            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
-                                                              gasfile[10].data, gasfile[11].data
-            g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = g_flux / g_flux_err
 
-            clip = np.nanmax(s_flux)
-            y0, x0 = s_flux.shape
-            x0 = int(x0 / 2)
-            y0 = int(y0 / 2)
-            print(f"Max Stellar SNR = {clip:.2f}...\n")
-            log_file.write(f"Max Stellar SNR = {clip:.2f}...\n")
-            if clip < SNR_star:
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-            elif np.isinf(clip) or np.isnan(clip):
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-            ha_check = np.count_nonzero(~np.isnan(g_flux))
-            if ha_check < 50:
-                print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!\n")
-                log_file.write("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!\n")
-                # print("Doing Kinemetry on stars only!")
-                # log_file.write("Doing kinemetry on stars only!\n")
-                # print("Cleaning up the gas map!\n")
-                # log_file.write("Cleaning up the gas map!\n")
-                # print("Doing Kinemetry on stars only")
-                # log_file.write("Doing kinemetry on stars only!\n")
-                print("Finding Brightest Line")
-                log_file.write("Finding Brightest Line\n")
-                max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
-                max_line = max_line[max_line["MAGPIID"].isin([file_name[f]])]
-                bright_line = max_line["MAX_LINE"].to_numpy()[0]
-                print("Brightest line is " + bright_line)
-                log_file.write("Brightest line is " + bright_line + "\n")
-                bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
-
-                g_velo = gasfile[9].data
-                g_flux = gasfile[bright_line].data
-                g_flux_err = gasfile[bright_line_err].data
-                g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-
-                print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!\n")
-                log_file.write("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!\n")
-                bl_check = np.count_nonzero(~np.isnan(g_flux))
-                if ha_check < bl_check:
-                    print(bright_line + " is better!")
-                    log_file.write(bright_line + " is better\n")
-                else:
-                    print(f"Ha is better")
-                    log_file.write("Ha is better\n")
-                    g_velo = gasfile[9].data
-                    g_flux = gasfile[49].data
-                    g_flux_err = gasfile[50].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-
-                start = (0.65 / 2) / 0.2
-                step = (0.65 / 2) / 0.2
-                end = n_re * r50[f]
-                rad = np.arange(start, end, step)
-                if len(rad) < n_ells:
-                    print("Not enough ellipses!")
-                    log_file.write("Not enough ellipses!\n")
-                    continue
-                s_velo[np.isnan(s_velo)] = 0
-                g_velo[np.isnan(g_velo)] = 0
-                g_velo_err[np.isnan(g_velo_err)] = 0
-                g_flux[np.isnan(g_flux)] = 0
-                s_flux[np.isnan(s_flux)] = 0
-
-                print("Doing kinemetry on stars and gas!")
-
-                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                               cover=0.95)
-                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                               cover=0.95)
-                k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                     cover=0.95)
-                k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                     cover=0.95)
-                k_flux_s_k0 = k_flux_s.cf[:, 0]
-                k_flux_g_k0 = k_flux_g.cf[:, 0]
-
-                ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-                ks3 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-                ks4 = np.sqrt(ks.cf[:, 7] ** 2 + ks.cf[:, 8] ** 2)
-                ks5 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
-                v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
-
-                kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg3 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg4 = np.sqrt(kg.cf[:, 7] ** 2 + kg.cf[:, 8] ** 2)
-                kg5 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
-                v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
-                try:
-                    v_asym_g_2re = np.nansum(k_flux_g_k0 * v_asym_g) / np.nansum(k_flux_g_k0)
-                except ValueError:
-                    continue
-                try:
-                    v_asym_s_2re = np.nansum(k_flux_s_k0 * v_asym_s) / np.nansum(k_flux_s_k0)
-                except ValueError:
-                    continue
-
-                # pa_g = np.nansum(k_flux_g_k0 * kg.pa) / np.nansum(k_flux_g_k0)
-                # pa_s = np.nansum(k_flux_s_k0 * ks.pa) / np.nansum(k_flux_s_k0)
-                pa_g = np.nanmedian(kg.pa)
-                pa_s = np.nanmedian(ks.pa)
-                d_PA = np.abs(pa_g - pa_s)
-
-                print(f"MAGPI{file_name[f]:.0f}")
-                log_file.write(f"MAGPI{file_name[f]:.0f}\n")
-                print(f"Gas Pa={pa_g:.1f}")
-                log_file.write(f"Gas Pa={pa_g:.1f}\n")
-                print(f"Stars Pa={pa_s:.1f}")
-                log_file.write(f"Stars Pa={pa_s:.1f}\n")
-                print(f"DeltaPA={d_PA:.2f}")
-                log_file.write(f"DeltaPA={d_PA:.2f}\n")
-                print(f"Stars={v_asym_s_2re:.2f}")
-                log_file.write(f"Stars={v_asym_s_2re:.2f}\n")
-                print(f"Gas={v_asym_g_2re:.2f}")
-                log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
-
-
-                galaxies.append(file_name[f])
-                v_asym_gs.append(v_asym_g_2re)
-                v_asym_ss.append(v_asym_s_2re)
-                pa_gs.append(pa_g)
-                pa_ss.append(pa_s)
-                d_pas.append(d_PA)
-                v_rot_g.append(np.nanmax(kg1))
-                v_rot_s.append(np.nanmax(ks1))
-
-                fig, ax = plt.subplots()
-                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                ax.plot(ks.rad, ks1, zorder=1)
-                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                ax.plot(kg.rad, kg1, zorder=1)
-                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                ax.set_xlabel("R [pix]")
-                ax.legend()
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                            bbox_inches="tight")
-
-                starfile.close()
-                gasfile.close()
-                starfile = fits.open(star_file)
-                gasfile = fits.open(gas_file)
-
-                if ha_check > bl_check:
-                    s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
-                    g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f])
-                    g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = g_flux / g_flux_err
-                    starfile.close()
-                    gasfile.close()
-
-                    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(10, 8))
-                    p1 = ax1.imshow(s_flux, origin="lower")
-                    p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
-                                    vmax=0.5 * np.nanmax(s_velo))
-                    p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
-                    p4 = ax4.imshow(g_flux, origin="lower")
-                    p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
-                                    vmax=0.9 * np.nanmax(g_velo))
-                    p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
-                    ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_s -90, fc="none", ec="magenta"))
-                    ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
-                    ax1.set_ylabel("Stars")
-                    ax4.set_ylabel("Gas")
-                    for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
-                                            [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR [H$\alpha$]",
-                                             r"V [kms$^{-1}$]",
-                                             r"$\sigma$ [kms$^{-1}$]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
-                                bbox_inches="tight")
-
-                    hdr = fits.Header()
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
-                    hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
-                    hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
-                    hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
-                    hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
-                    hdr["COMMENT"] = ' [10]'
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["OBJECT"] = str(file_name[f])
-                    n = None
-                    hdu0 = fits.PrimaryHDU(n, header=hdr)
-                    hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
-                    hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
-                    hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
-                    hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
-                    hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
-                    hdu6 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
-                    hdu7 = fits.ImageHDU(s_velo, name="Data", header=hdr)
-                    hdu8 = fits.ImageHDU(ks.velcirc, name="Velcirc", header=hdr)
-                    hdu9 = fits.ImageHDU(ks.velkin, name="VelKin", header=hdr)
-                    hdu10 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
-                    hdr["BUNIT"] = None
-
-                    out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                    out.writeto("plots/" + field_name + "/fits_file/" + str(file_name[f]) + "_stellar_kinemetry.fits",
-                                overwrite=True)
-                else:
-                    s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
-                                                          starfile[4].data
-                    g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
-                        bright_line_err].data, gasfile[
-                                                                          9].data, gasfile[10].data, gasfile[11].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f])
-                    g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f])
-                    # g_flux = g_flux / g_flux_err
-                    starfile.close()
-                    gasfile.close()
-
-                    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(10, 8))
-                    p1 = ax1.imshow(s_flux, origin="lower")
-                    p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
-                                    vmax=0.5 * np.nanmax(s_velo))
-                    p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
-                    p4 = ax4.imshow(g_flux, origin="lower")
-                    p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
-                                    vmax=0.9 * np.nanmax(g_velo))
-                    p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
-                    ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_s-90, fc="none", ec="magenta"))
-                    ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
-                    ax1.set_ylabel("Stars")
-                    ax4.set_ylabel("Gas")
-                    for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
-                                            [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]",
-                                             bright_line[:-2] + " [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
-                                             r"V [kms$^{-1}$]",
-                                             r"$\sigma$ [kms$^{-1}$]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
-                                bbox_inches="tight")
-
-                    hdr = fits.Header()
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
-                    hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
-                    hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
-                    hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
-                    hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
-                    hdr["COMMENT"] = ' [10]'
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["OBJECT"] = str(file_name[f])
-                    n = None
-                    hdu0 = fits.PrimaryHDU(n, header=hdr)
-                    hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
-                    hdu2 = fits.ImageHDU(g_velo, name="Gas Velo", header=hdr)
-                    hdu3 = fits.ImageHDU(kg.velcirc, name="Gas Velcirc", header=hdr)
-                    hdu4 = fits.ImageHDU(kg.velkin, name="Gas VelKin", header=hdr)
-                    hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
-                    hdu6 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
-                    hdu7 = fits.ImageHDU(s_velo, name="Stars Velo", header=hdr)
-                    hdu8 = fits.ImageHDU(ks.velcirc, name="Stars Velcirc", header=hdr)
-                    hdu9 = fits.ImageHDU(ks.velkin, name="Stars VelKin", header=hdr)
-                    hdu10 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
-                    hdr["BUNIT"] = None
-
-                    out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                    out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
-                                overwrite=True)
-
-
-            else:
-                print("Doing kinemetry on stars and gas!")
-                start = (0.65 / 2) / 0.2
-                step = (0.65 / 2) / 0.2
-                end = n_re * r50[f]
-                rad = np.arange(start, end, step)
-                if len(rad) < n_ells:
-                    print("Not enough ellipses!")
-                    log_file.write("Not enough ellipses!\n")
-                    continue
-                s_velo[np.isnan(s_velo)] = 0
-                g_velo[np.isnan(g_velo)] = 0
-                g_flux[np.isnan(g_flux)] = 0
-                s_flux[np.isnan(s_flux)] = 0
-                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                               cover=0.95)
-                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                               cover=0.95)
-                k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                     cover=0.95)
-                k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                     cover=0.95)
-                k_flux_s_k0 = k_flux_s.cf[:, 0]
-                k_flux_g_k0 = k_flux_g.cf[:, 0]
-
-                ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-                ks3 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-                ks4 = np.sqrt(ks.cf[:, 7] ** 2 + ks.cf[:, 8] ** 2)
-                ks5 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
-                v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
-
-                kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg3 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg4 = np.sqrt(kg.cf[:, 7] ** 2 + kg.cf[:, 8] ** 2)
-                kg5 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
-                v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
-
-                v_asym_g_2re = np.nansum(k_flux_g_k0 * v_asym_g) / np.nansum(k_flux_g_k0)
-                v_asym_s_2re = np.nansum(k_flux_s_k0 * v_asym_s) / np.nansum(k_flux_s_k0)
-
-                # pa_g = np.nansum(k_flux_g_k0 * kg.pa) / np.nansum(k_flux_g_k0)
-                # pa_s = np.nansum(k_flux_s_k0 * ks.pa) / np.nansum(k_flux_s_k0)
-                pa_g = np.nanmedian(kg.pa)
-                pa_s = np.nanmedian(ks.pa)
-                d_PA = np.abs(pa_g - pa_s)
-
-                print(f"MAGPI{file_name[f]:.0f}")
-                log_file.write(f"MAGPI{file_name[f]:.0f}\n")
-                print(f"Gas Pa={pa_g:.1f}")
-                log_file.write(f"Gas Pa={pa_g:.1f}\n")
-                print(f"Stars Pa={pa_s:.1f}")
-                log_file.write(f"Stars Pa={pa_s:.1f}\n")
-                print(f"DeltaPA={d_PA:.2f}")
-                log_file.write(f"DeltaPA={d_PA:.2f}\n")
-                print(f"Stars={v_asym_s_2re:.2f}")
-                log_file.write(f"Stars={v_asym_s_2re:.2f}\n")
-                print(f"Gas={v_asym_g_2re:.2f}")
-                log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
-
-                galaxies.append(file_name[f])
-                v_asym_gs.append(v_asym_g_2re)
-                v_asym_ss.append(v_asym_s_2re)
-                pa_gs.append(pa_g)
-                pa_ss.append(pa_s)
-                d_pas.append(d_PA)
-                v_rot_g.append(np.nanmax(kg1))
-                v_rot_s.append(np.nanmax(ks1))
-
-                fig, ax = plt.subplots()
-                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                ax.plot(ks.rad, ks1, zorder=1)
-                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                ax.plot(kg.rad, kg1, zorder=1)
-                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                ax.set_xlabel("R [pix]")
-                ax.legend()
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                            bbox_inches="tight")
-
-                starfile.close()
-                gasfile.close()
-                starfile = fits.open(star_file)
-                gasfile = fits.open(gas_file)
-
-                s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
-                g_flux, g_flux_err, g_velo, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
-                    11].data
-                g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            if ha_check > bl_check:
+                s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q)
                 g_flux = g_flux / g_flux_err
                 starfile.close()
                 gasfile.close()
 
                 fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(10, 8))
                 p1 = ax1.imshow(s_flux, origin="lower")
-                p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-220, vmax=220)
+                p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
+                                vmax=0.5 * np.nanmax(s_velo))
                 p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
                 p4 = ax4.imshow(g_flux, origin="lower")
                 p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
                                 vmax=0.9 * np.nanmax(g_velo))
-                p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
-                ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                      height=2 * r50[f] / q[f], angle=pa_s -90, fc="none", ec="magenta"))
-                ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                      height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
+                p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(g_sigma))
+                ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+                ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -945,8 +591,9 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                                          r"V [kms$^{-1}$]",
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
+                print("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf")
+                plt.savefig("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
                             bbox_inches="tight")
 
                 hdr = fits.Header()
@@ -958,7 +605,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
                 hdr["COMMENT"] = ' [10]'
                 hdr["COMMENT"] = '========================================================================'
-                hdr["OBJECT"] = str(file_name[f])
+                hdr["OBJECT"] = str(galaxy)
                 n = None
                 hdu0 = fits.PrimaryHDU(n, header=hdr)
                 hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
@@ -974,362 +621,152 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
+                out.writeto("plots/MAGPI" + field_name + "/fits_file/" + str(galaxy) + "_stellar_kinemetry.fits",
+                            overwrite=True)
+            else:
+                s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
+                                                      starfile[4].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
+                    bright_line_err].data, gasfile[
+                                                                      9].data, gasfile[10].data, gasfile[11].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                # g_flux = g_flux / g_flux_err
+                starfile.close()
+                gasfile.close()
+
+                fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(10, 8))
+                p1 = ax1.imshow(s_flux, origin="lower")
+                p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
+                                vmax=0.5 * np.nanmax(s_velo))
+                p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
+                p4 = ax4.imshow(g_flux, origin="lower")
+                p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
+                                vmax=0.9 * np.nanmax(g_velo))
+                p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
+                ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+                ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
+                ax1.set_ylabel("Stars")
+                ax4.set_ylabel("Gas")
+                for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
+                                        [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]",
+                                         bright_line[:-2] + " [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
+                                         r"V [kms$^{-1}$]",
+                                         r"$\sigma$ [kms$^{-1}$]"]):
+                    plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
+                plt.savefig("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                            bbox_inches="tight")
+
+                hdr = fits.Header()
+                hdr["COMMENT"] = '========================================================================'
+                hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
+                hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
+                hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
+                hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
+                hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
+                hdr["COMMENT"] = ' [10]'
+                hdr["COMMENT"] = '========================================================================'
+                hdr["OBJECT"] = str(galaxy)
+                n = None
+                hdu0 = fits.PrimaryHDU(n, header=hdr)
+                hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
+                hdu2 = fits.ImageHDU(g_velo, name="Gas Velo", header=hdr)
+                hdu3 = fits.ImageHDU(kg.velcirc, name="Gas Velcirc", header=hdr)
+                hdu4 = fits.ImageHDU(kg.velkin, name="Gas VelKin", header=hdr)
+                hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
+                hdu6 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
+                hdu7 = fits.ImageHDU(s_velo, name="Stars Velo", header=hdr)
+                hdu8 = fits.ImageHDU(ks.velcirc, name="Stars Velcirc", header=hdr)
+                hdu9 = fits.ImageHDU(ks.velkin, name="Stars VelKin", header=hdr)
+                hdu10 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
+                hdr["BUNIT"] = None
+
+                out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
+                out.writeto("plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
 
 
-        elif os.path.exists(gas_file) and os.path.exists(star_file) == False:
-            print("Has gas kinematics but no stars!")
-            log_file.write("Has gas kinematics but no stars!\n")
-            gasfile = fits.open(gas_file)
-            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data,gasfile[10].data,gasfile[11].data
-            g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = g_flux / g_flux_err
-
-            clip = np.nanmax(g_flux)
-            y0, x0 = g_flux.shape
-            x0 = int(x0 / 2)
-            y0 = int(y0 / 2)
-            print(f"Max Gas SNR = {clip:.2f}...\n")
-            log_file.write(f"Max Gas SNR = {clip:.2f}...\n")
-            if clip < SNR_gas:
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-            elif np.isinf(clip) or np.isnan(clip):
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-            ha_check = np.count_nonzero(~np.isnan(g_flux))
-            if ha_check < 50:
-                print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!\n")
-                log_file.write("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!\n")
-                print("Finding Brightest Line")
-                log_file.write("Finding Brightest Line\n")
-                max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
-                max_line = max_line[max_line["MAGPIID"].isin([file_name[f]])]
-                bright_line = max_line["MAX_LINE"].to_numpy()[0]
-                print("Brightest line is " + bright_line)
-                log_file.write("Brightest line is " + bright_line + "\n")
-                bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
-
-                g_velo = gasfile[9].data
-                g_flux = gasfile[bright_line].data
-                g_flux_err = gasfile[bright_line_err].data
-                g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-
-                print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!\n")
-                log_file.write("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!\n")
-                bl_check = np.count_nonzero(~np.isnan(g_flux))
-                if ha_check < bl_check:
-                    print(bright_line + " is better!")
-                    log_file.write(bright_line + " is better\n")
-                else:
-                    print(f"Ha is better")
-                    log_file.write("Ha is better\n")
-                    g_velo = gasfile[9].data
-                    g_flux = gasfile[49].data
-                    g_flux_err = gasfile[50].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-
-                start = (0.65 / 2) / 0.2
-                step = (0.65 / 2) / 0.2
-                end = n_re * r50[f]
-                rad = np.arange(start, end, step)
-                if len(rad) < n_ells:
-                    print("Not enough ellipses!")
-                    log_file.write("Not enough ellipses!\n")
-                    continue
-                g_velo[np.isnan(g_velo)] = 0
-                g_velo_err[np.isnan(g_velo_err)] = 0
-                g_flux[np.isnan(g_flux)] = 0
-                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                               cover=0.95)
-                k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                     cover=0.95)
-                k_flux_g_k0 = k_flux_g.cf[:, 0]
-
-                kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg3 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                kg4 = np.sqrt(kg.cf[:, 7] ** 2 + kg.cf[:, 8] ** 2)
-                kg5 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
-                v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
-                try:
-                    v_asym_g_2re = np.nansum(k_flux_g_k0 * v_asym_g) / np.nansum(k_flux_g_k0)
-                except ValueError:
-                    continue
-
-                pa_g = np.nanmedian(kg.pa)
-
-                print(f"MAGPI{file_name[f]:.0f}")
-                log_file.write(f"MAGPI{file_name[f]:.0f}\n")
-                print(f"Gas Pa={pa_g:.1f}")
-                log_file.write(f"Gas Pa={pa_g:.1f}\n")
-                print(f"Gas={v_asym_g_2re:.2f}")
-                log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
-
-                galaxies.append(file_name[f])
-                v_asym_gs.append(v_asym_g_2re)
-                v_asym_ss.append(np.nan)
-                pa_gs.append(pa_g)
-                pa_ss.append(np.nan)
-                d_pas.append(np.nan)
-                v_rot_g.append(np.nanmax(kg1))
-                v_rot_s.append(np.nan)
-
-                fig, ax = plt.subplots()
-                # ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                # ax.plot(ks.rad, ks1, zorder=1)
-                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                ax.plot(kg.rad, kg1, zorder=1)
-                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                ax.set_xlabel("R [pix]")
-                ax.legend()
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                            bbox_inches="tight")
-
-                # pa_ss.append(pa_s)
-                # d_pas.append(d_PA)
-
-                # starfile.close()
-                gasfile.close()
-                # starfile = fits.open(star_file)
-                gasfile = fits.open(gas_file)
-                if ha_check > bl_check:
-                    # s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
-                    #                                       starfile[4].data
-                    g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[
-                        9].data, gasfile[10].data, gasfile[11].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f])
-                    g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = g_flux / g_flux_err
-                    # starfile.close()
-                    gasfile.close()
-
-                    fig, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(5, 8))
-                    # p1 = ax1.imshow(s_flux, origin="lower")
-                    # p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
-                    #                 vmax=0.5 * np.nanmax(s_velo))
-                    # p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
-                    p4 = ax4.imshow(g_flux, origin="lower")
-                    p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
-                                    vmax=0.9 * np.nanmax(g_velo))
-                    p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
-                    # ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    # ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                    #                       height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
-                    ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
-                    # ax1.set_ylabel("Stars")
-                    ax4.set_ylabel("Gas")
-                    for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
-                                            [r"SNR [H$_\alpha$]",
-                                             r"V [kms$^{-1}$]",
-                                             r"$\sigma$ [kms$^{-1}$]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
-                                bbox_inches="tight")
-
-                    hdr = fits.Header()
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
-                    hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
-                    hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
-                    hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
-                    hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
-                    hdr["COMMENT"] = ' [10]'
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["OBJECT"] = file_name[f]
-                    n = None
-                    hdu0 = fits.PrimaryHDU(n, header=hdr)
-                    hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
-                    hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
-                    hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
-                    hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
-                    hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
-                    hdr["BUNIT"] = None
-
-                    out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-                    out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
-                                overwrite=True)
-
-                else:
-                    # s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
-                    #                                       starfile[4].data
-                    g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
-                        bright_line_err].data, gasfile[
-                                                                          9].data, gasfile[10].data, gasfile[11].data
-                    g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f])
-                    g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f])
-                    g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f])
-                    # g_flux = g_flux / g_flux_err
-                    # starfile.close()
-                    gasfile.close()
-
-                    fig, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(5, 8))
-                    # p1 = ax1.imshow(s_flux, origin="lower")
-                    # p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
-                    #                 vmax=0.5 * np.nanmax(s_velo))
-                    # p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
-                    p4 = ax4.imshow(g_flux, origin="lower")
-                    p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
-                                    vmax=0.9 * np.nanmax(g_velo))
-                    p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
-                    # ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-                    # ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                    #                       height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
-                    ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g, fc="none", ec="magenta"))
-                    # ax1.set_ylabel("Stars")
-                    ax4.set_ylabel("Gas")
-                    for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
-                                            [bright_line[:-2] + r" [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
-                                             r"V [kms$^{-1}$]",
-                                             r"$\sigma$ [kms$^{-1}$]"]):
-                        plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                    # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
-                                bbox_inches="tight")
-
-                    hdr = fits.Header()
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
-                    hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
-                    hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
-                    hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
-                    hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
-                    hdr["COMMENT"] = ' [10]'
-                    hdr["COMMENT"] = '========================================================================'
-                    hdr["OBJECT"] = file_name[f]
-                    n = None
-                    hdu0 = fits.PrimaryHDU(n, header=hdr)
-                    hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
-                    hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
-                    hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
-                    hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
-                    hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
-                    hdr["BUNIT"] = None
-
-                    out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-                    out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
-                                overwrite=True)
-
-
-        elif os.path.exists(gas_file) == False and os.path.exists(star_file):
-            print("Has stellar kinematics but no gas!")
-            log_file.write("Has stellar kinematics but no gas!\n")
-            starfile = fits.open(star_file)
-            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
-
-            clip = np.nanmax(s_flux)
-            y0, x0 = s_flux.shape
-            x0 = int(x0 / 2)
-            y0 = int(y0 / 2)
-            print(f"Max Stellar SNR = {clip:.2f}...\n")
-            log_file.write(f"Max Stellar SNR = {clip:.2f}...\n")
-            if clip < SNR_star:
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-            elif np.isinf(clip) or np.isnan(clip):
-                print("Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                log_file.write(
-                    "Not Plotting or doing Kinemetry on " + str(file_name[f]) + " because its heinous looking\n")
-                continue
-
+        else:
+            print("Doing kinemetry on stars and gas!")
             start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
-            end = n_re * r50[f]
+            end = n_re * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print("Not enough ellipses!")
-                log_file.write("Not enough ellipses!\n")
-                continue
+                #log_file.write("Not enough ellipses!\n")
+                return
             s_velo[np.isnan(s_velo)] = 0
+            g_velo[np.isnan(g_velo)] = 0
+            g_flux[np.isnan(g_flux)] = 0
             s_flux[np.isnan(s_flux)] = 0
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                            cover=0.95)
-            k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                 bmodel=True,
-                                 rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                 cover=0.95)
-            k_flux_s_k0 = k_flux_s.cf[:, 0]
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
+                           cover=0.95)
+
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-            ks3 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-            ks4 = np.sqrt(ks.cf[:, 7] ** 2 + ks.cf[:, 8] ** 2)
-            ks5 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
-            v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
-            try:
-                v_asym_s_2re = np.nansum(k_flux_s_k0 * v_asym_s) / np.nansum(k_flux_s_k0)
-            except ValueError:
-                continue
-
-            # pa_s = np.nansum(k_flux_s_k0 * ks.pa) / np.nansum(k_flux_s_k0)
+            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(ks.pa)
-            print(f"MAGPI{file_name[f]:.0f}")
-            log_file.write(f"MAGPI{file_name[f]:.0f}\n")
-            print(f"Stars Pa={pa_s:.1f}")
-            log_file.write(f"Stars Pa={pa_s:.1f}\n")
-            print(f"Stars={v_asym_s_2re:.2f}")
-            log_file.write(f"Stars={v_asym_s_2re:.2f}\n")
-
-
-            galaxies.append(file_name[f])
-            v_asym_gs.append(np.nan)
-            v_asym_ss.append(v_asym_s_2re)
-            pa_gs.append(np.nan)
-            pa_ss.append(pa_s)
-            d_pas.append(np.nan)
-            v_rot_g.append(np.nan)
-            v_rot_s.append(np.nanmax(ks1))
 
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
             ax.plot(ks.rad, ks1, zorder=1)
+            ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+            ax.plot(kg.rad, kg1, zorder=1)
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
-            plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
+            plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
             starfile.close()
+            gasfile.close()
             starfile = fits.open(star_file)
-            s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
-            starfile.close()
+            gasfile = fits.open(gas_file)
 
-            fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(10, 8))
+            s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
+            g_flux, g_flux_err, g_velo, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
+                11].data
+            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = g_flux / g_flux_err
+            starfile.close()
+            gasfile.close()
+
+            fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(10, 8))
             p1 = ax1.imshow(s_flux, origin="lower")
             p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-220, vmax=220)
             p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
-            ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
-            ax1.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                  height=2 * r50[f] / q[f], angle=pa_s-90, fc="none", ec="magenta"))
+            p4 = ax4.imshow(g_flux, origin="lower")
+            p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
+                            vmax=0.9 * np.nanmax(g_velo))
+            p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(s_sigma))
+            ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+            ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+            ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                  height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+            ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                  height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
             ax1.set_ylabel("Stars")
-            for p, ax, label in zip([p1, p2, p3], [ax1, ax2, ax3],
-                                    [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR",
+            ax4.set_ylabel("Gas")
+            for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
+                                    [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR [H$\alpha$]",
                                      r"V [kms$^{-1}$]",
                                      r"$\sigma$ [kms$^{-1}$]"]):
                 plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-            # plt.savefig(output_file + "/" + str(galaxies) + "_fluxplots.pdf", bbox_inches="tight")
-            plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_fluxplots.pdf",
+            plt.savefig("plots/flux_velo_plots/" + str(galaxy)+ "_fluxplots.pdf", bbox_inches="tight")
+            plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
                         bbox_inches="tight")
 
             hdr = fits.Header()
@@ -1341,24 +778,322 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
             hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
             hdr["COMMENT"] = ' [10]'
             hdr["COMMENT"] = '========================================================================'
-            hdr["OBJECT"] = str(file_name[f])
+            hdr["OBJECT"] = str(galaxy)
             n = None
             hdu0 = fits.PrimaryHDU(n, header=hdr)
-            hdu1 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
-            hdu2 = fits.ImageHDU(s_velo, name="Data", header=hdr)
-            hdu3 = fits.ImageHDU(ks.velcirc, name="Velcirc", header=hdr)
-            hdu4 = fits.ImageHDU(ks.velkin, name="VelKin", header=hdr)
-            hdu5 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
+            hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
+            hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
+            hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
+            hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
+            hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
+            hdu6 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
+            hdu7 = fits.ImageHDU(s_velo, name="Data", header=hdr)
+            hdu8 = fits.ImageHDU(ks.velcirc, name="Velcirc", header=hdr)
+            hdu9 = fits.ImageHDU(ks.velkin, name="VelKin", header=hdr)
+            hdu10 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
             hdr["BUNIT"] = None
 
-            out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-            out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
+            out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
+            out.writeto("plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
                         overwrite=True)
 
-        v_asym_ss_err = list(np.zeros(len(galaxies)))
-        v_asym_gs_err = list(np.zeros(len(galaxies)))
 
-    return galaxies, v_asym_gs, v_asym_gs_err, v_asym_ss, v_asym_ss_err, pa_gs, pa_ss, d_pas, v_rot_g, v_rot_s
+    elif os.path.exists(gas_file) and os.path.exists(star_file) == False:
+        print("Has gas kinematics but no stars!")
+        #log_file.write("Has gas kinematics but no stars!\n")
+        gasfile = fits.open(gas_file)
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data,gasfile[10].data,gasfile[11].data
+        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = g_flux / g_flux_err
+
+        clip = np.nanmax(g_flux)
+        y0, x0 = g_flux.shape
+        x0 = int(x0 / 2)
+        y0 = int(y0 / 2)
+        print(f"Max Gas SNR = {clip:.2f}...")
+        if clip < SNR_gas:
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking")
+            return
+        elif np.isinf(clip) or np.isnan(clip):
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            return
+        ha_check = np.count_nonzero(~np.isnan(g_flux))
+        if ha_check < 50:
+            print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " Ha spaxels survive!")
+            print("Finding Brightest Line")
+            max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
+            max_line = max_line[max_line["MAGPIID"].isin([galaxy])]
+            bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            print("Brightest line is " + bright_line)
+            bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
+
+            g_velo = gasfile[9].data
+            g_flux = gasfile[bright_line].data
+            g_flux_err = gasfile[bright_line_err].data
+            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+
+            print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!")
+            bl_check = np.count_nonzero(~np.isnan(g_flux))
+            if ha_check < bl_check:
+                print(bright_line + " is better!")
+            else:
+                print(f"Ha is better")
+                g_velo = gasfile[9].data
+                g_flux = gasfile[49].data
+                g_flux_err = gasfile[50].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = n_re * r50
+            rad = np.arange(start, end, step)
+            if len(rad) < n_ells:
+                print("Not enough ellipses!")
+                #log_file.write("Not enough ellipses!\n")
+                return
+            g_velo[np.isnan(g_velo)] = 0
+            g_velo_err[np.isnan(g_velo_err)] = 0
+            g_flux[np.isnan(g_flux)] = 0
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
+                           cover=0.95)
+
+            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            pa_g = np.nanmedian(kg.pa)
+            q_g = np.nanmedian(kg.q)
+
+            fig, ax = plt.subplots()
+            # ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+            # ax.plot(ks.rad, ks1, zorder=1)
+            ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+            ax.plot(kg.rad, kg1, zorder=1)
+            ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+            ax.set_xlabel("R [pix]")
+            ax.legend()
+            plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                        bbox_inches="tight")
+
+            # starfile.close()
+            gasfile.close()
+            # starfile = fits.open(star_file)
+            gasfile = fits.open(gas_file)
+            if ha_check > bl_check:
+                # s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
+                #                                       starfile[4].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[
+                    9].data, gasfile[10].data, gasfile[11].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                g_flux = g_flux / g_flux_err
+                # starfile.close()
+                gasfile.close()
+
+                fig, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(5, 8))
+                # p1 = ax1.imshow(s_flux, origin="lower")
+                # p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
+                #                 vmax=0.5 * np.nanmax(s_velo))
+                # p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
+                p4 = ax4.imshow(g_flux, origin="lower")
+                p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
+                                vmax=0.9 * np.nanmax(g_velo))
+                p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(g_sigma))
+                # ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                # ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                #                       height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+                ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
+                # ax1.set_ylabel("Stars")
+                ax4.set_ylabel("Gas")
+                for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
+                                        [r"SNR [H$_\alpha$]",
+                                         r"V [kms$^{-1}$]",
+                                         r"$\sigma$ [kms$^{-1}$]"]):
+                    plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
+                plt.savefig("plots/flux_velo_plots/" + str(galaxy)+ "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                            bbox_inches="tight")
+
+                hdr = fits.Header()
+                hdr["COMMENT"] = '========================================================================'
+                hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
+                hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
+                hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
+                hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
+                hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
+                hdr["COMMENT"] = ' [10]'
+                hdr["COMMENT"] = '========================================================================'
+                hdr["OBJECT"] = galaxy
+                n = None
+                hdu0 = fits.PrimaryHDU(n, header=hdr)
+                hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
+                hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
+                hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
+                hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
+                hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
+                hdr["BUNIT"] = None
+
+                out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
+                out.writeto("plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                            overwrite=True)
+
+            else:
+                # s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
+                #                                       starfile[4].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
+                    bright_line_err].data, gasfile[
+                                                                      9].data, gasfile[10].data, gasfile[11].data
+                g_velo = clean_images(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                # g_flux = g_flux / g_flux_err
+                # starfile.close()
+                gasfile.close()
+
+                fig, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(5, 8))
+                # p1 = ax1.imshow(s_flux, origin="lower")
+                # p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-0.5 * np.nanmax(s_velo),
+                #                 vmax=0.5 * np.nanmax(s_velo))
+                # p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
+                p4 = ax4.imshow(g_flux, origin="lower")
+                p5 = ax5.imshow(g_velo, origin="lower", cmap="cmr.redshift", vmin=-0.9 * np.nanmax(g_velo),
+                                vmax=0.9 * np.nanmax(g_velo))
+                p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(g_sigma))
+                # ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+                # ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                #                       height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+                ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
+                # ax1.set_ylabel("Stars")
+                ax4.set_ylabel("Gas")
+                for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
+                                        [bright_line[:-2] + r" [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
+                                         r"V [kms$^{-1}$]",
+                                         r"$\sigma$ [kms$^{-1}$]"]):
+                    plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
+                plt.savefig("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                            bbox_inches="tight")
+
+                hdr = fits.Header()
+                hdr["COMMENT"] = '========================================================================'
+                hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
+                hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
+                hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
+                hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
+                hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
+                hdr["COMMENT"] = ' [10]'
+                hdr["COMMENT"] = '========================================================================'
+                hdr["OBJECT"] = galaxy
+                n = None
+                hdu0 = fits.PrimaryHDU(n, header=hdr)
+                hdu1 = fits.ImageHDU(g_flux, name="SNR_Stars", header=hdr)
+                hdu2 = fits.ImageHDU(g_velo, name="Data", header=hdr)
+                hdu3 = fits.ImageHDU(kg.velcirc, name="Velcirc", header=hdr)
+                hdu4 = fits.ImageHDU(kg.velkin, name="VelKin", header=hdr)
+                hdu5 = fits.ImageHDU(g_velo - kg.velcirc, name="V - VelKin", header=hdr)
+                hdr["BUNIT"] = None
+
+                out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
+                out.writeto("plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                            overwrite=True)
+
+
+    elif os.path.exists(gas_file) == False and os.path.exists(star_file):
+        print("Has stellar kinematics but no gas!")
+        starfile = fits.open(star_file)
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+
+        clip = np.nanmax(s_flux)
+        y0, x0 = s_flux.shape
+        x0 = int(x0 / 2)
+        y0 = int(y0 / 2)
+        print(f"Max Stellar SNR = {clip:.2f}...")
+        if clip < SNR_star:
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            return
+        elif np.isinf(clip) or np.isnan(clip):
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            return
+
+        start = (0.65 / 2) / 0.2
+        step = (0.65 / 2) / 0.2
+        end = n_re * r50
+        rad = np.arange(start, end, step)
+        if len(rad) < n_ells:
+            print("Not enough ellipses!")
+            return
+        s_velo[np.isnan(s_velo)] = 0
+        s_flux[np.isnan(s_flux)] = 0
+        ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
+                       cover=0.95)
+        ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+        pa_s = np.nanmedian(ks.pa)
+
+        fig, ax = plt.subplots()
+        ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+        ax.plot(ks.rad, ks1, zorder=1)
+        ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+        ax.set_xlabel("R [pix]")
+        ax.legend()
+        plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                    bbox_inches="tight")
+
+        starfile.close()
+        starfile = fits.open(star_file)
+        s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
+        starfile.close()
+
+        fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(10, 8))
+        p1 = ax1.imshow(s_flux, origin="lower")
+        p2 = ax2.imshow(s_velo, origin="lower", cmap="cmr.redshift", vmin=-220, vmax=220)
+        p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
+        ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
+        ax1.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
+                              height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
+        ax1.set_ylabel("Stars")
+        for p, ax, label in zip([p1, p2, p3], [ax1, ax2, ax3],
+                                [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR",
+                                 r"V [kms$^{-1}$]",
+                                 r"$\sigma$ [kms$^{-1}$]"]):
+            plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
+        plt.savefig("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+        plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                    bbox_inches="tight")
+
+        hdr = fits.Header()
+        hdr["COMMENT"] = '========================================================================'
+        hdr["COMMENT"] = 'This FITS file contains the gas SNR map [1], gas observed velocity field'
+        hdr["COMMENT"] = '[2], simple gas circular velocity model [3], gas kinemetry model'
+        hdr["COMMENT"] = '(with higher order terms), stars SNR map [4], gas velocity residual map '
+        hdr["COMMENT"] = ' [5],stars SNR map [6], star velocity model [7], star simple circular ve'
+        hdr["COMMENT"] = 'locity model [8], stars kinemetry model [9], star velocity residual map'
+        hdr["COMMENT"] = ' [10]'
+        hdr["COMMENT"] = '========================================================================'
+        hdr["OBJECT"] = str(galaxy)
+        n = None
+        hdu0 = fits.PrimaryHDU(n, header=hdr)
+        hdu1 = fits.ImageHDU(s_flux, name="SNR_Stars", header=hdr)
+        hdu2 = fits.ImageHDU(s_velo, name="Data", header=hdr)
+        hdu3 = fits.ImageHDU(ks.velcirc, name="Velcirc", header=hdr)
+        hdu4 = fits.ImageHDU(ks.velkin, name="VelKin", header=hdr)
+        hdu5 = fits.ImageHDU(s_velo - ks.velcirc, name="V - VelKin", header=hdr)
+        hdr["BUNIT"] = None
+
+        out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
+        out.writeto("plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                    overwrite=True)
+
+
+
 
 
 
