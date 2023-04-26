@@ -315,7 +315,7 @@ def BPT_plots(output_file, sample_file):
                        "[SII]6718": SII_fluxes,
                        "type(sf+AGN=0, sf=1, sy=2, ln=3)": sf_sy_ln,
                        "type(sf=1, sy=2, ln=3) SII": SII_bpt,
-                       "SFR, dust corrected": SFR,
+                       "SFR": SFR,
                        "SFR_err": SFR_err,
                        "re, arcsec": re * 0.2,
                        "re, kpc": re_DL})
