@@ -385,6 +385,171 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     return results
 
 
+def radial_rotation(file):
+    sample = pd.read_csv(file)
+    sample = sample[sample["v_asym_s"] / sample["v_asym_s_err"] > 3]
+    source_cat = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv")
+    source_cat = source_cat[source_cat["MAGPIID"].isin(sample["MAGPIID"])]
+    galaxy = sample['MAGPIID'].to_numpy()
+    pa = source_cat["ang_it"].to_numpy()
+    q = source_cat["axrat_it"].to_numpy()
+    r50 = source_cat["R50_it"].to_numpy() / 0.2
+    z = source_cat["z"].to_numpy()
+    pix = np.radians((0.33 / 0.2)) * cosmo.luminosity_distance(z).to(u.kpc).value
+    vg = sample['v_asym_g'].to_numpy()
+    vs = sample["v_asym_s"].to_numpy()
+    srad = np.zeros(len(sample))
+    srot = np.zeros(len(sample))
+    grad = np.zeros(len(sample))
+    grot = np.zeros(len(sample))
+    for i in range(len(sample["MAGPIID"])):
+        if np.isnan(vg[i]):
+            print("Do kinemetry only on stars")
+            field = str(galaxy[i])[:4]
+            starfile = fits.open(
+                "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[i]) + "_kinematics_ppxf-maps.fits")
+            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+            starfile.close()
+            y0, x0 = s_flux.shape
+            x0 = int(x0 / 2)
+            y0 = int(y0 / 2)
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = 2 * r50[i]
+            rad = np.arange(start, end, step)
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[i] - 0.1, q[i] + 0.1], allterms=True,
+                           cover=0.95)
+            if np.abs(np.nanmin(ks.cf[:, 1])) > np.abs(np.nanmax(ks.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmin(ks.cf[:,1]):.2f}")
+                srad[i] = np.nanmin(ks.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(ks.cf[:,2]):.2f}")
+                srot[i] = np.nanmax(ks.cf[:, 2])
+            if np.abs(np.nanmin(ks.cf[:, 1])) < np.abs(np.nanmax(ks.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmax(ks.cf[:,1]):.2f}")
+                srad[i] = np.nanmax(ks.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(ks.cf[:,2]):.2f}")
+                srot[i] = np.nanmax(ks.cf[:, 2])
+            else:
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmax(ks.cf[:,1]):.2f}")
+                srad[i] = np.nanmax(ks.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(ks.cf[:,2]):.2f}")
+                srot[i] = np.nanmax(ks.cf[:, 1])
+        if np.isnan(vs[i]):
+            print("Do kinemetry only on gas")
+            field = str(galaxy[i])[:4]
+            gasfile = fits.open(
+                "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+                    galaxy[i]) + "_GIST_EmissionLines.fits")
+            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
+                gasfile[10].data, gasfile[11].data
+            gasfile.close()
+            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = g_flux / g_flux_err
+            y0, x0 = s_flux.shape
+            x0 = int(x0 / 2)
+            y0 = int(y0 / 2)
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = 2 * r50[i]
+            rad = np.arange(start, end, step)
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[i] - 0.1, q[i] + 0.1], allterms=True,
+                           cover=0.95)
+            if np.abs(np.nanmin(kg.cf[:, 1])) > np.abs(np.nanmax(kg.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmin(kg.cf[:,1]):.2f}")
+                grad[i] = np.nanmin(kg.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(kg.cf[:,2]):.2f}")
+                grot[i] = np.nanmax(kg.cf[:, 2])
+            if np.abs(np.nanmin(kg.cf[:, 1])) < np.abs(np.nanmax(kg.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmax(kg.cf[:,1]):.2f}")
+                grad[i] = np.nanmax(kg.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                grot[i] = np.nanmax(kg.cf[:, 2])
+                # print(f"{np.nanmax(kg.cf[:,2]):.2f}")
+        if not np.isnan(vs[i]) and not np.isnan(vg[i]):
+            print("Do kinemetry on both")
+            field = str(galaxy[i])[:4]
+            starfile = fits.open(
+                "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[i]) + "_kinematics_ppxf-maps.fits")
+            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+            starfile.close()
+            y0, x0 = s_flux.shape
+            x0 = int(x0 / 2)
+            y0 = int(y0 / 2)
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = 2 * r50[i]
+            rad = np.arange(start, end, step)
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[i] - 0.1, q[i] + 0.1], allterms=True,
+                           cover=0.95)
+            if np.abs(np.nanmin(ks.cf[:, 1])) > np.abs(np.nanmax(ks.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmin(ks.cf[:,1]):.2f}")
+                srad[i] = np.nanmin(ks.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(ks.cf[:,2]):.2f}")
+                srot[i] = np.nanmax(ks.cf[:, 2])
+            if np.abs(np.nanmin(ks.cf[:, 1])) < np.abs(np.nanmax(ks.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmax(ks.cf[:,1]):.2f}")
+                srad[i] = np.nanmax(ks.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(ks.cf[:,2]):.2f}")
+                srot[i] = np.nanmax(ks.cf[:, 2])
+            field = str(galaxy[i])[:4]
+            gasfile = fits.open(
+                "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+                    galaxy[i]) + "_GIST_EmissionLines.fits")
+            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
+                gasfile[10].data, gasfile[11].data
+            gasfile.close()
+            g_velo = clean_images(g_velo, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images(g_velo_err, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_flux = clean_images(g_flux, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_flux = g_flux / g_flux_err
+            y0, x0 = s_flux.shape
+            x0 = int(x0 / 2)
+            y0 = int(y0 / 2)
+            start = (0.65 / 2) / 0.2
+            step = (0.65 / 2) / 0.2
+            end = 2 * r50[i]
+            rad = np.arange(start, end, step)
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[i] - 0.1, q[i] + 0.1], allterms=True,
+                           cover=0.95)
+            if np.abs(np.nanmin(kg.cf[:, 1])) > np.abs(np.nanmax(kg.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmin(kg.cf[:,1]):.2f}")
+                grad[i] = np.nanmin(kg.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                # print(f"{np.nanmax(kg.cf[:,2]):.2f}")
+                grot[i] = np.nanmax(kg.cf[:, 2])
+            if np.abs(np.nanmin(kg.cf[:, 1])) < np.abs(np.nanmax(kg.cf[:, 1])):
+                # print("Stellar Radial Velocity")
+                # print(f"{np.nanmax(kg.cf[:,1]):.2f}")
+                grad[i] = np.nanmax(kg.cf[:, 1])
+                # print("Stellar Rot Velocity")
+                grot[i] = np.nanmax(kg.cf[:, 2])
+                # print(f"{np.nanmax(kg.cf[:,2]):.2f}")
+    results = [srad,srot,grad,grot]
+    return results
+
+
+
+
 
 
 

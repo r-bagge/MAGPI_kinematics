@@ -1,5 +1,7 @@
 import numpy as np
 from astropy.io import fits
+from astropy.cosmology import Planck18 as cosmo
+import astropy.units as u
 import pandas as pd
 import os
 from kinemetry import kinemetry
@@ -9,7 +11,7 @@ from magpi_kinemetry import MAGPI_kinemetry
 from magpi_kinemetry import clean_images
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
-import glob
+from magpi_kinemetry import radial_rotation
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, k_flux_g, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, k_flux_s = args
@@ -445,34 +447,46 @@ def MAGPI_kinemetry_parrallel(args):
 
         return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 3, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0
 
+def radial_rotation_motion():
+    csv_file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv")
+    csv_file = csv_file[csv_file["MAGPIID"].isin([galaxy])]
+    z = csv_file["z"].to_numpy()[0]
+    r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
+    q = csv_file["axrat_it"].to_numpy()[0]
+    pa = csv_file["ang_it"].to_numpy()[0]
+    DL = cosmo.luminosity_distance(z).to(u.kpc).value
+    pix = np.radians(0.33 / 3600) * DL
+
 
 if __name__ == '__main__':
-    # file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-    # z = file["z"].to_numpy()
-    # pa = file["ang_it"].to_numpy()
-    # q = file["axrat_it"].to_numpy()
-    # re = file["R50_it"].to_numpy() / 0.2
-    # quality = file["QOP"].to_numpy()
-    # galaxy = file["MAGPIID"].to_numpy()
-    # galaxies = []
-    # GasAsym = []
-    # GasAsymErr = []
-    # StarsAsym = []
-    # StarsAsymErr = []
-    # print("Beginning the hard part...")
-    # for i in range(len(file)):
-    #     pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
-    #     args = MAGPI_kinemetry_parrallel(pars)
-    #     if args is None:
-    #         continue
-    #     mcs = monte_carlo_parallel(args)
-    #     galaxies.append(galaxy[i])
-    #     print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
-    #     GasAsym.append(np.nanmean(mcs[0]))
-    #     GasAsymErr.append(np.nanstd(mcs[0]))
-    #     print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
-    #     StarsAsym.append(np.nanmean(mcs[1]))
-    #     StarsAsymErr.append(np.nanstd(mcs[1]))
+    mc=True
+    if mc==True:
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        z = file["z"].to_numpy()
+        pa = file["ang_it"].to_numpy()
+        q = file["axrat_it"].to_numpy()
+        re = file["R50_it"].to_numpy() / 0.2
+        quality = file["QOP"].to_numpy()
+        galaxy = file["MAGPIID"].to_numpy()
+        galaxies = []
+        GasAsym = []
+        GasAsymErr = []
+        StarsAsym = []
+        StarsAsymErr = []
+        print("Beginning the hard part...")
+        for i in range(len(file)):
+            pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
+            args = MAGPI_kinemetry_parrallel(pars)
+            if args is None:
+                continue
+            mcs = monte_carlo_parallel(args)
+            galaxies.append(galaxy[i])
+            print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
+            GasAsym.append(np.nanmean(mcs[0]))
+            GasAsymErr.append(np.nanstd(mcs[0]))
+            print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
+            StarsAsym.append(np.nanmean(mcs[1]))
+            StarsAsymErr.append(np.nanstd(mcs[1]))
 
     print("Doing the easy part now...")
     results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
@@ -481,18 +495,25 @@ if __name__ == '__main__':
     stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
     stellar_gas_plots_vectorized(results[0])
 
-
-    # df = pd.DataFrame({"MAGPIID":galaxies,
-    #                    "v_asym_g":GasAsym,
-    #                    "v_asym_g_err":GasAsymErr,
-    #
-    #                    "v_asym_s":StarsAsym,
-    #                    "v_asym_s_err":StarsAsymErr,
-    #                    "PA_g":results[1],
-    #                    "PA_s": results[2],
-    #                    "D_PA": results[3],
-    #                    "V_rot_g": results[4],
-    #                    "V_rot_s": results[5]})
-    # df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
-    # BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
+    file = file[file["MAGPIID"].isin(results[0])]
+    file.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv",index=False)
+    rad_rot = radial_rotation("MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    if mc==True:
+        df = pd.DataFrame({"MAGPIID":galaxies,
+                           "v_asym_g":GasAsym,
+                           "v_asym_g_err":GasAsymErr,
+                           "v_asym_s":StarsAsym,
+                           "v_asym_s_err":StarsAsymErr,
+                           "PA_g":results[1],
+                           "PA_s": results[2],
+                           "D_PA": results[3],
+                           "V_rot_g": results[4],
+                           "V_rot_s": results[5],
+                           "vrad_s":rad_rot[0],
+                           "vrot_s":rad_rot[1],
+                           "vrad_g":rad_rot[2],
+                           "vrot_g":rad_rot[3]})
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
     print("All done!")
