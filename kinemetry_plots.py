@@ -186,12 +186,12 @@ def BPT_plots(output_file, sample_file):
 
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
                              "plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
-
-        fig, ax = plt.subplots()
-        p = ax.imshow(bpt_map)
-        cbar = plt.colorbar(p, ax=ax, ticks=[1, 2, 3])
-        cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
-        plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
+        if not bpt_map==None:
+            fig, ax = plt.subplots()
+            p = ax.imshow(bpt_map)
+            cbar = plt.colorbar(p, ax=ax, ticks=[1, 2, 3])
+            cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
+            plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
         HA_flux = aperture_photometry(HA, pa, 2 * r50, 2 * r50 * q)
         HA_err_flux = aperture_photometry(HA_err, pa, 2 * r50, 2 * r50 * q)

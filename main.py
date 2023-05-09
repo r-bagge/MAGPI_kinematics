@@ -19,6 +19,7 @@ def monte_carlo(args):
         v_asym_gmc = np.zeros(n)
         for h in range(n):
             model = g_model
+            model[np.isnan(model)]=0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True, cover=0.95)
@@ -29,7 +30,7 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
             try:
-                v_asym_gmc[h] = np.nansum(k_flux_g * v_asym / np.nansum(k_flux_g))
+                v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
             except ValueError:
                 v_asym_gmc[h] = np.nan
         out = np.zeros(v_asym_gmc.shape)
@@ -39,6 +40,7 @@ def monte_carlo(args):
         v_asym_smc = np.zeros(n)
         for h in range(n):
             model= s_model
+            model[np.isnan(model)]=0
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True, cover=0.95)
@@ -49,7 +51,7 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
             try:
-                v_asym_smc[h] = np.nansum(k_flux_s * v_asym / np.nansum(k_flux_s))
+                v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
             except ValueError:
                 v_asym_smc[h] = np.nan
         out = np.zeros(v_asym_smc.shape)
@@ -61,7 +63,8 @@ def monte_carlo(args):
         for h in range(n):
             s_model_2 = s_model
             g_model_2 = g_model
-
+            s_model_2[np.isnan(s_model_2)]=0
+            g_model_2[np.isnan(g_model_2)] = 0
             s_model_2 += np.random.normal(loc=0, scale=s_img_err)
             g_model_2 += np.random.normal(loc=0, scale=g_img_err)
 
@@ -82,11 +85,11 @@ def monte_carlo(args):
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
             v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
             try:
-                v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s / np.nansum(k_flux_s))
+                v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
             except ValueError:
                 v_asym_smc[h] = np.nan
             try:
-                v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g / np.nansum(k_flux_g))
+                v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
             except ValueError:
                 v_asym_gmc[h] = np.nan
         return v_asym_gmc, v_asym_smc
@@ -125,7 +128,7 @@ def MAGPI_kinemetry_parrallel(args):
     galaxy, pa, q, z, r50, quality = args
     field = str(galaxy)[:4]
     n_re = 2
-    res_cutoff = (0.65 / 2) / 0.2
+    res_cutoff = 0.7/0.2
     cutoff = 1
     n_ells = 5
     n = 100
@@ -459,7 +462,7 @@ def radial_rotation_motion():
 
 
 if __name__ == '__main__':
-    mc=True
+    mc=False
     if mc==True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -496,9 +499,8 @@ if __name__ == '__main__':
     stellar_gas_plots_vectorized(results[0])
 
     file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
-    file = file[file["MAGPIID"].isin(results[0])]
-    file.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv",index=False)
-    rad_rot = radial_rotation("MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    file1 = file[file["MAGPIID"].isin(results[0])]
+    file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv",index=False)
     if mc==True:
         df = pd.DataFrame({"MAGPIID":galaxies,
                            "v_asym_g":GasAsym,
@@ -510,10 +512,8 @@ if __name__ == '__main__':
                            "D_PA": results[3],
                            "V_rot_g": results[4],
                            "V_rot_s": results[5],
-                           "vrad_s":rad_rot[0],
-                           "vrot_s":rad_rot[1],
-                           "vrad_g":rad_rot[2],
-                           "vrot_g":rad_rot[3]})
+                           })
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
+        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
     print("All done!")
