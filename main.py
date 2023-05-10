@@ -234,12 +234,10 @@ def MAGPI_kinemetry_parrallel(args):
         g_flux[np.isnan(g_flux)] = 0
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                       cover=0.95)
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                             cover=0.95)
+                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_flux_k0 = k_flux_g.cf[:, 0]
 
         return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 1, None, None, None, None, None, None, None, None
@@ -281,12 +279,10 @@ def MAGPI_kinemetry_parrallel(args):
         s_flux[np.isnan(s_flux)] = 0
 
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                       cover=0.95)
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                             cover=0.95)
+                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks_flux_k0 = k_flux_s.cf[:, 0]
 
         return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0,
@@ -346,12 +342,10 @@ def MAGPI_kinemetry_parrallel(args):
                 g_flux[np.isnan(g_flux)] = 0
 
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                               cover=0.95)
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True,
-                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                                     cover=0.95)
+                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 kg_flux_k0 = k_flux_g.cf[:, 0]
 
                 return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 1, None, None, None, None, None, None, None, None
@@ -392,12 +386,10 @@ def MAGPI_kinemetry_parrallel(args):
                 s_flux[np.isnan(s_flux)] = 0
 
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                               cover=0.95)
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True,
-                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                                     cover=0.95)
+                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 ks_flux_k0 = k_flux_s.cf[:, 0]
 
                 return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0
@@ -432,37 +424,23 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on stars and gas!")
         print("Doing kinemetry on stars and gas!", file=logfile)
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                       cover=0.95)
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                       cover=0.95)
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                             cover=0.95)
+                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
-                             cover=0.95)
+                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks_flux_k0 = k_flux_s.cf[:, 0]
         kg_flux_k0 = k_flux_g.cf[:, 0]
 
         return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 3, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0
 
-def radial_rotation_motion():
-    csv_file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv")
-    csv_file = csv_file[csv_file["MAGPIID"].isin([galaxy])]
-    z = csv_file["z"].to_numpy()[0]
-    r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
-    q = csv_file["axrat_it"].to_numpy()[0]
-    pa = csv_file["ang_it"].to_numpy()[0]
-    DL = cosmo.luminosity_distance(z).to(u.kpc).value
-    pix = np.radians(0.33 / 3600) * DL
-
 
 if __name__ == '__main__':
-    mc=False
+    mc=True
     if mc==True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -512,6 +490,8 @@ if __name__ == '__main__':
                            "D_PA": results[3],
                            "V_rot_g": results[4],
                            "V_rot_s": results[5],
+                           "SNR_g": results[6],
+                           "SNR_s": results[7],
                            })
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")

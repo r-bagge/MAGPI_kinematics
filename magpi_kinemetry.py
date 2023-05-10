@@ -38,6 +38,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     pa_ss = []
     pa_gs = []
     d_pas = []
+    SNR_g = []
+    SNR_s = []
     logfile = open("plots/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
     z = master["z"].to_numpy()
@@ -46,8 +48,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     pa = master["ang_it"].to_numpy()
     quality = master["QOP"].to_numpy()
     galaxy = master["MAGPIID"].to_numpy()
-    DL = cosmo.luminosity_distance(z).to(u.kpc).value
-    res_cutoff = (0.65/2)/0.2
+    res_cutoff = 0.70/0.2
     cutoff = 1
     for f in range(len(master)):
         field = str(galaxy[f])[:4]
@@ -150,8 +151,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             g_flux[np.isnan(g_flux)] = 0
 
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             v_rot_g.append(np.nanmax(kg1))
             v_rot_s.append(np.nan)
@@ -159,6 +159,12 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_s = np.nanmedian(np.nan)
             d_pa = np.abs(np.nan)
             gal_id.append(galaxy[f])
+            paq = np.array([pa[f],q[f]])
+            kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                               paq=paq, allterms=True, even=True)
+            kg0 = kg_flux.cf[:,0]
+            SNR_g.append(np.nanmean(kg0))
+            SNR_s.append(np.nan)
             if pa_g==-120 or pa_g==120:
                 pa_gs.append(np.nan)
                 d_pas.append(np.nan)
@@ -204,19 +210,23 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             s_flux[np.isnan(s_flux)] = 0
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
             ks1 = np.sqrt(ks.cf[:,1]**2 + ks.cf[:,2]**2)
+            paq = np.array([pa[f], q[f]])
+            ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                paq=paq, allterms=True, even=True)
+            ks0 = ks_flux.cf[:, 0]
+            SNR_g.append(np.nan)
+            SNR_s.append(np.nanmean(ks0))
             v_rot_s.append(np.nanmax(ks1))
+            v_rot_g.append(np.nan)
             pa_g = np.nanmedian(np.nan)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(np.nan)
-
             gal_id.append(galaxy[f])
             pa_gs.append(pa_g)
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
-            v_rot_g.append(np.nan)
             
         if star_file_catch and gas_file_catch:
             starfile = fits.open(star_file)
@@ -273,11 +283,17 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     g_flux[np.isnan(g_flux)] = 0
 
                     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                   cover=0.95)
+                                   bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
                     kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
                     v_rot_g.append(np.nanmax(kg1))
                     v_rot_s.append(np.nan)
+
+                    paq = np.array([pa[f], q[f]])
+                    kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                        paq=paq, allterms=True, even=True)
+                    kg0 = kg_flux.cf[:, 0]
+                    SNR_g.append(np.nanmean(kg0))
+                    SNR_s.append(np.nan)
                     pa_g = np.nanmedian(kg.pa)
                     pa_s = np.nanmedian(np.nan)
                     d_pa = np.abs(np.nan)
@@ -327,19 +343,26 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     s_flux[np.isnan(s_flux)] = 0
 
                     ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                   cover=0.95)
+                                   bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
                     v_rot_s.append(np.nanmax(ks1))
+                    v_rot_g.append(np.nan)
+
+                    paq = np.array([pa[f], q[f]])
+                    ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                        paq=paq, allterms=True, even=True)
+                    ks0 = ks_flux.cf[:, 0]
+                    SNR_g.append(np.nan)
+                    SNR_s.append(np.nanmean(ks0))
+
                     pa_g = np.nanmedian(np.nan)
                     pa_s = np.nanmedian(ks.pa)
                     d_pa = np.abs(np.nan)
-                    gal_id.append(galaxy[f])
                     pa_gs.append(pa_g)
                     pa_ss.append(pa_s)
                     d_pas.append(d_pa)
-                    v_rot_g.append(np.nan)
 
+                    gal_id.append(galaxy[f])
                     continue
 
             start = (0.65 / 2) / 0.2
@@ -359,26 +382,34 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             print("Doing kinemetry on stars and gas!")
             print("Doing kinemetry on stars and gas!", file=logfile)
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
             ks1 = np.sqrt(ks.cf[:,1]**2+ks.cf[:,2]**2)
             v_rot_s.append(np.nanmax(ks1))
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             v_rot_g.append(np.nanmax(kg1))
+
+            paq = np.array([pa[f], q[f]])
+            ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                paq=paq, allterms=True, even=True)
+            ks0 = ks_flux.cf[:, 0]
+            SNR_s.append(np.nanmean(ks0))
+            kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                paq=paq, allterms=True, even=True)
+            kg0 = kg_flux.cf[:, 0]
+            SNR_g.append(np.nanmean(kg0))
 
             pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(pa_g - pa_s)
-
-            gal_id.append(galaxy[f])
             pa_gs.append(pa_g)
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
 
-    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s]
+            gal_id.append(galaxy[f])
+
+    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,SNR_g,SNR_s]
     for ls in results:
         ls = np.array(ls)
 
