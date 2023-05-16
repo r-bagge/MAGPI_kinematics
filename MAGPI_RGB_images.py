@@ -7,8 +7,13 @@ from astropy.cosmology import Planck18 as cosmo
 import astropy.units as u
 
 
-def make_rgb_images():
+def make_rgb_images(sample=None):
     file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+    if not sample is None:
+        sample = pd.read_csv(sample)
+        file = file[file["MAGPIID"].isin(sample['MAGPIID'])]
+    else:
+        pass
     z = file["z"].to_numpy()
     galaxy = file["MAGPIID"].to_numpy()
     for i in range(len(galaxy)):
@@ -43,9 +48,12 @@ def make_rgb_images():
         ax.plot([2,2+pix],[2,2],color="w")
         ax.text(x=2.5,y=3,s=f"{10:.0f} kpc",color="w")
         ax.set_title(name)
-        plt.savefig("MAGPI_mini-images/RGB_Images/" + name + ".pdf",bbox_inches="tight")
+        if not sample is None:
+            plt.savefig("MAGPI_mini-images/kinemetry_sample_RGB/" + name + ".pdf",bbox_inches="tight")
+        else:
+            plt.savefig("MAGPI_mini-images/RGB_Images/" + name + ".pdf", bbox_inches="tight")
         print("Finishing " + name + "...")
     print("All Done!")
 
 
-make_rgb_images()
+make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample.csv")
