@@ -92,7 +92,7 @@ def monte_carlo(args):
             except ValueError:
                 v_asym_smc[h] = np.nan
             try:
-                v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
+                #v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
                 v_asym_gmc[h] = np.median(v_asym_g)
             except ValueError:
                 v_asym_gmc[h] = np.nan
@@ -497,7 +497,7 @@ if __name__ == '__main__':
                            "SNR_g": results[6],
                            "SNR_s": results[7],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
     print("All done!")
