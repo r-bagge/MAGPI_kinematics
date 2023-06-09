@@ -31,7 +31,7 @@ def monte_carlo(args):
             v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
             try:
                 #v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
-                v_asym_gmc[h] = np.median(v_asym)
+                v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
             except ValueError:
                 v_asym_gmc[h] = np.nan
         out = np.zeros(v_asym_gmc.shape)
@@ -53,7 +53,7 @@ def monte_carlo(args):
             v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
             try:
                 #v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
-                v_asym_smc[h] = np.median(v_asym)
+                v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
             except ValueError:
                 v_asym_smc[h] = np.nan
         out = np.zeros(v_asym_smc.shape)
@@ -88,12 +88,12 @@ def monte_carlo(args):
             v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
             try:
                 #v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
-                v_asym_smc[h] = np.median(v_asym_s)
+                v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
             except ValueError:
                 v_asym_smc[h] = np.nan
             try:
                 #v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
-                v_asym_gmc[h] = np.median(v_asym_g)
+                v_asym_gmc[h] = v_asym_g[(rad_g / np.median(rad_g)) < 1][-1]
             except ValueError:
                 v_asym_gmc[h] = np.nan
         return v_asym_gmc, v_asym_smc
