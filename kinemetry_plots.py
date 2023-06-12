@@ -193,13 +193,13 @@ def BPT_plots(output_file, sample_file):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, 2 * r50, 2 * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, 2 * r50, 2 * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, 2 * r50, 2 * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, 2 * r50, 2 * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, 2 * r50, 2 * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, 2 * r50, 2 * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, 2 * r50, 2 * r50 * q)
+        HA_flux = aperture_photometry(HA, pa, 1.5 * r50, 1.5 * r50 * q)
+        HA_err_flux = aperture_photometry(HA_err, pa, 1.5 * r50, 1.5 * r50 * q)
+        HB_flux = aperture_photometry(HB, pa, 1.5 * r50, 1.5 * r50 * q)
+        OIII_flux = aperture_photometry(OIII, pa, 1.5 * r50, 1.5 * r50 * q)
+        NII_flux = aperture_photometry(NII, pa, 1.5 * r50, 1.5 * r50 * q)
+        OI_flux = aperture_photometry(OI, pa, 1.5 * r50, 1.5 * r50 * q)
+        SII_flux = aperture_photometry(SII, pa, 1.5 * r50, 1.5 * r50 * q)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
@@ -484,10 +484,10 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
         y0 = int(y0 / 2)
         print(f"Max Stellar SNR = {clip:.2f}...")
         if clip < SNR_star:
-            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking")
             return
         elif np.isinf(clip) or np.isnan(clip):
-            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking")
             return
         ha_check = np.count_nonzero(~np.isnan(g_flux))
         if ha_check < 50:
