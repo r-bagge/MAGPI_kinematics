@@ -94,6 +94,7 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
     kk = 1.01 * jj + 0.48
 
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey="row", figsize=(10, 5))
+    plt.rcParams.update({"font.size":12})
     ax1.scatter(np.log10(NII / HA), np.log10(OIII / HB), s=2, c="k")
     ax1.plot(xx, yy, color="k")
     ax1.plot(nn, mm, color="k", ls="dashdot")
@@ -334,6 +335,7 @@ def BPT_plots(output_file, sample_file):
     jj = np.arange(-0.19, 2, 0.01)
     kk = 1.01 * jj + 0.48
 
+    plt.rcParams.update({"font.size":12})
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey="row", figsize=(10, 3))
     ax1.scatter(np.log10(NII_fluxes / HA_fluxes), np.log10(OIII_fluxes / HB_fluxes), s=2, c="k")
     ax1.plot(xx, yy, color="k")
