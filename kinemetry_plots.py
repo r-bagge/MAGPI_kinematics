@@ -121,7 +121,7 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
     return BPT_map
 
 
-def BPT_plots(output_file, sample_file):
+def BPT_plots(output_file, sample_file, n_re):
     HA_fluxes = []
     HB_fluxes = []
     OI_fluxes = []
@@ -194,13 +194,13 @@ def BPT_plots(output_file, sample_file):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, 1.5 * r50, 1.5 * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, 1.5 * r50, 1.5 * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, 1.5 * r50, 1.5 * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, 1.5 * r50, 1.5 * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, 1.5 * r50, 1.5 * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, 1.5 * r50, 1.5 * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, 1.5 * r50, 1.5 * r50 * q)
+        HA_flux = aperture_photometry(HA, pa, n_re * r50, n_re * r50 * q)
+        HA_err_flux = aperture_photometry(HA_err, pa, n_re * r50, n_re * r50 * q)
+        HB_flux = aperture_photometry(HB, pa, n_re * r50, n_re * r50 * q)
+        OIII_flux = aperture_photometry(OIII, pa, n_re * r50, n_re * r50 * q)
+        NII_flux = aperture_photometry(NII, pa, n_re * r50, n_re * r50 * q)
+        OI_flux = aperture_photometry(OI, pa, n_re * r50, n_re * r50 * q)
+        SII_flux = aperture_photometry(SII, pa, n_re * r50, n_re * r50 * q)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
