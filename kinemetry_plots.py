@@ -237,61 +237,57 @@ def BPT_plots(output_file, sample_file):
     for i in range(len(HA_fluxes)):
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
                 OI_fluxes[i] / HA_fluxes[i]) + 1.30:
-            # print(MAGPI[i], "LINER!")
+            print(galaxies[i], "LINER!")
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 3
-            return
+
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) + 0.59)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.89 * np.log10(SII_fluxes[i] / HA_fluxes[i]) + 0.76:
-            # print(MAGPI[i], "LINER!")
+            print(galaxies[i], "LINER!")
             # print(bpt[i] == 3, "Match!")
             sf_sy_ln[i] = 3
-            return
+
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.89 * np.log10(
                 SII_fluxes[i] / HA_fluxes[i]) + 0.76 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
             OI_fluxes[i] / HA_fluxes[i]) + 1.30:
-            # print("Seyfert!")
+            print("Seyfert!")
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 2
-            return
+
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) + 0.59)):
-            # print(MAGPI[i], "Seyfert!")
+            print(galaxies[i], "Seyfert!")
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 2
-            return
+
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32)) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) - +0.59)):
-            # print(MAGPI[i], "Star Forming!")
+            print(galaxies[i], "Star Forming!")
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 1
-            return
+
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47):
-            # print(MAGPI[i], "Comp!")
+            print(galaxies[i], "Comp!")
             # print(bpt[i], "Match!")
             # count = count + 1
             sf_sy_ln[i] = 0
-            return
-        else:
-            # print(MAGPI[i], "Ambigious!")
-            # print(bpt[i], "No Match!")
-            sf_sy_ln[i] = 0
+
     SII_bpt = np.zeros(len(HA_fluxes))
     for i in range(len(HA_fluxes)):
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (
