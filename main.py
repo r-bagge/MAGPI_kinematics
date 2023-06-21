@@ -104,7 +104,7 @@ def monte_carlo_parallel(pars):
     cores = None
     if cores is None:
         cores = multiprocessing.cpu_count()
-    print(f"Running {cores} Cores!")
+    print(f"Running {n} monte carlos on {cores} Cores!")
     group_size = n // 20
     args = [(g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, k_flux_g, group_size, catch, s_model, s_img, s_img_err,
              q_s, x0_s, y0_s, rad_s, k_flux_s) for _ in range(20)]
@@ -112,6 +112,8 @@ def monte_carlo_parallel(pars):
     pool = ctx.Pool(processes=cores, maxtasksperchild=1)
     try:
         vasyms = pool.map(monte_carlo, args, chunksize=1)
+        print("v_asyms")
+        print(vasyms)
     except KeyboardInterrupt:
         print("Caught kbd interrupt")
         pool.close()
@@ -120,11 +122,12 @@ def monte_carlo_parallel(pars):
         pool.close()
         pool.join()
         mcs = np.empty((2, n), dtype=np.float64)
+        print("mcs")
+        print(mcs.shape)
         for i, r in enumerate(vasyms):
             start = i * group_size
             end = start + group_size
             mcs[:, start:end] = r
-
     return mcs
 
 
@@ -135,7 +138,7 @@ def MAGPI_kinemetry_parrallel(args):
     res_cutoff = 0.7/0.2
     cutoff = 1
     n_ells = 5
-    n = 100
+    n = 20
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
@@ -199,13 +202,10 @@ def MAGPI_kinemetry_parrallel(args):
     # Gas kinemetry
     if star_file_catch == False and gas_file_catch:
         gasfile = fits.open(gas_file)
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
-                                                          gasfile[10].data, gasfile[11].data
+        g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
         g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma_err = clean_images(g_sigma_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
@@ -238,13 +238,9 @@ def MAGPI_kinemetry_parrallel(args):
         g_velo[np.isnan(g_velo)] = 0
         g_velo_err[np.isnan(g_velo_err)] = 0
         g_flux[np.isnan(g_flux)] = 0
-        g_sigma_err[np.isnan(g_sigma_err)] = 0
-        g_sigma[np.isnan(g_sigma)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -284,9 +280,9 @@ def MAGPI_kinemetry_parrallel(args):
             return
         print("Doing kinemetry on stars only!")
         print("Doing kinemetry on stars only!", file=logfile)
+        s_flux[np.isnan(s_flux)] = 0
         s_velo[np.isnan(s_velo)] = 0
         s_velo_err[np.isnan(s_velo_err)] = 0
-        s_flux[np.isnan(s_flux)] = 0
 
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -302,8 +298,7 @@ def MAGPI_kinemetry_parrallel(args):
         gasfile = fits.open(gas_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
-                                                          gasfile[10].data, gasfile[11].data
+        g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
         g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
@@ -347,9 +342,9 @@ def MAGPI_kinemetry_parrallel(args):
                     return
                 print("Doing kinemetry on gas!")
                 print("Doing kinemetry on gas!", file=logfile)
+                g_flux[np.isnan(g_flux)] = 0
                 g_velo[np.isnan(g_velo)] = 0
                 g_velo_err[np.isnan(g_velo_err)] = 0
-                g_flux[np.isnan(g_flux)] = 0
 
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -391,9 +386,10 @@ def MAGPI_kinemetry_parrallel(args):
                     return
                 print("Doing kinemetry on stars only!")
                 print("Doing kinemetry on stars only!", file=logfile)
+
+                s_flux[np.isnan(s_flux)] = 0
                 s_velo[np.isnan(s_velo)] = 0
                 s_velo_err[np.isnan(s_velo_err)] = 0
-                s_flux[np.isnan(s_flux)] = 0
 
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -412,24 +408,12 @@ def MAGPI_kinemetry_parrallel(args):
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
+        s_flux[np.isnan(s_flux)] = 0
         s_velo[np.isnan(s_velo)] = 0
+        s_velo_err[np.isnan(s_velo_err)] = 0
+        g_flux[np.isnan(g_flux)] = 0
         g_velo[np.isnan(g_velo)] = 0
         g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
-        s_flux[np.isnan(s_flux)] = 0
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = n_re * r50
-        rad = np.arange(start, end, step)
-        if len(rad) < n_ells:
-            print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
-            return
-        s_velo[np.isnan(s_velo)] = 0
-        g_velo[np.isnan(g_velo)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
-        s_flux[np.isnan(s_flux)] = 0
 
         print("Doing kinemetry on stars and gas!")
         print("Doing kinemetry on stars and gas!", file=logfile)
@@ -450,7 +434,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc=False
+    mc=True
     if mc==True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
