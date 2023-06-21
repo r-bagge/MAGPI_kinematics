@@ -79,6 +79,15 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
         elif galaxy[f] == int("1204192193"):
             print(f"MAGPIID = {galaxy[f]}, For Qainhui")
             logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")
+        elif galaxy == int("1203152196"):
+            print(f"MAGPIID = {galaxy}, garbage galaxy")
+            logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
+        elif galaxy == int("1501180123"):
+            print(f"MAGPIID = {galaxy}, garbage galaxy")
+            logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
+        elif galaxy == int("1502293058"):
+            print(f"MAGPIID = {galaxy}, garbage galaxy")
+            logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
         else:
             print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!")
             print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!")
