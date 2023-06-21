@@ -120,7 +120,7 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
     return BPT_map
 
 
-def BPT_plots(output_file, sample_file):
+def BPT_plots(output_file, sample_file, nre):
     HA_fluxes = []
     HB_fluxes = []
     OI_fluxes = []
@@ -193,13 +193,13 @@ def BPT_plots(output_file, sample_file):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, 2 * r50, 2 * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, 2 * r50, 2 * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, 2 * r50, 2 * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, 2 * r50, 2 * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, 2 * r50, 2 * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, 2 * r50, 2 * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, 2 * r50, 2 * r50 * q)
+        HA_flux = aperture_photometry(HA, pa, nre * r50, nre * r50 * q)
+        HA_err_flux = aperture_photometry(HA_err, pa, nre * r50, nre * r50 * q)
+        HB_flux = aperture_photometry(HB, pa, nre * r50, nre * r50 * q)
+        OIII_flux = aperture_photometry(OIII, pa, nre * r50, nre * r50 * q)
+        NII_flux = aperture_photometry(NII, pa, nre * r50, nre * r50 * q)
+        OI_flux = aperture_photometry(OI, pa, nre * r50, nre * r50 * q)
+        SII_flux = aperture_photometry(SII, pa, nre * r50, nre * r50 * q)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
@@ -236,60 +236,34 @@ def BPT_plots(output_file, sample_file):
     for i in range(len(HA_fluxes)):
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
                 OI_fluxes[i] / HA_fluxes[i]) + 1.30:
-            # print(MAGPI[i], "LINER!")
-            # print(bpt[i], "Match!")
-            # count = count + 1
             sf_sy_ln[i] = 3
-            return
+
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) + 0.59)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.89 * np.log10(SII_fluxes[i] / HA_fluxes[i]) + 0.76:
-            # print(MAGPI[i], "LINER!")
-            # print(bpt[i] == 3, "Match!")
             sf_sy_ln[i] = 3
-            return
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.89 * np.log10(
                 SII_fluxes[i] / HA_fluxes[i]) + 0.76 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
             OI_fluxes[i] / HA_fluxes[i]) + 1.30:
-            # print("Seyfert!")
-            # print(bpt[i], "Match!")
-            # count = count + 1
             sf_sy_ln[i] = 2
-            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) + 0.59)):
-            # print(MAGPI[i], "Seyfert!")
-            # print(bpt[i], "Match!")
-            # count = count + 1
             sf_sy_ln[i] = 2
-            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32)) and \
                 np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.33 + (
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) - +0.59)):
-            # print(MAGPI[i], "Star Forming!")
-            # print(bpt[i], "Match!")
-            # count = count + 1
             sf_sy_ln[i] = 1
-            return
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.47):
-            # print(MAGPI[i], "Comp!")
-            # print(bpt[i], "Match!")
-            # count = count + 1
-            sf_sy_ln[i] = 0
-            return
-        else:
-            # print(MAGPI[i], "Ambigious!")
-            # print(bpt[i], "No Match!")
             sf_sy_ln[i] = 0
     SII_bpt = np.zeros(len(HA_fluxes))
     for i in range(len(HA_fluxes)):
@@ -432,7 +406,7 @@ def list_flat(old_list, new_list):
     return new_list
 
 
-def clean_images(img, pa, a, b, img_err=None):
+def clean_images(img, pa, a, b, img_err=None,SNR=3):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -443,7 +417,7 @@ def clean_images(img, pa, a, b, img_err=None):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < 3:
+            if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i, j] = np.nan
     return img
 
