@@ -500,9 +500,6 @@ if __name__ == '__main__':
     if mc == False:
         gasasymerr = np.ones(len(results[0]))
         starasymerr = np.ones(len(results[0]))
-        for i in results:
-
-            print(i)
         df = pd.DataFrame({"MAGPIID": results[0],
                            "v_asym_g": results[8],
                            "v_asym_g_err": gasasymerr,
