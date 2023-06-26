@@ -445,46 +445,82 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-    z = file["z"].to_numpy()
-    pa = file["ang_it"].to_numpy()
-    q = file["axrat_it"].to_numpy()
-    re = file["R50_it"].to_numpy() / 0.2
-    quality = file["QOP"].to_numpy()
-    galaxy = file["MAGPIID"].to_numpy()
-    galaxies = []
-    GasAsym = []
-    GasAsymErr = []
-    StarsAsym = []
-    StarsAsymErr = []
-    print("Beginning the hard part...")
-    for i in range(len(file)):
-        pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
-        args = MAGPI_kinemetry_parrallel(pars)
-        if args is None:
-            continue
-        mcs = monte_carlo_parallel(args)
-        galaxies.append(galaxy[i])
-        print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
-        GasAsym.append(np.nanmean(mcs[0]))
-        GasAsymErr.append(np.nanstd(mcs[0]))
-        print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
-        StarsAsym.append(np.nanmean(mcs[1]))
-        StarsAsymErr.append(np.nanstd(mcs[1]))
+    mc = False
+    if mc == True:
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        z = file["z"].to_numpy()
+        pa = file["ang_it"].to_numpy()
+        q = file["axrat_it"].to_numpy()
+        re = file["R50_it"].to_numpy() / 0.2
+        quality = file["QOP"].to_numpy()
+        galaxy = file["MAGPIID"].to_numpy()
+        galaxies = []
+        GasAsym = []
+        GasAsymErr = []
+        StarsAsym = []
+        StarsAsymErr = []
+        print("Beginning the hard part...")
+        for i in range(len(file)):
+            pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
+            args = MAGPI_kinemetry_parrallel(pars)
+            if args is None:
+                continue
+            mcs = monte_carlo_parallel(args)
+            galaxies.append(galaxy[i])
+            print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
+            GasAsym.append(np.nanmean(mcs[0]))
+            GasAsymErr.append(np.nanstd(mcs[0]))
+            print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
+            StarsAsym.append(np.nanmean(mcs[1]))
+            StarsAsymErr.append(np.nanstd(mcs[1]))
 
     print("Doing the easy part now...")
-    results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
+    results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
                               n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-    df = pd.DataFrame({"MAGPIID":galaxies,
-                       "v_asym_g":GasAsym,
-                       "v_asym_g_err":GasAsymErr,
-                       "v_asym_s":StarsAsym,
-                       "v_asym_s_err":StarsAsymErr,
-                       "PA_g":results[1],
-                       "PA_s": results[2],
-                       "D_PA": results[3],
-                       "V_rot_g": results[4],
-                       "V_rot_s": results[5]})
-    df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv")
-    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    print("Beginning the second easy part...")
+    #stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+    #stellar_gas_plots_vectorized(results[0])
+
+    file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+    file1 = file[file["MAGPIID"].isin(results[0])]
+    file1.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
+    if mc == True:
+        df = pd.DataFrame({"MAGPIID": galaxies,
+                           "v_asym_g": GasAsym,
+                           "v_asym_g_err": GasAsymErr,
+                           "v_asym_s": StarsAsym,
+                           "v_asym_s_err": StarsAsymErr,
+                           "PA_g": results[1],
+                           "PA_s": results[2],
+                           "D_PA": results[3],
+                           "V_rot_g": results[4],
+                           "V_rot_s": results[5],
+                           "SNR_g": results[6],
+                           "SNR_s": results[7],
+                           })
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
+        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+    if mc == False:
+        gasasymerr = np.ones(len(results[0]))
+        starasymerr = np.ones(len(results[0]))
+        for i in results:
+
+            print(i)
+        df = pd.DataFrame({"MAGPIID": results[0],
+                           "v_asym_g": results[8],
+                           "v_asym_g_err": gasasymerr,
+                           "v_asym_s": results[9],
+                           "v_asym_s_err": starasymerr,
+                           "PA_g": results[1],
+                           "PA_s": results[2],
+                           "D_PA": results[3],
+                           "V_rot_g": results[4],
+                           "V_rot_s": results[5],
+                           "SNR_g": results[6],
+                           "SNR_s": results[7],
+                           })
+        df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+    BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv",
+              "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample.csv")
     print("All done!")

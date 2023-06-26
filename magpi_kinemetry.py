@@ -40,7 +40,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     d_pas = []
     gas_s05 = []
     star_s05 = []
-    logfile = open("plots/MAGPI_kinemetry.txt", "w")
+    logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
     z = master["z"].to_numpy()
     r50 = master["R50_it"].to_numpy() / 0.2
@@ -87,8 +87,10 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!\n")
             logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
             logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
-        star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
+        star_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI"+field+"/Absorption_Lines/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
+        #print(star_file)
+        gas_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI"+field+"/Emission_Lines/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
+        #print(gas_file)
 
         if os.path.exists(star_file):
             star_file_catch = True
@@ -161,7 +163,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                            bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[q[f] - 0.1, q[f] + 0.1], even=True,
                            cover=0.95)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            kgs0 = np.sum(kgs.cf[:,0]*kg_flux[:,0])/(np.sum(kg_flux[:,0]))
+            kgs0 = np.sum(kgs.cf[:,0]*kg_flux.cf[:,0])/(np.sum(kg_flux.cf[:,0]))
             gs05 = np.sqrt((kg1[rad/r50[f]<1])**2 + kgs0**2)
             gas_s05.append(gs05)
             star_s05.append(np.nan)
@@ -227,8 +229,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 even=True,
                                 cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            kss0 = np.sum(kss.cf[:, 0] * ks_flux[:, 0]) / (np.sum(ks_flux[:, 0]))
-            ss05 = np.sqrt((ks1[rad / r50[f] < 1]) ** 2 + kss0 ** 2)
+            kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
+            ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
             gas_s05.append(np.nan)
             star_s05.append(ss05)
 
@@ -310,8 +312,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         even=True,
                                         cover=0.95)
                     kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                    kgs0 = np.sum(kgs.cf[:, 0] * kg_flux[:, 0]) / (np.sum(kg_flux[:, 0]))
-                    gs05 = np.sqrt((kg1[rad / r50[f] < 1]) ** 2 + kgs0 ** 2)
+                    kgs0 = np.sum(kgs.cf[:, 0] * kg_flux.cf[:, 0]) / (np.sum(kg_flux.cf[:, 0]))
+                    gs05 = np.sqrt((kg1[rad / r50[f] < 1][-1]) ** 2 + kgs0 ** 2)
                     gas_s05.append(gs05)
                     star_s05.append(np.nan)
 
@@ -376,8 +378,10 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         even=True,
                                         cover=0.95)
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                    kss0 = np.sum(kss.cf[:, 0] * ks_flux[:, 0]) / (np.sum(ks_flux[:, 0]))
-                    ss05 = np.sqrt((ks1[rad / r50[f] < 1]) ** 2 + kss0 ** 2)
+                    kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
+                    print(kss0)
+                    ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
+                    print(ss05)
                     gas_s05.append(np.nan)
                     star_s05.append(ss05)
 
@@ -421,8 +425,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 even=True,
                                 cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            kss0 = np.sum(kss.cf[:, 0] * ks_flux[:, 0]) / (np.sum(ks_flux[:, 0]))
-            ss05 = np.sqrt((ks1[rad / r50[f] < 1]) ** 2 + kss0 ** 2)
+            kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
+            ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
             gas_s05.append(np.nan)
             star_s05.append(ss05)
             v_rot_s.append(np.nanmax(ks1))
@@ -438,8 +442,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 even=True,
                                 cover=0.95)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            kgs0 = np.sum(kgs.cf[:, 0] * kg_flux[:, 0]) / (np.sum(kg_flux[:, 0]))
-            gs05 = np.sqrt((kg1[rad / r50[f] < 1]) ** 2 + kgs0 ** 2)
+            kgs0 = np.sum(kgs.cf[:, 0] * kg_flux.cf[:, 0]) / (np.sum(kg_flux.cf[:, 0]))
+            gs05 = np.sqrt((kg1[rad / r50[f] < 1][-1]) ** 2 + kgs0 ** 2)
             gas_s05.append(gs05)
             star_s05.append(np.nan)
 
