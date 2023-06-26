@@ -40,6 +40,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     d_pas = []
     gas_s05 = []
     star_s05 = []
+    SNR_g = []
+    SNR_s = []
     logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
     z = master["z"].to_numpy()
@@ -150,6 +152,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             print("Doing kinemetry on gas only!")
             print("Doing kinemetry on gas only!", file=logfile)
             g_velo[np.isnan(g_velo)] = 0
+            g_sigma[np.isnan(g_sigma)] = 0
             g_velo_err[np.isnan(g_velo_err)] = 0
             g_flux[np.isnan(g_flux)] = 0
 
@@ -162,11 +165,21 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[q[f] - 0.1, q[f] + 0.1], even=True,
                            cover=0.95)
+
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
+            kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
+            kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
+            kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
+
             kgs0 = np.sum(kgs.cf[:,0]*kg_flux.cf[:,0])/(np.sum(kg_flux.cf[:,0]))
             gs05 = np.sqrt((kg1[rad/r50[f]<1])**2 + kgs0**2)
-            gas_s05.append(gs05)
+            vasym_g = kg2+kg3+kg4+kg5
+            vasym_g = vasym_g[rad/r50[f]<1][-1]
+            gas_s05.append(vasym_g/(4*gs05))
             star_s05.append(np.nan)
+            SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
+            SNR_s.append(np.nan)
             v_rot_g.append(np.nanmax(kg1))
             v_rot_s.append(np.nan)
             pa_g = np.nanmedian(kg.pa)
@@ -229,12 +242,20 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 even=True,
                                 cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
+            ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
+            ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
+            ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
+
             kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
             ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
+            vasym_s = ks2 + ks3 + ks4 + ks5
+            vasym_s = vasym_s[rad / r50[f] < 1][-1]
+            star_s05.append(vasym_s / (4 * ss05))
             gas_s05.append(np.nan)
-            star_s05.append(ss05)
+            SNR_g.append(np.nan)
+            SNR_s.append(np.nanmean(ks_flux.cf[:,0]))
 
-            ks1 = np.sqrt(ks.cf[:,1]**2 + ks.cf[:,2]**2)
             v_rot_s.append(np.nanmax(ks1))
             pa_g = np.nanmedian(np.nan)
             pa_s = np.nanmedian(ks.pa)
@@ -311,12 +332,21 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                         even=True,
                                         cover=0.95)
+
                     kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+                    kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
+                    kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
+                    kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
+                    kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
+
                     kgs0 = np.sum(kgs.cf[:, 0] * kg_flux.cf[:, 0]) / (np.sum(kg_flux.cf[:, 0]))
                     gs05 = np.sqrt((kg1[rad / r50[f] < 1][-1]) ** 2 + kgs0 ** 2)
-                    gas_s05.append(gs05)
+                    vasym_g = kg2 + kg3 + kg4 + kg5
+                    vasym_g = vasym_g[rad / r50[f] < 1][-1]
+                    gas_s05.append(vasym_g / (4 * gs05))
                     star_s05.append(np.nan)
-
+                    SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
+                    SNR_s.append(np.nan)
                     v_rot_g.append(np.nanmax(kg1))
                     v_rot_s.append(np.nan)
                     pa_g = np.nanmedian(kg.pa)
@@ -378,12 +408,19 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         even=True,
                                         cover=0.95)
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+                    ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
+                    ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
+                    ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
+                    ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
+
                     kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
-                    print(kss0)
                     ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
-                    print(ss05)
+                    vasym_s = ks2 + ks3 + ks4 + ks5
+                    vasym_s = vasym_s[rad / r50[f] < 1][-1]
                     gas_s05.append(np.nan)
-                    star_s05.append(ss05)
+                    star_s05.append(vasym_s / (4 * ss05))
+                    SNR_g.append(np.nan)
+                    SNR_s.append(np.nanmean(ks_flux.cf[:,0]))
 
                     v_rot_s.append(np.nanmax(ks1))
                     pa_g = np.nanmedian(np.nan)
@@ -424,12 +461,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True,
                                 cover=0.95)
-            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
-            ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
-            gas_s05.append(np.nan)
-            star_s05.append(ss05)
-            v_rot_s.append(np.nanmax(ks1))
 
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
@@ -441,14 +472,35 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True,
                                 cover=0.95)
+
+            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
+            ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
+            ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
+            ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
+
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
+            kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
+            kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
+            kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
+
+            kss0 = np.sum(kss.cf[:, 0] * ks_flux.cf[:, 0]) / (np.sum(ks_flux.cf[:, 0]))
+            ss05 = np.sqrt((ks1[rad / r50[f] < 1][-1]) ** 2 + kss0 ** 2)
+            vasym_s = ks2 + ks3 + ks4 + ks5
+            vasym_s = vasym_s[rad / r50[f] < 1][-1]
+            star_s05.append(vasym_s / (4 * ss05))
+            v_rot_s.append(np.nanmax(ks1))
+            SNR_s.append(np.nanmean(ks_flux.cf[:, 0]))
+
             kgs0 = np.sum(kgs.cf[:, 0] * kg_flux.cf[:, 0]) / (np.sum(kg_flux.cf[:, 0]))
             gs05 = np.sqrt((kg1[rad / r50[f] < 1][-1]) ** 2 + kgs0 ** 2)
-            gas_s05.append(gs05)
-            star_s05.append(np.nan)
+            vasym_g = kg2 + kg3 + kg4 + kg5
+            vasym_g = vasym_g[rad / r50[f] < 1][-1]
+            gas_s05.append(vasym_g / (4 * gs05))
+            SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
 
             v_rot_g.append(np.nanmax(kg1))
-
             pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(pa_g - pa_s)
@@ -458,7 +510,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
 
-    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,gas_s05,star_s05]
+    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,SNR_g,SNR_s,gas_s05,star_s05]
     for ls in results:
         ls = np.array(ls)
 
