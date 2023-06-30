@@ -432,7 +432,7 @@ def list_flat(old_list, new_list):
     return new_list
 
 
-def clean_images(img, pa, a, b, img_err=None):
+def clean_images(img, pa, a, b, SNR=3, img_err=None):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -443,7 +443,7 @@ def clean_images(img, pa, a, b, img_err=None):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < 3:
+            if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i, j] = np.nan
     return img
 
