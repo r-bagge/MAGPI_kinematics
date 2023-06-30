@@ -250,7 +250,7 @@ def MAGPI_kinemetry_parrallel(args):
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                              cover=0.95)
         flux_g = k_flux_g.cf[:,0]
-        vg_rot = v_g.cf[:,2]
+        vg_rot = np.sqrt(v_g.cf[:,1]**2 + v_g.cf[:,2]**2)
         sg_sig = s_g.cf[:,0]
 
         return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None
@@ -304,7 +304,7 @@ def MAGPI_kinemetry_parrallel(args):
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                              cover=0.95)
         flux_s = k_flux_s.cf[:, 0]
-        v_s_rot = v_s.cf[:,2]
+        v_s_rot = np.sqrt(v_s.cf[:,1]**2 + v_s.cf[:,2]**2)
         s_s_sig = s_s.cf[:,0]
 
         return None, None, None, None, None, None, None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s,
@@ -376,7 +376,7 @@ def MAGPI_kinemetry_parrallel(args):
                                 rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                                 cover=0.95)
                 flux_g = k_flux_g.cf[:, 0]
-                vg_rot = v_g.cf[:, 2]
+                vg_rot = np.sqrt(v_g[:,1]**2 + v_g.cf[:, 2]**2)
                 sg_sig = s_g.cf[:, 0]
 
                 return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None
@@ -428,7 +428,7 @@ def MAGPI_kinemetry_parrallel(args):
                                 rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                                 cover=0.95)
                 flux_s = k_flux_s.cf[:, 0]
-                v_s_rot = v_s.cf[:, 2]
+                v_s_rot = np.sqrt(v_s.cf[:,1]**2 + v_s.cf[:, 2]**2)
                 s_s_sig = s_s.cf[:, 0]
 
                 return None, None, None, None, None, None, None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s
@@ -472,7 +472,7 @@ def MAGPI_kinemetry_parrallel(args):
                         rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                         cover=0.95)
         flux_s = k_flux_s.cf[:, 0]
-        v_s_rot = v_s.cf[:, 2]
+        v_s_rot = np.sqrt(v_s.cf[:,1]**2 + v_s.cf[:, 2]**2)
         s_s_sig = s_s.cf[:, 0]
 
         v_g = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -487,7 +487,7 @@ def MAGPI_kinemetry_parrallel(args):
                         rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                         cover=0.95)
         flux_g = k_flux_g.cf[:, 0]
-        vg_rot = v_g.cf[:, 2]
+        vg_rot = np.sqrt(v_g.cf[:,1]**2 + v_g.cf[:, 2]**2)
         sg_sig = s_g.cf[:, 0]
 
         return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 3, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s
