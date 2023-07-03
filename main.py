@@ -26,8 +26,8 @@ def monte_carlo(args):
             v_asym = k2 + k3 + k4 + k5
             v_asym = v_asym[rad_g/np.median(rad_g) < 1][-1]
             try:
-               kss0 = np.sum(kg_flux_k0.cf[:, 0] * vg_sig.cf[:, 0]) / (np.sum(kg_flux_k0.cf[:, 0]))
-               gs05 = np.sqrt(0.5*(vg_rot[rad_g/np.median(rad_g) < 1][-1]) ** 2 + kss0 ** 2)
+               kgs0 = np.nanmean(vg_sig.cf[:, 0])
+               gs05 = np.sqrt(0.5*(np.nanmax(vg_rot)) ** 2 + kgs0 ** 2)
                v_asym_gmc[h] = v_asym/(4*gs05)
             except ValueError:
                 v_asym_gmc[h] = np.nan
@@ -49,8 +49,8 @@ def monte_carlo(args):
             v_asym = k2 + k3 + k4 + k5
             v_asym = v_asym[rad_s / np.median(rad_s) < 1][-1]
             try:
-                kss0 = np.sum(ks_flux_k0.cf[:, 0] * vs_sig.cf[:, 0]) / (np.sum(ks_flux_k0.cf[:, 0]))
-                ss05 = np.sqrt(0.5*(vs_rot[rad_s / np.median(rad_s) < 1][-1]) ** 2 + kss0 ** 2)
+                kss0 = np.nanmean(vs_sig.cf[:, 0])
+                ss05 = np.sqrt(0.5*np.nanmax(vs_rot)** 2 + kss0 ** 2)
                 v_asym_smc[h] = v_asym / (4 * ss05)
             except ValueError:
                 v_asym_smc[h] = np.nan
@@ -86,14 +86,14 @@ def monte_carlo(args):
             v_asym_g = kg2 + kg3 + kg4 + kg5
             v_asym_g = v_asym_g[rad_g / np.median(rad_g) < 1][-1]
             try:
-                kss0 = np.sum(ks_flux_k0.cf[:, 0] * vs_sig.cf[:, 0]) / (np.sum(ks_flux_k0.cf[:, 0]))
-                ss05 = np.sqrt(0.5*(vs_rot[rad_s / np.median(rad_s) < 1][-1]) ** 2 + kss0 ** 2)
+                kss0 = np.nanmean(vs_sig.cf[:, 0])
+                ss05 = np.sqrt(0.5*(np.nanmax(vs_rot)) ** 2 + kss0 ** 2)
                 v_asym_smc[h] = v_asym_s / (4 * ss05)
             except ValueError:
                 v_asym_smc[h] = np.nan
             try:
-                kss0 = np.sum(kg_flux_k0.cf[:, 0] * vg_sig.cf[:, 0]) / (np.sum(kg_flux_k0.cf[:, 0]))
-                gs05 = np.sqrt(0.5*(vg_rot[rad_g / np.median(rad_g) < 1][-1]) ** 2 + kss0 ** 2)
+                kss0 = np.nanmean(vg_sig.cf[:, 0])
+                gs05 = np.sqrt(0.5*(np.nanmax(vg_rot)) ** 2 + kss0 ** 2)
                 v_asym_gmc[h] = v_asym_g / (4 * gs05)
             except ValueError:
                 v_asym_gmc[h] = np.nan
@@ -526,7 +526,6 @@ if __name__ == '__main__':
     print("Doing the easy part now...")
     results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
                               n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-    print(results)
     file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
     file1 = file[file["MAGPIID"].isin(results[0])]
     file1.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
@@ -547,6 +546,8 @@ if __name__ == '__main__':
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     if mc == False:
+        for i in results:
+            print(len(i))
         gasasymerr = np.ones(len(results[0]))
         starasymerr = np.ones(len(results[0]))
         df = pd.DataFrame({"MAGPIID": results[0],
@@ -564,6 +565,6 @@ if __name__ == '__main__':
                            })
         df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    # BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_15re.csv",
-    #          "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",nre=1.5)
+    BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_15re.csv",
+             "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",nre=1.5)
     print("All done!")
