@@ -137,7 +137,7 @@ def BPT_plots(output_file, sample_file, nre):
     for g in galaxies:
         print("Beginning MAGPI" + str(g) + "...\n")
         csv_file = pd.read_csv(
-            "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[:4] + "_source_catalogue.csv", skiprows=16)
+            "MAGPI_Emission_Line/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[:4] + "_source_catalogue.csv", skiprows=16)
         csv_file = csv_file[csv_file["MAGPIID"].isin([g])]
         z = csv_file["z"].to_numpy()[0]
         r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
