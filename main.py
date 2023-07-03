@@ -526,7 +526,7 @@ if __name__ == '__main__':
     print("Doing the easy part now...")
     results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
                               n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-
+    print(results)
     file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
     file1 = file[file["MAGPIID"].isin(results[0])]
     file1.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)

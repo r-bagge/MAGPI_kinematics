@@ -90,11 +90,11 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
             logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
         star_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI"+field+"/Absorption_Lines/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        print(star_file)
         gas_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI"+field+"/Emission_Lines/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
         print(gas_file)
-
+        print(star_file)
         if os.path.exists(star_file):
+            print("File Exists!")
             star_file_catch = True
         else:
             print("No stellar kinematics!")
