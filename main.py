@@ -544,7 +544,7 @@ if __name__ == '__main__':
                            "SNR_g": results[6],
                            "SNR_s": results[7],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     if mc == False:
         gasasymerr = np.ones(len(results[0]))
@@ -564,6 +564,6 @@ if __name__ == '__main__':
                            })
         df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv",
-             "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample.csv")
+    # BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_15re.csv",
+    #          "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",nre=1.5)
     print("All done!")

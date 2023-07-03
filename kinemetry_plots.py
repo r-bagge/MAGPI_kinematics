@@ -120,7 +120,7 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
     return BPT_map
 
 
-def BPT_plots(output_file, sample_file):
+def BPT_plots(output_file, sample_file, nre):
     HA_fluxes = []
     HB_fluxes = []
     OI_fluxes = []
@@ -193,13 +193,13 @@ def BPT_plots(output_file, sample_file):
         cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
         plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, 2 * r50, 2 * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, 2 * r50, 2 * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, 2 * r50, 2 * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, 2 * r50, 2 * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, 2 * r50, 2 * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, 2 * r50, 2 * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, 2 * r50, 2 * r50 * q)
+        HA_flux = aperture_photometry(HA, pa, nre * r50, nre * r50 * q)
+        HA_err_flux = aperture_photometry(HA_err, pa, nre * r50, nre * r50 * q)
+        HB_flux = aperture_photometry(HB, pa, nre * r50, nre * r50 * q)
+        OIII_flux = aperture_photometry(OIII, pa, nre * r50, nre * r50 * q)
+        NII_flux = aperture_photometry(NII, pa, nre * r50, nre * r50 * q)
+        OI_flux = aperture_photometry(OI, pa, nre * r50, nre * r50 * q)
+        SII_flux = aperture_photometry(SII, pa, nre * r50, nre * r50 * q)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
@@ -762,9 +762,9 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                     ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                     ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                     ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
+                                          height=2 * r50[f] / q[f], angle=pa_s -90, fc="none", ec="magenta"))
                     ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g, fc="none", ec="magenta"))
+                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
                     ax1.set_ylabel("Stars")
                     ax4.set_ylabel("Gas")
                     for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -828,9 +828,9 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                     ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                     ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                     ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
+                                          height=2 * r50[f] / q[f], angle=pa_s-90, fc="none", ec="magenta"))
                     ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g, fc="none", ec="magenta"))
+                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
                     ax1.set_ylabel("Stars")
                     ax4.set_ylabel("Gas")
                     for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -1049,9 +1049,9 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                 ax4.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
                 ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                      height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
+                                      height=2 * r50[f] / q[f], angle=pa_s -90, fc="none", ec="magenta"))
                 ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                      height=2 * r50[f] / q[f], angle=pa_g, fc="none", ec="magenta"))
+                                      height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -1292,7 +1292,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                     # ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
                     #                       height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
                     ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                          height=2 * r50[f] / q[f], angle=pa_g, fc="none", ec="magenta"))
+                                          height=2 * r50[f] / q[f], angle=pa_g-90, fc="none", ec="magenta"))
                     # ax1.set_ylabel("Stars")
                     ax4.set_ylabel("Gas")
                     for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
@@ -1522,7 +1522,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
             p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
             ax1.add_patch(Circle(xy=(pix[f], pix[f]), radius=pix[f], fc="none", ec="k"))
             ax1.add_patch(Ellipse(xy=(x0, y0), width=2 * r50[f],
-                                  height=2 * r50[f] / q[f], angle=pa_s, fc="none", ec="magenta"))
+                                  height=2 * r50[f] / q[f], angle=pa_s-90, fc="none", ec="magenta"))
             ax1.set_ylabel("Stars")
             for p, ax, label in zip([p1, p2, p3], [ax1, ax2, ax3],
                                     [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR",
