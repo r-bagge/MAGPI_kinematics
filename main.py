@@ -138,62 +138,64 @@ def MAGPI_kinemetry_parrallel(args):
     n = 100
     SNR_Gas = 20
     SNR_Star = 3
-    logfile = open("plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
+    logfile = open("/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
     if z > 0.35:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+        #logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
         return
     elif z < 0.28:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+        #logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
         return
     elif quality < 3:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
+        #logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
         return
     elif r50 < cutoff * res_cutoff:
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
-        logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
+        #logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
     elif galaxy == int("1207128248") or galaxy == int("1506117050"):
         print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
+        #logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
     elif galaxy == int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
+        #logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 180
     elif galaxy == int("1204192193"):
         print(f"MAGPIID = {galaxy}, For Qainhui")
-        logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
+        #logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
         print(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
-        logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
-        logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+        #logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
+        #logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
+        #logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
+    star_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field + "/Absorption_Line/" + str(
+        galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
+
     if os.path.exists(star_file):
         star_file_catch = True
     else:
         print("No stellar kinematics!")
-        logfile.write("No stellar kinematics!\n")
+        #logfile.write("No stellar kinematics!\n")
         star_file_catch = False
 
     if os.path.exists(gas_file):
         gas_file_catch = True
     else:
         print("No gas kinematics!")
-        logfile.write("No gas kinematics!\n")
+        #logfile.write("No gas kinematics!\n")
         gas_file_catch = False
 
     # Check to see if there is neither gas or star data
     if star_file_catch == False and gas_file_catch == False:
         print("No kinematics! Skipping " + str(galaxy) + "!")
-        logfile.write("No kinematics! Skipping " + str(galaxy) + "!\n")
+        #logfile.write("No kinematics! Skipping " + str(galaxy) + "!\n")
         return
 
     # Gas kinemetry
@@ -215,13 +217,11 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"Max Gas SNR = {clip:.2f}...", file=logfile)
         if clip < SNR_Gas:
             print("Not doing kinemetry on " + str(galaxy) + " because its heinous looking")
-            logfile.write(
-                "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         elif np.isinf(clip) or np.isnan(clip):
             print("Not doing kinemetry on " + str(galaxy) + " because its heinous looking")
-            logfile.write(
-                "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
@@ -229,7 +229,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+            #logfile.write.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
@@ -253,7 +253,7 @@ def MAGPI_kinemetry_parrallel(args):
         vg_rot = np.sqrt(v_g.cf[:,1]**2 + v_g.cf[:,2]**2)
         sg_sig = s_g.cf[:,0]
 
-        return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None
+        return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None, None,None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -269,13 +269,11 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"Max Stellar SNR = {clip:.2f}...", file=logfile)
         if clip < SNR_Star:
             print("Not doing kinemetry on " + str(galaxy) + " because its heinous looking")
-            logfile.write(
-                "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         elif np.isinf(clip) or np.isnan(clip):
             print("Not doing kinemetry on " + str(galaxy) + " because its heinous looking")
-            logfile.write(
-                "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
+            #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
@@ -283,7 +281,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+            #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
         print("Doing kinemetry on stars only!")
         print("Doing kinemetry on stars only!", file=logfile)
@@ -307,7 +305,7 @@ def MAGPI_kinemetry_parrallel(args):
         v_s_rot = np.sqrt(v_s.cf[:,1]**2 + v_s.cf[:,2]**2)
         s_s_sig = s_s.cf[:,0]
 
-        return None, None, None, None, None, None, None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s,
+        return None, None, None, None, None, None, None, None, None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s,
 
     if star_file_catch and gas_file_catch:
         starfile = fits.open(star_file)
@@ -328,23 +326,20 @@ def MAGPI_kinemetry_parrallel(args):
         y0 = int(y0 / 2)
 
         print(f"Max Stellar SNR = {s_clip:.2f}...")
-        logfile.write(f"Max Stellar SNR = {s_clip:.2f}...\n")
+        #logfile.write(f"Max Stellar SNR = {s_clip:.2f}...\n")
         if s_clip < SNR_Star or np.isinf(SNR_Star) or np.isnan(SNR_Star):
             print("Not doing kinemetry on " + str(galaxy) + " because its stars are heinous looking")
-            logfile.write(
-                "Not doing kinemetry on " + str(galaxy) + " because its stars are heinous looking\n")
+            #logfile.write.write("Not doing kinemetry on " + str(galaxy) + " because its stars are heinous looking\n")
             print("Trying the gas...")
             print("Trying the gas...\n", file=logfile)
             g_clip = np.nanmax(g_flux)
             print(f"Max Gas SNR = {g_clip:.2f}...")
-            logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
+            #logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
             if g_clip < SNR_Gas or np.isinf(g_clip) or np.isnan(g_clip):
                 print(
                     "Not doing kinemetry on " + str(
                         galaxy) + "because its gas is also heinous looking")
-                logfile.write(
-                    "Not doing kinemetry on " + str(
-                        galaxy) + " because its gas is also heinous looking\n")
+                #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its gas is also heinous looking\n")
                 return
             else:
                 print("Doing kinemetry on the gas only!")
@@ -355,7 +350,7 @@ def MAGPI_kinemetry_parrallel(args):
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                    logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                    #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                     return
                 print("Doing kinemetry on gas!")
                 print("Doing kinemetry on gas!", file=logfile)
@@ -379,26 +374,23 @@ def MAGPI_kinemetry_parrallel(args):
                 vg_rot = np.sqrt(v_g[:,1]**2 + v_g.cf[:, 2]**2)
                 sg_sig = s_g.cf[:, 0]
 
-                return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None
+                return v_g.velkin, g_velo, g_velo_err, q, x0, y0, rad, vg_rot, sg_sig, flux_g, n, 1, None, None, None, None, None, None, None, None, None, None
 
         g_clip = np.nanmax(g_flux)
         print(f"Max Gas SNR = {g_clip:.2f}...")
-        logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
+        #logfile.write.write(f"Max Gas SNR = {g_clip:.2f}...\n")
         if g_clip < SNR_Gas or np.isinf(g_clip) or np.isnan(g_clip):
             print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its gas is heinous looking")
-            logfile.write(
-                "Not Plotting or doing Kinemetry on " + str(galaxy) + " because its gas is heinous looking\n")
+            #logfile.write.write("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its gas is heinous looking\n")
             print("Trying the stars...")
             print("Trying the stars...", file=logfile)
             s_clip = np.nanmax(s_flux)
             print(f"Max Star SNR = {s_clip:.2f}...")
-            logfile.write(f"Max Star SNR = {s_clip:.2f}...\n")
+            #logfile.write(f"Max Star SNR = {s_clip:.2f}...\n")
             if s_clip < SNR_Star or np.isinf(s_clip) or np.isnan(s_clip):
                 print(
                     "Not doing kinemetry on " + str(galaxy) + "because its gas are also heinous looking")
-                logfile.write(
-                    "Not doing kinemetry on " + str(
-                        galaxy) + " because its stars are also heinous looking\n")
+                #logfile.write("Not doing kinemetry on " + str(galaxy) + " because its stars are also heinous looking\n")
                 return
             else:
                 start = (0.65 / 2) / 0.2
@@ -407,7 +399,7 @@ def MAGPI_kinemetry_parrallel(args):
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                    logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                    #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                     return
                 print("Doing kinemetry on stars only!")
                 print("Doing kinemetry on stars only!", file=logfile)
@@ -431,7 +423,7 @@ def MAGPI_kinemetry_parrallel(args):
                 v_s_rot = np.sqrt(v_s.cf[:,1]**2 + v_s.cf[:, 2]**2)
                 s_s_sig = s_s.cf[:, 0]
 
-                return None, None, None, None, None, None, None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s
+                return None, None, None, None, None, None, None, None,None, None, n, 2, v_s.velkin, s_velo, s_velo_err, q, x0, y0, rad, v_s_rot, s_s_sig, flux_s
 
         start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
@@ -439,7 +431,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+            #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
         s_velo[np.isnan(s_velo)] = 0
         s_sigma[np.isnan(s_sigma)] = 0
@@ -455,7 +447,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+            #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
 
         print("Doing kinemetry on stars and gas!")
@@ -494,9 +486,9 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
         pa = file["ang_it"].to_numpy()
         q = file["axrat_it"].to_numpy()
@@ -543,7 +535,7 @@ if __name__ == '__main__':
                            "SNR_g": results[6],
                            "SNR_s": results[7],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+        df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     if mc == False:
         gasasymerr = np.ones(len(results[0]))
