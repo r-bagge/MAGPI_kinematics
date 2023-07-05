@@ -448,7 +448,7 @@ def clean_images(img, pa, a, b, SNR=3, img_err=None):
     return img
 
 
-def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas, mc=False, n=100, n_re=2):
+def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas, n_re=2):
     v_asym_ss = []
     v_asym_ss_err = []
     v_asym_gs = []
@@ -664,76 +664,26 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 print(f"Gas={v_asym_g_2re:.2f}")
                 log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
 
-                if mc:
-                    v_asym_s_mc = np.zeros(n)
-                    v_asym_g_mc = np.zeros(n)
-                    for h in range(n):
-                        print(f"{h + 1} Monte Carlo iteration...\n")
-                        model_s = ks.velkin
-                        model_g = kg.velkin
-                        for i in range(len(s_velo[:, 0])):
-                            for j in range(len(s_velo[0, :])):
-                                model_s[i, j] = + np.random.normal(loc=s_velo[i, j], scale=s_velo_err[i, j])
-                                model_g[i, j] = + np.random.normal(loc=g_velo[i, j], scale=g_velo_err[i, j])
-                        kg = kinemetry(img=model_g, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                      bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                      fixcen=True)
-                        ks = kinemetry(img=model_s, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                       bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                       fixcen=True)
 
-                        try:
-                            v_asym_s_mc[h] = np.nansum(k_flux_s_k0 * ((ks2 + ks3 + ks4 + ks5) / (4 * ks1))) / np.nansum(
-                                k_flux_s_k0)
-                        except ValueError:
-                            v_asym_s_mc[h] = np.nan
-                        try:
-                            v_asym_g_mc[h] = np.nansum(k_flux_g_k0 * ((kg2 + kg3 + kg4 + kg5) / (4 * kg1))) / np.nansum(
-                                k_flux_g_k0)
-                        except ValueError:
-                            v_asym_s_mc[h] = np.nan
+                galaxies.append(file_name[f])
+                v_asym_gs.append(v_asym_g_2re)
+                v_asym_ss.append(v_asym_s_2re)
+                pa_gs.append(pa_g)
+                pa_ss.append(pa_s)
+                d_pas.append(d_PA)
+                v_rot_g.append(np.nanmax(kg1))
+                v_rot_s.append(np.nanmax(ks1))
 
-                    galaxies.append(file_name[f])
-                    v_asym_gs.append(np.nanmean(v_asym_g_mc))
-                    v_asym_gs_err.append(np.nanstd(v_asym_g_mc))
-                    v_asym_ss.append(np.nanmean(v_asym_s_mc))
-                    v_asym_ss_err.append(np.nanstd(v_asym_s_mc))
-                    pa_gs.append(pa_g)
-                    pa_ss.append(pa_s)
-                    d_pas.append(d_PA)
-                    v_rot_g.append(np.nanmax(kg1))
-                    v_rot_s.append(np.nanmax(ks1))
-
-                    fig, ax = plt.subplots()
-                    ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
-                else:
-                    galaxies.append(file_name[f])
-                    v_asym_gs.append(v_asym_g_2re)
-                    v_asym_ss.append(v_asym_s_2re)
-                    pa_gs.append(pa_g)
-                    pa_ss.append(pa_s)
-                    d_pas.append(d_PA)
-                    v_rot_g.append(np.nanmax(kg1))
-                    v_rot_s.append(np.nanmax(ks1))
-
-                    fig, ax = plt.subplots()
-                    ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
+                fig, ax = plt.subplots()
+                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+                ax.plot(ks.rad, ks1, zorder=1)
+                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+                ax.plot(kg.rad, kg1, zorder=1)
+                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+                ax.set_xlabel("R [pix]")
+                ax.legend()
+                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
+                            bbox_inches="tight")
 
                 starfile.close()
                 gasfile.close()
@@ -939,89 +889,25 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 print(f"Gas={v_asym_g_2re:.2f}")
                 log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
 
-                if mc:
-                    v_asym_s_mc = np.zeros(n)
-                    v_asym_g_mc = np.zeros(n)
-                    for h in range(n):
-                        print(f"{h + 1} Monte Carlo iteration...\n")
-                        model_s = ks.velkin
-                        model_g = kg.velkin
-                        for i in range(len(s_velo[:, 0])):
-                            for j in range(len(s_velo[0, :])):
-                                model_s[i, j] = + np.random.normal(loc=s_velo[i, j], scale=s_velo_err[i, j])
-                                model_g[i, j] = + np.random.normal(loc=g_velo[i, j], scale=g_velo_err[i, j])
-                        ks = kinemetry(img=model_s, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                      bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                      fixcen=True)
-                        kg = kinemetry(img=model_g, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                      bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                      fixcen=True)
+                galaxies.append(file_name[f])
+                v_asym_gs.append(v_asym_g_2re)
+                v_asym_ss.append(v_asym_s_2re)
+                pa_gs.append(pa_g)
+                pa_ss.append(pa_s)
+                d_pas.append(d_PA)
+                v_rot_g.append(np.nanmax(kg1))
+                v_rot_s.append(np.nanmax(ks1))
 
-                        # Compute Kinemetry Outputs
-                        ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                        ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
-                        ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
-                        ks4 = np.sqrt(ks.cf[:, 7] ** 2 + ks.cf[:, 8] ** 2)
-                        ks5 = np.sqrt(ks.cf[:, 9] ** 2 + ks.cf[:, 10] ** 2)
-
-                        # Compute Kinemetry Outputs
-                        kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                        kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
-                        kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
-                        kg4 = np.sqrt(kg.cf[:, 7] ** 2 + kg.cf[:, 8] ** 2)
-                        kg5 = np.sqrt(kg.cf[:, 9] ** 2 + kg.cf[:, 10] ** 2)
-                        try:
-                            v_asym_s_mc[h] = np.nansum(k_flux_s_k0 * ((ks2 + ks3 + ks4 + ks5) / (4 * ks1))) / np.nansum(
-                                k_flux_s_k0)
-                        except ValueError:
-                            v_asym_s_mc[h] = np.nan
-                        try:
-                            v_asym_g_mc[h] = np.nansum(k_flux_g_k0 * ((kg2 + kg3 + kg4 + kg5) / (4 * kg1))) / np.nansum(
-                                k_flux_g_k0)
-                        except ValueError:
-                            v_asym_s_mc[h] = np.nan
-
-                    galaxies.append(file_name[f])
-                    v_asym_gs.append(np.nanmean(v_asym_g_mc))
-                    v_asym_gs_err.append(np.nanstd(v_asym_g_mc))
-                    v_asym_ss.append(np.nanmean(v_asym_s_mc))
-                    v_asym_ss_err.append(np.nanstd(v_asym_s_mc))
-                    pa_gs.append(pa_g)
-                    pa_ss.append(pa_s)
-                    d_pas.append(d_PA)
-                    v_rot_g.append(np.nanmax(kg1))
-                    v_rot_s.append(np.nanmax(ks1))
-
-                    fig, ax = plt.subplots()
-                    ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
-                else:
-                    galaxies.append(file_name[f])
-                    v_asym_gs.append(v_asym_g_2re)
-                    v_asym_ss.append(v_asym_s_2re)
-                    pa_gs.append(pa_g)
-                    pa_ss.append(pa_s)
-                    d_pas.append(d_PA)
-                    v_rot_g.append(np.nanmax(kg1))
-                    v_rot_s.append(np.nanmax(ks1))
-
-                    fig, ax = plt.subplots()
-                    ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
+                fig, ax = plt.subplots()
+                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+                ax.plot(ks.rad, ks1, zorder=1)
+                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+                ax.plot(kg.rad, kg1, zorder=1)
+                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+                ax.set_xlabel("R [pix]")
+                ax.legend()
+                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
+                            bbox_inches="tight")
 
                 starfile.close()
                 gasfile.close()
@@ -1193,74 +1079,28 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
                 print(f"Gas={v_asym_g_2re:.2f}")
                 log_file.write(f"Gas={v_asym_g_2re:.2f}\n")
 
-                if mc:
-                    v_asym_g_mc = np.zeros(n)
-                    for h in range(n):
-                        print(f"{h + 1} Monte Carlo iteration...\n")
-                        model_g = kg.velkin
-                        for i in range(len(g_velo[:, 0])):
-                            for j in range(len(g_velo[0, :])):
-                                model_g[i, j] = + np.random.normal(loc=g_velo[i, j], scale=g_velo_err[i, j])
-                        k = kinemetry(img=model_g, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                      bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                      fixcen=True)
+                galaxies.append(file_name[f])
+                v_asym_gs.append(v_asym_g_2re)
+                v_asym_ss.append(np.nan)
+                pa_gs.append(pa_g)
+                pa_ss.append(np.nan)
+                d_pas.append(np.nan)
+                v_rot_g.append(np.nanmax(kg1))
+                v_rot_s.append(np.nan)
 
-                        # Compute Kinemetry Outputs
-                        k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
-                        k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
-                        k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-                        k4 = np.sqrt(k.cf[:, 7] ** 2 + k.cf[:, 8] ** 2)
-                        k5 = np.sqrt(k.cf[:, 9] ** 2 + k.cf[:, 10] ** 2)
-                        try:
-                            v_asym_g_mc[h] = np.nansum(k_flux_g_k0 * ((k2 + k3 + k4 + k5) / (4 * k1))) / np.nansum(
-                                k_flux_g_k0)
-                        except ValueError:
-                            v_asym_g_mc[h] = np.nan
+                fig, ax = plt.subplots()
+                # ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+                # ax.plot(ks.rad, ks1, zorder=1)
+                ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
+                ax.plot(kg.rad, kg1, zorder=1)
+                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+                ax.set_xlabel("R [pix]")
+                ax.legend()
+                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
+                            bbox_inches="tight")
 
-                    galaxies.append(file_name[f])
-                    v_asym_ss.append(np.nan)
-                    v_asym_ss_err.append(np.nan)
-                    v_asym_gs.append(np.nanmean(v_asym_g_mc))
-                    v_asym_gs_err.append(np.nanstd(v_asym_g_mc))
-                    pa_ss.append(np.nan)
-                    pa_gs.append(pa_g)
-                    d_pas.append(np.nan)
-                    v_rot_s.append(np.nan)
-                    v_rot_g.append(np.nanmax(kg1))
-
-                    fig, ax = plt.subplots()
-                    # ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    # ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
-                else:
-                    galaxies.append(file_name[f])
-                    v_asym_gs.append(v_asym_g_2re)
-                    v_asym_ss.append(np.nan)
-                    pa_gs.append(pa_g)
-                    pa_ss.append(np.nan)
-                    d_pas.append(np.nan)
-                    v_rot_g.append(np.nanmax(kg1))
-                    v_rot_s.append(np.nan)
-
-                    fig, ax = plt.subplots()
-                    # ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                    # ax.plot(ks.rad, ks1, zorder=1)
-                    ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
-                    ax.plot(kg.rad, kg1, zorder=1)
-                    ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                    ax.set_xlabel("R [pix]")
-                    ax.legend()
-                    plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                                bbox_inches="tight")
-
-                    # pa_ss.append(pa_s)
-                    # d_pas.append(d_PA)
+                # pa_ss.append(pa_s)
+                # d_pas.append(d_PA)
 
                 # starfile.close()
                 gasfile.close()
@@ -1451,65 +1291,24 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
             print(f"Stars={v_asym_s_2re:.2f}")
             log_file.write(f"Stars={v_asym_s_2re:.2f}\n")
 
-            if mc:
-                v_asym_s_mc = np.zeros(n)
-                for h in range(n):
-                    print(f"{h + 1} Monte Carlo iteration...\n")
-                    model_s = ks.velkin
-                    for i in range(len(s_velo[:, 0])):
-                        for j in range(len(s_velo[0, :])):
-                            model_s[i, j] = + np.random.normal(loc=s_velo[i, j], scale=s_velo_err[i, j])
-                    ks_mc = kinemetry(img=model_s, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                      bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True,
-                                      fixcen=True)
 
-                    # Compute Kinemetry Outputs
-                    ks1 = np.sqrt(ks_mc.cf[:, 1] ** 2 + ks_mc.cf[:, 2] ** 2)
-                    ks2 = np.sqrt(ks_mc.cf[:, 3] ** 2 + ks_mc.cf[:, 4] ** 2)
-                    ks3 = np.sqrt(ks_mc.cf[:, 3] ** 2 + ks_mc.cf[:, 4] ** 2)
-                    ks4 = np.sqrt(ks_mc.cf[:, 7] ** 2 + ks_mc.cf[:, 8] ** 2)
-                    ks5 = np.sqrt(ks_mc.cf[:, 5] ** 2 + ks_mc.cf[:, 6] ** 2)
-                    v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
+            galaxies.append(file_name[f])
+            v_asym_gs.append(np.nan)
+            v_asym_ss.append(v_asym_s_2re)
+            pa_gs.append(np.nan)
+            pa_ss.append(pa_s)
+            d_pas.append(np.nan)
+            v_rot_g.append(np.nan)
+            v_rot_s.append(np.nanmax(ks1))
 
-                    v_asym_s_mc[h] = np.nansum(k_flux_s_k0 * v_asym_s) / np.nansum(k_flux_s_k0)
-
-                galaxies.append(file_name[f])
-                v_asym_gs.append(np.nan)
-                v_asym_gs_err.append(np.nan)
-                v_asym_ss.append(np.nanmean(v_asym_s_mc))
-                v_asym_ss_err.append(np.nanstd(v_asym_s_mc))
-                pa_gs.append(np.nan)
-                pa_ss.append(pa_s)
-                d_pas.append(np.nan)
-                v_rot_g.append(np.nan)
-                v_rot_s.append(np.nanmax(ks1))
-
-                fig, ax = plt.subplots()
-                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                ax.plot(ks.rad, ks1, zorder=1)
-                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                ax.set_xlabel("R [pix]")
-                ax.legend()
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                            bbox_inches="tight")
-            else:
-                galaxies.append(file_name[f])
-                v_asym_gs.append(np.nan)
-                v_asym_ss.append(v_asym_s_2re)
-                pa_gs.append(np.nan)
-                pa_ss.append(pa_s)
-                d_pas.append(np.nan)
-                v_rot_g.append(np.nan)
-                v_rot_s.append(np.nanmax(ks1))
-
-                fig, ax = plt.subplots()
-                ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
-                ax.plot(ks.rad, ks1, zorder=1)
-                ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
-                ax.set_xlabel("R [pix]")
-                ax.legend()
-                plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
-                            bbox_inches="tight")
+            fig, ax = plt.subplots()
+            ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
+            ax.plot(ks.rad, ks1, zorder=1)
+            ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
+            ax.set_xlabel("R [pix]")
+            ax.legend()
+            plt.savefig("plots/" + field_name + "/flux_plots/" + str(file_name[f]) + "_Vrot.pdf",
+                        bbox_inches="tight")
 
             starfile.close()
             starfile = fits.open(star_file)
@@ -1555,7 +1354,7 @@ def stellar_gas_plots(field_name, cutoff, res_cutoff, n_ells, SNR_star, SNR_gas,
             out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
             out.writeto("plots/" + field_name + "/fits_files/" + str(file_name[f]) + "_stellar_kinemetry.fits",
                         overwrite=True)
-    if mc == False:
+
         v_asym_ss_err = list(np.zeros(len(galaxies)))
         v_asym_gs_err = list(np.zeros(len(galaxies)))
 
