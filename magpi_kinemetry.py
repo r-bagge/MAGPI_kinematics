@@ -164,6 +164,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                            cover=0.95)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            #kg1 = kg.cf[:,2]
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
@@ -244,6 +245,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 even=True,
                                 cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            #ks1 = ks.cf[:,1]
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
@@ -339,7 +341,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         even=True,
                                         cover=0.95)
 
-                    kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+                    kg1 = np.sqrt(kg.cf[:,1]**2 + kg.cf[:, 2] ** 2)
+                    #kg1 = kg.cf[:,2]
                     kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
                     kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
                     kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
@@ -379,7 +382,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             print(f"Max Gas SNR = {g_clip:.2f}...")
             #logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
             if g_clip < SNR_Gas or np.isinf(g_clip) or np.isnan(g_clip):
-                print("Not Plotting or doing Kinemetry on " + str(galaxy[f]) + " because its gas is heinous looking")
+                print("Not doing kinemetry on " + str(galaxy[f]) + " because its gas is heinous looking")
                 #logfile.write("Not Plotting or doing Kinemetry on " + str(galaxy[f]) + " because its gas is heinous looking\n")
                 print("Trying the stars...")
                 print("Trying the stars...", file=logfile)
@@ -388,7 +391,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                 #logfile.write(f"Max Star SNR = {s_clip:.2f}...\n")
                 if s_clip < SNR_Star or np.isinf(s_clip) or np.isnan(s_clip):
                     print(
-                        "Not doing kinemetry on " + str(galaxy[f]) + "because its gas are also heinous looking")
+                        "Not doing kinemetry on " + str(galaxy[f]) + "because its stars are also heinous looking")
                     #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its stars are also heinous looking\n")
                     continue
                 else:
@@ -418,6 +421,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                         even=True,
                                         cover=0.95)
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+                    #ks1 = ks.cf[:,2]
                     ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
                     ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
                     ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
@@ -491,12 +495,14 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                                 cover=0.95)
 
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            #ks1 = ks.cf[:,2]
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            #kg1 = kg.cf[:,2]
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
@@ -506,6 +512,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
             ks1 = ks1 / (2 * np.sin(inc))
             ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
+
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
             vasym_s[np.isnan(vasym_s)] = 0
