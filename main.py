@@ -165,7 +165,7 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, fixing PA")
         #logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 180
-    elif galaxy == int("1501180123") or int("1502293058"):
+    elif galaxy == int("1501180123") or galaxy == int("1502293058"):
         print(f"Piece of Shit")
         # logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")
         return

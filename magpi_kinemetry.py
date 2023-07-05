@@ -79,7 +79,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             print(f"MAGPIID = {galaxy[f]}, fixing PA")
             #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
             pa[f] = pa[f] - 180
-        elif galaxy[f] == int("1501180123") or int("1502293058"):
+        elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058"):
             print(f"Piece of Shit")
             #logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")
             continue
@@ -349,6 +349,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                     kg1 = kg1 / (2 * np.sin(inc))
                     gs05 = np.sqrt(0.5 * np.nanmax(kg1) ** 2 + kgs0 ** 2)
+                    vasym_g = kg2+kg3+kg4+kg5
                     vasym_g = vasym_g / (4 * gs05)
                     vasym_g[np.isnan(vasym_g)] = 0
                     try:
