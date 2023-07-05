@@ -23,15 +23,12 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            kgs0 = np.nanmean(vg_sig)
+            kgs0 = np.nanmean(vg_sig[(rad_g/np.median(rad_g)) < 1])
             gs05 = np.sqrt(0.5 * np.nanmax(vg_rot) ** 2 + kgs0 ** 2)
             vasym_g = k2 + k3 + k4 + k5
             vasym_g = vasym_g / (4 * gs05)
             vasym_g[np.isnan(vasym_g)] = 0
-            try:
-                v_asym_gmc[h] = vasym_g[rad_g / np.median(rad_g) < 1][-1]
-            except IndexError:
-                v_asym_gmc[h] = np.nan
+            v_asym_gmc[h] = np.median(vasym_g)
         out = np.zeros(v_asym_gmc.shape)
         out[out==0]=np.nan
         return v_asym_gmc, out
@@ -47,15 +44,12 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            kss0 = np.nanmean(vs_sig)
+            kss0 = np.nanmean(vs_sig[(rad_s/np.median(rad_s)) < 1])
             ss05 = np.sqrt(0.5 * np.nanmax(vs_rot) ** 2 + kss0 ** 2)
             vasym_s = k2 + k3 + k4 + k5
             vasym_s = vasym_s / (4 * ss05)
             vasym_s[np.isnan(vasym_s)] = 0
-            try:
-                v_asym_smc[h] = vasym_s[rad_s / np.median(rad_s) < 1][-1]
-            except IndexError:
-                v_asym_smc[h] = np.nan
+            v_asym_smc[h] = np.median(vasym_s)
         out = np.zeros(v_asym_smc.shape)
         out[out == 0] = np.nan
         return out, v_asym_smc
@@ -78,30 +72,24 @@ def monte_carlo(args):
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
-            kss0 = np.nanmean(vs_sig)
+            kss0 = np.nanmean(vs_sig[(rad_s/np.median(rad_s)) < 1])
             ss05 = np.sqrt(0.5 * np.nanmax(vs_rot) ** 2 + kss0 ** 2)
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
             vasym_s[np.isnan(vasym_s)] = 0
-            try:
-                v_asym_smc[h] = vasym_s[rad_s / np.median(rad_s) < 1][-1]
-            except IndexError:
-                v_asym_smc[h] = np.nan
+            v_asym_smc[h] = np.median(vasym_s)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
-            kgs0 = np.nanmean(vg_sig)
+            kgs0 = np.nanmean(vg_sig[(rad_g/np.median(rad_g)) < 1])
             gs05 = np.sqrt(0.5 * np.nanmax(vg_rot) ** 2 + kgs0 ** 2)
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)
             vasym_g[np.isnan(vasym_g)] = 0
-            try:
-                v_asym_gmc[h] = vasym_g[rad_g / np.median(rad_g) < 1][-1]
-            except IndexError:
-                v_asym_gmc[h] = np.nan
+            v_asym_gmc[h] = np.median(vasym_g)
         return v_asym_gmc, v_asym_smc
 
 
@@ -490,7 +478,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
