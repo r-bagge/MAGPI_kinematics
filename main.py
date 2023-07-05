@@ -7,7 +7,6 @@ import multiprocessing
 import sys
 from magpi_kinemetry import MAGPI_kinemetry
 from magpi_kinemetry import clean_images
-from kinemetry_plots import BPT_plots
 
 def monte_carlo(args):
     g_model, g_img_err, q_g, x0_g, y0_g, rad_g, vg_rot, vg_sig, kg_flux_k0, n, catch, s_model, s_img_err, q_s, x0_s, y0_s, rad_s, vs_rot, vs_sig, ks_flux_k0 = args
@@ -18,17 +17,21 @@ def monte_carlo(args):
             model += np.random.normal(loc=g_model, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True, cover=0.95)
-            k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
+
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
+
             kgs0 = np.nanmean(vg_sig[(rad_g/np.median(rad_g)) < 1])
+            inc = np.arccos(np.sqrt(q_g ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+            vg_rot = vg_rot / (2 * np.sin(inc))
             gs05 = np.sqrt(0.5 * np.nanmax(vg_rot) ** 2 + kgs0 ** 2)
             vasym_g = k2 + k3 + k4 + k5
             vasym_g = vasym_g / (4 * gs05)
             vasym_g[np.isnan(vasym_g)] = 0
             v_asym_gmc[h] = np.median(vasym_g)
+
         out = np.zeros(v_asym_gmc.shape)
         out[out==0]=np.nan
         return v_asym_gmc, out
@@ -39,12 +42,14 @@ def monte_carlo(args):
             model += np.random.normal(loc=s_model, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True, cover=0.95)
-            k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
+
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             kss0 = np.nanmean(vs_sig[(rad_s/np.median(rad_s)) < 1])
+            inc = np.arccos(np.sqrt(q_s ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+            vs_rot = vs_rot / (2 * np.sin(inc))
             ss05 = np.sqrt(0.5 * np.nanmax(vs_rot) ** 2 + kss0 ** 2)
             vasym_s = k2 + k3 + k4 + k5
             vasym_s = vasym_s / (4 * ss05)
@@ -67,25 +72,29 @@ def monte_carlo(args):
                            rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True, cover=0.95)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                            rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True, cover=0.95)
-            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
             kss0 = np.nanmean(vs_sig[(rad_s/np.median(rad_s)) < 1])
+            inc = np.arccos(np.sqrt(q_s ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+            vs_rot = vs_rot / (2 * np.sin(inc))
             ss05 = np.sqrt(0.5 * np.nanmax(vs_rot) ** 2 + kss0 ** 2)
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
             vasym_s[np.isnan(vasym_s)] = 0
             v_asym_smc[h] = np.median(vasym_s)
 
-            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
+
             kgs0 = np.nanmean(vg_sig[(rad_g/np.median(rad_g)) < 1])
-            gs05 = np.sqrt(0.5 * np.nanmax(vg_rot) ** 2 + kgs0 ** 2)
+            inc = np.arccos(np.sqrt(q_s ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+            vs_rot = vs_rot / (2 * np.sin(inc))
+            gs05 = np.sqrt(0.5 * np.nanmax(vs_rot) ** 2 + kgs0 ** 2)
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)
             vasym_g[np.isnan(vasym_g)] = 0
@@ -156,9 +165,10 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, fixing PA")
         #logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 180
-    elif galaxy == int("1204192193"):
-        print(f"MAGPIID = {galaxy}, For Qainhui")
-        #logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
+    elif galaxy == int("1501180123") or int("1502293058"):
+        print(f"Piece of Shit")
+        # logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")
+        return
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
@@ -478,7 +488,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
