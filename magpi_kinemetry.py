@@ -372,7 +372,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     v_rot_g.append(np.nanmax(kg1))
                     v_rot_s.append(np.nan)
                     v_sigma_g.append(kgs0)
-                    v_sigm_s.append(np.nan)
+                    v_sigma_s.append(np.nan)
                     pa_g = np.nanmedian(kg.pa)
                     pa_s = np.nanmedian(np.nan)
                     d_pa = np.abs(np.nan)
@@ -550,7 +550,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
 
             v_rot_g.append(np.nanmax(kg1))
-            v_sigma_s.append(kgs0)
+            v_sigma_g.append(kgs0)
             pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(pa_g - pa_s)
