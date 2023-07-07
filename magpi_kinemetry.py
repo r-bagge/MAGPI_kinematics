@@ -35,6 +35,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     gal_id = []
     v_rot_g = []
     v_rot_s = []
+    v_sigma_g = []
+    v_sigma_s = []
     pa_ss = []
     pa_gs = []
     d_pas = []
@@ -186,7 +188,9 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
             SNR_s.append(np.nan)
             v_rot_g.append(np.nanmax(kg1))
+            v_sigma_g.append(kgs0)
             v_rot_s.append(np.nan)
+            v_sigma_s.append(np.nan)
             pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(np.nan)
             d_pa = np.abs(np.nan)
@@ -268,6 +272,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             SNR_s.append(np.nanmean(ks_flux.cf[:,0]))
 
             v_rot_s.append(np.nanmax(ks1))
+            v_sigma_s.append(kss0)
             pa_g = np.nanmedian(np.nan)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(np.nan)
@@ -277,6 +282,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
             v_rot_g.append(np.nan)
+            v_sigma_s.append(np.nan)
             
         if star_file_catch and gas_file_catch:
             starfile = fits.open(star_file)
@@ -365,6 +371,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     SNR_s.append(np.nan)
                     v_rot_g.append(np.nanmax(kg1))
                     v_rot_s.append(np.nan)
+                    v_sigma_g.append(kgs0)
+                    v_sigm_s.append(np.nan)
                     pa_g = np.nanmedian(kg.pa)
                     pa_s = np.nanmedian(np.nan)
                     d_pa = np.abs(np.nan)
@@ -444,6 +452,9 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     SNR_s.append(np.nanmean(ks_flux.cf[:,0]))
 
                     v_rot_s.append(np.nanmax(ks1))
+                    v_rot_g.append(np.nan)
+                    v_sigma_s.append(kss0)
+                    v_sigma_g.append(np.nan)
                     pa_g = np.nanmedian(np.nan)
                     pa_s = np.nanmedian(ks.pa)
                     d_pa = np.abs(np.nan)
@@ -451,7 +462,6 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                     pa_gs.append(pa_g)
                     pa_ss.append(pa_s)
                     d_pas.append(d_pa)
-                    v_rot_g.append(np.nan)
                     continue
 
             start = (0.65 / 2) / 0.2
@@ -522,6 +532,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
                 continue
             star_s05.append(vasym_s)
             v_rot_s.append(np.nanmax(ks1))
+            v_sigma_s.append(kss0)
             SNR_s.append(np.nanmean(ks_flux.cf[:, 0]))
 
             kgs0 = np.nanmean(kgs.cf[:, 0][(rad / r50[f]) < 1])
@@ -539,6 +550,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
 
             v_rot_g.append(np.nanmax(kg1))
+            v_sigma_s.append(kgs0)
             pa_g = np.nanmedian(kg.pa)
             pa_s = np.nanmedian(ks.pa)
             d_pa = np.abs(pa_g - pa_s)
@@ -548,7 +560,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
 
-    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,SNR_g,SNR_s,gas_s05,star_s05]
+    results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,v_sigma_g,v_sigma_s,SNR_g,SNR_s,gas_s05,star_s05]
     for ls in results:
         ls = np.array(ls)
 

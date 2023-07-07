@@ -534,8 +534,10 @@ if __name__ == '__main__':
                            "D_PA": results[3],
                            "V_rot_g": results[4],
                            "V_rot_s": results[5],
-                           "SNR_g": results[6],
-                           "SNR_s": results[7],
+                           "Sigma_g": results[6],
+                           "Sigma_s":results[7],
+                           "SNR_g": results[8],
+                           "SNR_s": results[9],
                            })
         df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
@@ -543,17 +545,19 @@ if __name__ == '__main__':
         gasasymerr = np.zeros(len(results[0]))
         starasymerr = np.zeros(len(results[0]))
         df = pd.DataFrame({"MAGPIID": results[0],
-                           "v_asym_g": results[8],
+                           "v_asym_g": results[10],
                            "v_asym_g_err": gasasymerr,
-                           "v_asym_s": results[9],
+                           "v_asym_s": results[11],
                            "v_asym_s_err": starasymerr,
                            "PA_g": results[1],
                            "PA_s": results[2],
                            "D_PA": results[3],
                            "V_rot_g": results[4],
                            "V_rot_s": results[5],
-                           "SNR_g": results[6],
-                           "SNR_s": results[7],
+                           "Sigma_g": results[6],
+                           "Sigma_s":results[7],
+                           "SNR_g": results[8],
+                           "SNR_s": results[9],
                            })
         df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
