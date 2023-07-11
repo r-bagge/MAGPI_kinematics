@@ -142,7 +142,7 @@ def MAGPI_kinemetry_parrallel(args):
     res_cutoff = 0.7 / 0.2
     cutoff = 1
     n_ells = 5
-    n = 20
+    n = 100
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
@@ -264,8 +264,10 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
-        sg = np.median(kg_sigma.cf[:, 0])
+        sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
+        vg = vg / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -312,8 +314,10 @@ def MAGPI_kinemetry_parrallel(args):
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-        ss = np.median(ks_sigma.cf[:, 0])
+        ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
+        vs = vs / (2 * np.sin(inc))
 
         return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -376,8 +380,10 @@ def MAGPI_kinemetry_parrallel(args):
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
-                sg = np.median(kg_sigma.cf[:, 0])
+                sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+                inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
+                vg = vg / (2 * np.sin(inc))
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -423,8 +429,10 @@ def MAGPI_kinemetry_parrallel(args):
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-                ss = np.median(ks_sigma.cf[:, 0])
+                ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+                inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
+                vs = vs / (2 * np.sin(inc))
 
                 return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -464,16 +472,21 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
-        sg = np.median(kg_sigma.cf[:, 0])
+
+        sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
+        vg = vg / (2 * np.sin(inc))
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-        ss = np.median(ks_sigma.cf[:, 0])
+        ss = np.nanmean(ks_sigma.cf[:, 0][(rad/np.median(rad)) < 1])
+        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
+        vs = vs / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 

@@ -44,7 +44,7 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     star_s05 = []
     SNR_g = []
     SNR_s = []
-    logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry.txt", "w")
+    logfile = open("MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
     z = master["z"].to_numpy()
     r50 = master["R50_it"].to_numpy() / 0.2
@@ -92,8 +92,8 @@ def MAGPI_kinemetry(source_cat, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
             #logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!\n")
             #logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
             #logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
-        star_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI"+field+"/Absorption_Line/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
+        star_file = "MAGPI_Maps/MAGPI"+field+"/Absorption_Line/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
+        gas_file = "MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
 
         if os.path.exists(star_file):
             star_file_catch = True
