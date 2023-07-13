@@ -23,7 +23,7 @@ def monte_carlo(args):
             model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True, cover=0.95)
+                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -46,7 +46,7 @@ def monte_carlo(args):
             model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True, cover=0.95)
+                          rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -75,10 +75,10 @@ def monte_carlo(args):
 
             ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                            bmodel=True,
-                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True, cover=0.95)
+                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                            bmodel=True,
-                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True, cover=0.95)
+                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -166,25 +166,17 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
-    elif galaxy == int("1207197197"):
+    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
+        print(f"MAGPIID = {galaxy}, fixing PA")
+        logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
+        pa = pa - 90
+    elif galaxy== int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 180
-    elif galaxy == int("1204192193"):
-        print(f"MAGPIID = {galaxy}, For Qainhui")
+    elif galaxy == int("1501180123") or galaxy == int("1502293058"):
+        print(f"Piece of Shit")
         logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
-    elif galaxy == int("1203152196"):
-        print(f"MAGPIID = {galaxy}, garbage galaxy")
-        logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
-        return
-    elif galaxy == int("1501180123"):
-        print(f"MAGPIID = {galaxy}, garbage galaxy")
-        logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
-        return
-    elif galaxy == int("1502293058"):
-        print(f"MAGPIID = {galaxy}, garbage galaxy")
-        logfile.write(f"MAGPIID = {galaxy}, garbage galaxy\n")
-        return
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
@@ -265,9 +257,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        vg = vg / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -315,9 +305,9 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        vs = vs / (2 * np.sin(inc))
+        #vs = vs / (2 * np.sin(inc))
 
         return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -381,9 +371,9 @@ def MAGPI_kinemetry_parrallel(args):
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-                inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+                #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-                vg = vg / (2 * np.sin(inc))
+                #vg = vg / (2 * np.sin(inc))
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -474,9 +464,9 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        vg = vg / (2 * np.sin(inc))
+        #vg = vg / (2 * np.sin(inc))
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -484,9 +474,9 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad/np.median(rad)) < 1])
-        inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        vs = vs / (2 * np.sin(inc))
+        #vs = vs / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -521,24 +511,17 @@ if __name__ == '__main__':
             StarsAsym.append(np.nanmean(mcs[1]))
             StarsAsymErr.append(np.nanstd(mcs[1]))
 
-    print("Doing the easy part now...")
-    results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
-                              n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-    print("Beginning the second easy part...")
-    # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-    # stellar_gas_plots_vectorized(results[0])
+        print("Beginning the easy part...")
+        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
+                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+        print("Beginning the second easy part...")
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
 
-    file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-    file1 = file[file["MAGPIID"].isin(results[0])]
-    file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
-    print(len(galaxies))
-    print(len(GasAsym))
-    print(len(GasAsymErr))
-    print(len(StarsAsym))
-    print(len(StarsAsymErr))
-    for i in results:
-        print(len(i))
-    if mc == True:
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(results[0])]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
+
         df = pd.DataFrame({"MAGPIID": galaxies,
                            "v_asym_g": GasAsym,
                            "v_asym_g_err": GasAsymErr,
@@ -549,10 +532,40 @@ if __name__ == '__main__':
                            "D_PA": results[3],
                            "V_rot_g": results[4],
                            "V_rot_s": results[5],
-                           "SNR_g": results[6],
-                           "SNR_s": results[7],
+                           "Sigma_g": results[6],
+                           "Sigma_s": results[7],
+                           "SNR_g": results[8],
+                           "SNR_s": results[9],
+                           })
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
+        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+
+    else:
+        print("Beginning the easy part...")
+        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
+                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+        print("Beginning the second easy part...")
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
+
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(results[0])]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
+        df = pd.DataFrame({"MAGPIID":results[0],
+                           "v_asym_g":results[10],
+                           "v_asym_g_err":np.zeros(len(results[10])),
+                           "v_asym_s":results[11],
+                           "v_asym_s_err":np.zeros(len(results[11])),
+                           "PA_g": results[1],
+                           "PA_s": results[2],
+                           "D_PA": results[3],
+                           "V_rot_g": results[4],
+                           "V_rot_s": results[5],
+                           "Sigma_g": results[6],
+                           "Sigma_s": results[7],
+                           "SNR_g": results[8],
+                           "SNR_s": results[9],
                            })
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv", n_re=1.5)
-    print("All done!")
