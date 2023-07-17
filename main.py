@@ -14,7 +14,7 @@ from kinemetry_plots import stellar_gas_plots
 from magpi_kinemetry import radial_rotation
 
 def monte_carlo(args):
-    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, k_flux_g, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, k_flux_s = args
+    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, kg1_n, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ks1_n = args
     if catch == 1:
         v_asym_gmc = np.zeros(n)
         for h in range(n):
@@ -28,7 +28,7 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
+            v_asym = (k2 + k3 + k4 + k5) / (4 * kg1_n)
             try:
                 #v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
                 v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
@@ -50,7 +50,7 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
+            v_asym = (k2 + k3 + k4 + k5) / (4 * ks1_n)
             try:
                 #v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
                 v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
@@ -79,13 +79,13 @@ def monte_carlo(args):
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
-            v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
+            v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1_n)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
-            v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
+            v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1_n)
             try:
                 #v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
                 v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
@@ -235,14 +235,14 @@ def MAGPI_kinemetry_parrallel(args):
         g_velo_err[np.isnan(g_velo_err)] = 0
         g_flux[np.isnan(g_flux)] = 0
 
-        kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+        kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        kg_flux_k0 = k_flux_g.cf[:, 0]
+        kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 1, None, None, None, None, None, None, None, None
+        return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg1, n, 1, None, None, None, None, None, None, None, None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -285,9 +285,9 @@ def MAGPI_kinemetry_parrallel(args):
         k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        ks_flux_k0 = k_flux_s.cf[:, 0]
+        ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
 
-        return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0,
+        return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks1,
 
     if star_file_catch and gas_file_catch:
         starfile = fits.open(star_file)
@@ -347,9 +347,9 @@ def MAGPI_kinemetry_parrallel(args):
                 k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True,
                                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-                kg_flux_k0 = k_flux_g.cf[:, 0]
+                kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
-                return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 1, None, None, None, None, None, None, None, None
+                return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg1, n, 1, None, None, None, None, None, None, None, None
 
 
         g_clip = np.nanmax(g_flux)
@@ -392,9 +392,9 @@ def MAGPI_kinemetry_parrallel(args):
                 k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True,
                                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-                ks_flux_k0 = k_flux_s.cf[:, 0]
+                ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
 
-                return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0
+                return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks1
 
         start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
@@ -423,10 +423,10 @@ def MAGPI_kinemetry_parrallel(args):
         k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True,
                              rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        ks_flux_k0 = k_flux_s.cf[:, 0]
-        kg_flux_k0 = k_flux_g.cf[:, 0]
+        ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
+        kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
-        return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg_flux_k0, n, 3, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks_flux_k0
+        return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg1, n, 3, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks1
 
 
 if __name__ == '__main__':
