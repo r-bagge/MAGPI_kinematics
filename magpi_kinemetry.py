@@ -85,7 +85,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             elif galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
-                pa[f] = pa[f] - 180
+                pa[f] = pa[f] - 90
             elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058"):
                 print(f"Piece of Shit")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")

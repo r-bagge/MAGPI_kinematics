@@ -168,12 +168,12 @@ def MAGPI_kinemetry_parrallel(args):
         pa = pa - 90
     elif galaxy == int("1207128248") or galaxy == int("1506117050"):
         print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
+        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
     elif galaxy== int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
-        pa = pa - 180
+        pa = pa - 90
     elif galaxy == int("1501180123") or galaxy == int("1502293058"):
         print(f"Piece of Shit")
         logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
@@ -420,9 +420,9 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
                 ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-                inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
+                #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-                vs = vs / (2 * np.sin(inc))
+                #vs = vs / (2 * np.sin(inc))
 
                 return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -527,6 +527,33 @@ if __name__ == '__main__':
                            "v_asym_g_err": GasAsymErr,
                            "v_asym_s": StarsAsym,
                            "v_asym_s_err": StarsAsymErr,
+                           # "PA_g": results[1],
+                           # "PA_s": results[2],
+                           # "D_PA": results[3],
+                           # "V_rot_g": results[4],
+                           # "V_rot_s": results[5],
+                           # "Sigma_g": results[6],
+                           # "Sigma_s": results[7],
+                           # "SNR_g": results[8],
+                           # "SNR_s": results[9],
+                           })
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv",index=False)
+        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+        print("Beginning the easy part...")
+        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
+                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+        print("Beginning the second easy part...")
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
+
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(results[0])]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
+        df = pd.DataFrame({"MAGPIID": results[0],
+                           # "v_asym_g":results[10],
+                           # "v_asym_g_err":np.zeros(len(results[10])),
+                           # "v_asym_s":results[11],
+                           # "v_asym_s_err":np.zeros(len(results[11])),
                            "PA_g": results[1],
                            "PA_s": results[2],
                            "D_PA": results[3],
@@ -537,7 +564,7 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
@@ -566,6 +593,6 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv", n_re=1.5)
+    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.5)
