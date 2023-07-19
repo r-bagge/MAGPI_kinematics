@@ -154,14 +154,10 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
-    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
+    elif galaxy == int("1207128248") or galaxy == int("1506117050") or galaxy == int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
-    elif galaxy == int("1207197197"):
-        print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
-        pa = pa - 180
     elif galaxy == int("1204192193"):
         print(f"MAGPIID = {galaxy}, For Qainhui")
         logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
@@ -172,8 +168,8 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    star_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field +"/Absorption_Line/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field +"/Emission_Line/MAGPI" + str(galaxy) + "_GIST_EmissionLines.fits"
+    star_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSWMAGPI_Maps/MAGPI" + field +"/Absorption_Line/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSWMAGPI_Maps/MAGPI" + field +"/Emission_Line/MAGPI" + str(galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(star_file):
         star_file_catch = True
@@ -463,8 +459,8 @@ if __name__ == '__main__':
     results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
                               n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
     print("Beginning the second easy part...")
-    stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-    stellar_gas_plots_vectorized(results[0])
+    # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+    # stellar_gas_plots_vectorized(results[0])
 
     file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
     file1 = file[file["MAGPIID"].isin(results[0])]
