@@ -44,7 +44,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
     star_s05 = []
     SNR_g = []
     SNR_s = []
-    logfile = open("MAGPI_csv/MAGPI_kinemetry.txt", "w")
+    logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
     if sample is not None:
         master = master[master["MAGPIID"].isin(sample)]
@@ -78,11 +78,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
                 continue
-            elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050"):
-                print(f"MAGPIID = {galaxy[f]}, fixing PA")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
-                pa[f] = pa[f] - 90
-            elif galaxy[f] == int("1207197197"):
+            elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
                 pa[f] = pa[f] - 90
