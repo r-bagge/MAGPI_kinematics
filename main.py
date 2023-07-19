@@ -158,9 +158,9 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
-    elif galaxy == int("1204192193"):
-        print(f"MAGPIID = {galaxy}, For Qainhui")
-        logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
+    elif galaxy == int("1501180123") or galaxy == int("1502293058"):
+        print(f"Piece of Shit")
+        logfile.write(f"Piece of Shit\n")
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
@@ -233,9 +233,9 @@ def MAGPI_kinemetry_parrallel(args):
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+        # k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+        #                      bmodel=True,
+        #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
         return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg1, n, 1, None, None, None, None, None, None, None, None
@@ -278,9 +278,9 @@ def MAGPI_kinemetry_parrallel(args):
 
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+        # k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+        #                      bmodel=True,
+        #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
 
         return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks1,
@@ -340,9 +340,9 @@ def MAGPI_kinemetry_parrallel(args):
 
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-                k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                # k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                #                      bmodel=True,
+                #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
                 return kg.velkin, g_velo, g_velo_err, q, x0, y0, rad, kg1, n, 1, None, None, None, None, None, None, None, None
@@ -385,9 +385,9 @@ def MAGPI_kinemetry_parrallel(args):
 
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-                k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True,
-                                     rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                # k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                #                      bmodel=True,
+                #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
 
                 return None, None, None, None, None, None, None, None, n, 2, ks.velkin, s_velo, s_velo_err, q, x0, y0, rad, ks1
@@ -413,12 +413,12 @@ def MAGPI_kinemetry_parrallel(args):
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-        k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True,
-                             rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+        # k_flux_g = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+        #                      bmodel=True,
+        #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+        # k_flux_s = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+        #                      bmodel=True,
+        #                      rangePA=[pa - 10, pa + 10], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1]**2 + ks.cf[:,2]**2)
         kg1 = np.sqrt(kg.cf[:, 1]**2 + kg.cf[:,2]**2)
 
@@ -481,5 +481,5 @@ if __name__ == '__main__':
                            })
         df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_1re.csv", "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_1re.csv")
+    #BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_1re.csv", "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_1re.csv")
     print("All done!")
