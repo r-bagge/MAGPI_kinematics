@@ -97,6 +97,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             pass
         star_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Absorption_Line/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
         gas_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
+
         if os.path.exists(star_file):
             star_file_catch = True
         else:
