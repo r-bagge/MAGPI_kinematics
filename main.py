@@ -162,13 +162,21 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
-    elif galaxy == int("1207128248") or galaxy == int("1506117050") or galaxy== int("1207197197"):
+    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
+    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
+        print(f"MAGPIID = {galaxy}, fixing PA")
+        logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
+        pa = pa - 90
+    elif galaxy== int("1207197197"):
+        print(f"MAGPIID = {galaxy}, fixing PA")
+        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
+        pa = pa - 180
     elif galaxy == int("1501180123") or galaxy == int("1502293058"):
         print(f"Piece of Shit")
-        logfile.write(f"Piece of Shit\n")
+        logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
@@ -176,14 +184,11 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-
-    star_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Absorption_Line/" + str(
-        galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+    star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
-
     if os.path.exists(star_file):
-            star_file_catch = True
+        star_file_catch = True
     else:
         print("No stellar kinematics!")
         logfile.write("No stellar kinematics!\n")
@@ -366,7 +371,9 @@ def MAGPI_kinemetry_parrallel(args):
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+                #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
+                #vg = vg / (2 * np.sin(inc))
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -413,7 +420,9 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
                 ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+                inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
+                vs = vs / (2 * np.sin(inc))
 
                 return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -455,7 +464,9 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
+        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
+        #vg = vg / (2 * np.sin(inc))
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -463,13 +474,15 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad/np.median(rad)) < 1])
+        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
+        #vs = vs / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -501,41 +514,19 @@ if __name__ == '__main__':
         print("Beginning the easy part...")
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        print("Beginning the second easy part...")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        stellar_gas_plots_vectorized(results[0])
+        # print("Beginning the second easy part...")
+        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        # stellar_gas_plots_vectorized(results[0])
 
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(results[0])]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
 
         df = pd.DataFrame({"MAGPIID": galaxies,
                            "v_asym_g": GasAsym,
                            "v_asym_g_err": GasAsymErr,
                            "v_asym_s": StarsAsym,
                            "v_asym_s_err": StarsAsymErr,
-                           # "PA_g": results[1],
-                           # "PA_s": results[2],
-                           # "D_PA": results[3],
-                           # "V_rot_g": results[4],
-                           # "V_rot_s": results[5],
-                           # "Sigma_g": results[6],
-                           # "Sigma_s": results[7],
-                           # "SNR_g": results[8],
-                           # "SNR_s": results[9],
-                           })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
-        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-        print("Beginning the easy part...")
-        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
-                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        print("Beginning the second easy part...")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        stellar_gas_plots_vectorized(results[0])
-
-        df = pd.DataFrame({"MAGPIID": results[0],
-                           # "v_asym_g":results[10],
-                           # "v_asym_g_err":np.zeros(len(results[10])),
-                           # "v_asym_s":results[11],
-                           # "v_asym_s_err":np.zeros(len(results[11])),
                            "PA_g": results[1],
                            "PA_s": results[2],
                            "D_PA": results[3],
@@ -546,17 +537,20 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample.csv", index=False)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
         print("Beginning the easy part...")
-        results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
+        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
-        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        # stellar_gas_plots_vectorized(results[0])
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
 
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(results[0])]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         df = pd.DataFrame({"MAGPIID":results[0],
                            "v_asym_g":results[10],
                            "v_asym_g_err":np.zeros(len(results[10])),
@@ -572,8 +566,6 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
-
-        file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_S05.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    #BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.5)
+    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample.csv", n_re=1.5)
