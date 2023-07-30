@@ -46,10 +46,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
     SNR_s = []
     logfile = open("MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
+    print(len(master))
     if sample is not None:
         master = master[master["MAGPIID"].isin(sample)]
     else:
         pass
+    print(len(master))
     z = master["z"].to_numpy()
     r50 = master["R50_it"].to_numpy() / 0.2
     q = master["axrat_it"].to_numpy()
@@ -99,9 +101,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 #logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
         else:
             pass
-        star_file = "/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Maps/MAGPI"+field+"/Absorption_Line/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI" + str(galaxy[f]) + "_GIST_EmissionLines.fits"
-
+        star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
+        gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+            galaxy[f]) + "_GIST_EmissionLines.fits"
         if os.path.exists(star_file):
             star_file_catch = True
         else:
@@ -186,7 +188,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             try:
                 vasym_g = vasym_g[(rad / r50[f]) < 1][-1]
             except IndexError:
-                continue
+                vasym_g = np.nan
             gas_s05.append(vasym_g)
             star_s05.append(np.nan)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
@@ -266,7 +268,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             try:
                 vasym_s = vasym_s[rad / r50[f] < 1][-1]
             except IndexError:
-                continue
+                vasym_s = np.nan
             star_s05.append(vasym_s)
             gas_s05.append(np.nan)
             SNR_g.append(np.nan)
@@ -362,7 +364,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     try:
                         vasym_g = vasym_g[rad / r50[f] < 1][-1]
                     except IndexError:
-                        continue
+                        vasym_g = np.nan
                     gas_s05.append(vasym_g)
                     star_s05.append(np.nan)
                     SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
@@ -440,7 +442,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     try:
                         vasym_s = vasym_s[rad / r50[f] < 1][-1]
                     except IndexError:
-                        continue
+                        vasym_s = np.nan
                     star_s05.append(vasym_s)
                     gas_s05.append(np.nan)
                     SNR_g.append(np.nan)
@@ -518,7 +520,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             try:
                 vasym_s = vasym_s[rad / r50[f] < 1][-1]
             except IndexError:
-                continue
+                vasym_s = np.nan
             star_s05.append(vasym_s)
             v_rot_s.append(np.nanmax(ks1))
             v_sigma_s.append(kss0)
@@ -534,7 +536,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             try:
                 vasym_g = vasym_g[rad / r50[f] < 1][-1]
             except IndexError:
-                continue
+                vasym_g = np.nan
             gas_s05.append(vasym_g)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
 
