@@ -162,21 +162,14 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
-    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
-        print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
-        pa = pa - 90
-    elif galaxy == int("1207128248") or galaxy == int("1506117050"):
+    elif galaxy == int("1207128248") or galaxy == int("1506117050") or galaxy== int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
         pa = pa - 90
-    elif galaxy== int("1207197197"):
-        print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
-        pa = pa - 180
-    elif galaxy == int("1501180123") or galaxy == int("1502293058"):
+    elif galaxy == int("1501180123") or galaxy == int("1502293058") or galaxy == int("1203152196"):
         print(f"Piece of Shit")
-        logfile.write(f"MAGPIID = {galaxy}, For Qainhui\n")
+        logfile.write(f"Piece of Shit\n")
+        return
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")

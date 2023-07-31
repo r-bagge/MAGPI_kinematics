@@ -80,17 +80,13 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
                 continue
-            elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050"):
+            elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
                 pa[f] = pa[f] - 90
-            elif galaxy[f] == int("1207197197"):
-                print(f"MAGPIID = {galaxy[f]}, fixing PA")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
-                pa[f] = pa[f] - 180
-            elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058"):
+            elif galaxy == int("1501180123") or galaxy == int("1502293058") or galaxy == int("1203152196"):
                 print(f"Piece of Shit")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, For Qainhui\n")
+                logfile.write(f"Piece of Shit\n")
                 continue
             else:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!")
