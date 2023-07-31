@@ -134,10 +134,10 @@ def MAGPI_kinemetry_parrallel(args):
     res_cutoff = 0.7/0.2
     cutoff = 1
     n_ells = 5
-    n = 20
+    n = 100
     SNR_Gas = 20
     SNR_Star = 3
-    logfile = open("/Volumes/LDS/Astro/PhD/MAGPI/MAGPI_Maps/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
+    logfile = open("plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
     if z > 0.35:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
@@ -158,9 +158,10 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, fixing PA")
         logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
-    elif galaxy == int("1501180123") or galaxy == int("1502293058"):
+    elif galaxy == int("1501180123") or galaxy == int("1502293058") or galaxy==int("1203152196"):
         print(f"Piece of Shit")
         logfile.write(f"Piece of Shit\n")
+        return
     else:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
         print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
@@ -168,8 +169,9 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    star_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSWMAGPI_Maps/MAGPI" + field +"/Absorption_Line/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSWMAGPI_Maps/MAGPI" + field +"/Emission_Line/MAGPI" + str(galaxy) + "_GIST_EmissionLines.fits"
+    star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+        galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(star_file):
         star_file_catch = True
@@ -434,7 +436,7 @@ def MAGPI_kinemetry_parrallel(args):
 if __name__ == '__main__':
     mc=True
     if mc==True:
-        file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
         pa = file["ang_it"].to_numpy()
         q = file["axrat_it"].to_numpy()
@@ -462,15 +464,15 @@ if __name__ == '__main__':
             StarsAsymErr.append(np.nanstd(mcs[1]))
 
     print("Doing the easy part now...")
-    results = MAGPI_kinemetry(source_cat="/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",
+    results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
                               n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
     print("Beginning the second easy part...")
     # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
     # stellar_gas_plots_vectorized(results[0])
 
-    file = pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
+    file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
     file1 = file[file["MAGPIID"].isin(results[0])]
-    file1.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv",index=False)
+    file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv",index=False)
     if mc==True:
         df = pd.DataFrame({"MAGPIID":galaxies,
                            "v_asym_g":GasAsym,
