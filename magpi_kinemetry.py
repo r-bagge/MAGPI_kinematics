@@ -65,36 +65,36 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
         field = str(galaxy[f])[:4]
         if sample is None:
             if z[f] > 0.35:
-                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-                continue
+                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+                return
             elif z[f] < 0.28:
-                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-                continue
+                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+                return
             elif quality[f] < 3:
-                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!\n")
-                continue
+                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
+                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
+                return
             elif r50[f] < cutoff * res_cutoff:
-                print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
-                continue
+                print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
+                logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
+                return
             elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
-                print(f"MAGPIID = {galaxy[f]}, fixing PA")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
-                pa[f] = pa[f] - 90
-            elif galaxy == int("1501180123") or galaxy == int("1502293058") or galaxy == int("1203152196"):
+                print(f"MAGPIID = {galaxy}, fixing PA")
+                logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
+                pa = pa - 90
+            elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058") or galaxy[f] == int("1203152196"):
                 print(f"Piece of Shit")
                 logfile.write(f"Piece of Shit\n")
-                continue
+                return
             else:
-                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!")
-                print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!")
-                print(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!\n")
-                #logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
-                #logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
+                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
+                print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
+                print(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!")
+                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
+                logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
+                logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
         else:
             pass
         star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"

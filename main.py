@@ -162,9 +162,9 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
-    elif galaxy == int("1207128248") or galaxy == int("1506117050") or galaxy== int("1207197197"):
+    elif galaxy == int("1207128248") or galaxy == int("1506117050") or galaxy == int("1207197197"):
         print(f"MAGPIID = {galaxy}, fixing PA")
-        logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
+        logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
         pa = pa - 90
     elif galaxy == int("1501180123") or galaxy == int("1502293058") or galaxy == int("1203152196"):
         print(f"Piece of Shit")
