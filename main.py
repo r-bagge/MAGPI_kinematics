@@ -487,7 +487,7 @@ if __name__ == '__main__':
                            "SNR_g": results[6],
                            "SNR_s": results[7],
                            })
-        df.to_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv")
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     #BPT_plots("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_BPT_1re.csv", "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_kinemetry_sample_1re.csv")
     print("All done!")
