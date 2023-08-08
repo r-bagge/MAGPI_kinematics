@@ -181,18 +181,18 @@ def BPT_plots(output_file, sample_file, n_re):
         NII = clean_images(NII, pa, r50, r50 * q, img_err=NII / NII_err)
         SII = clean_images(SII, pa, r50, r50 * q, img_err=SII / SII_err)
 
-        if os.path.exists("plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
-            shutil.rmtree("plots/MAGPI" + str(g)[:4] + "/BPT_plots")
-        os.mkdir("plots/MAGPI" + str(g)[:4] + "/BPT_plots")
+        if os.path.exists("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
+            shutil.rmtree("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
+        os.mkdir("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
 
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
-                             "plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
+                             "/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
         if not bpt_map == None:
             fig, ax = plt.subplots()
             p = ax.imshow(bpt_map)
             cbar = plt.colorbar(p, ax=ax, ticks=[1, 2, 3])
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
-            plt.savefig("plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
+            plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
         HA_flux = aperture_photometry(HA, pa, n_re * r50, n_re * r50 * q)
         HA_err_flux = aperture_photometry(HA_err, pa, n_re * r50, n_re * r50 * q)
