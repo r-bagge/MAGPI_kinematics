@@ -180,7 +180,7 @@ def BPT_plots(output_file, sample_file, n_re):
         OIII = clean_images(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
         NII = clean_images(NII, pa, r50, r50 * q, img_err=NII / NII_err)
         SII = clean_images(SII, pa, r50, r50 * q, img_err=SII / SII_err)
-
+        print(os.getcwd())
         if os.path.exists("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
             shutil.rmtree("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
         os.mkdir("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
