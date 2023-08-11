@@ -359,7 +359,7 @@ def BPT_plots(output_file, sample_file, n_re):
     ax3.set_xlabel(r"$\log$ [OI]/H$\alpha$")
     ax1.set_ylabel(r"$\log$ [OIII]/H$\beta$")
     plt.subplots_adjust(wspace=0)
-    plt.savefig("plots/BPT.pdf", bbox_inches="tight")
+    plt.savefig("MAGPI_Plots/plots/BPT.pdf", bbox_inches="tight")
 
     return HA_fluxes, NII_fluxes, OIII_fluxes, HB_fluxes, SII_fluxes, OI_fluxes
 
