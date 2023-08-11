@@ -65,19 +65,19 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             if z[f] > 0.35:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-                return
+                continue
             elif z[f] < 0.28:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-                return
+                continue
             elif quality[f] < 3:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!\n")
-                return
+                continue
             elif r50[f] < cutoff * res_cutoff:
                 print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
-                return
+                continue
             elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
@@ -85,7 +85,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058") or galaxy[f] == int("1203152196"):
                 print(f"Piece of Shit")
                 logfile.write(f"Piece of Shit\n")
-                return
+                continue
             else:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!")
                 print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!")
@@ -102,20 +102,18 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             star_file_catch = True
         else:
             print("No stellar kinematics!")
-            #logfile.write("No stellar kinematics!\n")
             star_file_catch = False
 
         if os.path.exists(gas_file):
             gas_file_catch = True
         else:
             print("No gas kinematics!")
-            #logfile.write("No gas kinematics!\n")
+
             gas_file_catch = False
 
         # Check to see if there is neither gas or star data
         if star_file_catch==False and gas_file_catch==False:
             print("No kinematics! Skipping "+str(galaxy[f])+"!")
-            #logfile.write("No kinematics! Skipping "+str(galaxy[f])+"!\n")
             continue
 
         # Gas kinemetry
@@ -137,11 +135,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             print(f"Max Gas SNR = {clip:.2f}...", file=logfile)
             if clip < SNR_Gas:
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
-                #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking\n")
                 continue
             elif np.isinf(clip) or np.isnan(clip):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
-                #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking\n")
                 continue
             start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
@@ -149,7 +145,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                 continue
             print("Doing kinemetry on gas only!")
             print("Doing kinemetry on gas only!", file=logfile)
@@ -166,15 +161,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                            bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[q[f] - 0.1, q[f] + 0.1], even=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            #kg1 = kg.cf[:,2]
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
 
             kgs0 = np.nanmean(kgs.cf[:,0][(rad/r50[f]) < 1])
-            #inc = np.arccos(np.sqrt(q[f]**2 - 0.2**2)/(1-0.2**2))
-            #kg1 = kg1/(2*np.sin(inc))
             gs05 = np.sqrt(0.5*np.nanmax(kg1)**2 + kgs0**2)
             vasym_g = kg2+kg3+kg4+kg5
             vasym_g = vasym_g/(4*gs05)
