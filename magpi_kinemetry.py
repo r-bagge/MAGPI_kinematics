@@ -46,12 +46,10 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
     SNR_s = []
     logfile = open("MAGPI_csv/MAGPI_kinemetry.txt", "w")
     master = pd.read_csv(source_cat,skiprows=16)
-    print(len(master))
     if sample is not None:
         master = master[master["MAGPIID"].isin(sample)]
     else:
         pass
-    print(len(master))
     z = master["z"].to_numpy()
     r50 = master["R50_it"].to_numpy() / 0.2
     q = master["axrat_it"].to_numpy()
@@ -65,36 +63,36 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
         field = str(galaxy[f])[:4]
         if sample is None:
             if z[f] > 0.35:
-                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
                 return
             elif z[f] < 0.28:
-                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
                 return
             elif quality[f] < 3:
-                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
-                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!\n")
                 return
             elif r50[f] < cutoff * res_cutoff:
-                print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
-                logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
+                print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
                 return
             elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
-                print(f"MAGPIID = {galaxy}, fixing PA")
-                logfile.write(f"MAGPIID = {galaxy}, fixing PA\n")
+                print(f"MAGPIID = {galaxy[f]}, fixing PA")
+                logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
                 pa = pa - 90
             elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058") or galaxy[f] == int("1203152196"):
                 print(f"Piece of Shit")
                 logfile.write(f"Piece of Shit\n")
                 return
             else:
-                print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!")
-                print(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!")
-                print(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!")
-                logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
-                logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
-                logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!")
+                print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!")
+                print(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift passed!\n")
+                logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.3f}, Res. passed!\n")
+                logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
         else:
             pass
         star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy[f]) + "_kinematics_ppxf-maps.fits"
@@ -219,11 +217,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             print(f"Max Stellar SNR = {clip:.2f}...", file=logfile)
             if clip < SNR_Star:
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
-                #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking\n")
                 continue
             elif np.isinf(clip) or np.isnan(clip):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
-                #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking\n")
                 continue
             start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
@@ -231,7 +227,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                 continue
             print("Doing kinemetry on stars only!")
             print("Doing kinemetry on stars only!", file=logfile)
@@ -248,7 +243,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            #ks1 = ks.cf[:,1]
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
@@ -256,8 +250,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
 
             vasym_s = ks2 + ks3 + ks4 + ks5
             kss0 = np.nanmean(kss.cf[:, 0][(rad / r50[f]) < 1])
-            # inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
-            # ks1 = ks1 / (2 * np.sin(inc))
             ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
             vasym_s = vasym_s / (4 * ss05)
             vasym_s[np.isnan(vasym_s)] = 0
@@ -302,20 +294,16 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             x0 = int(x0 / 2)
             y0 = int(y0 / 2)
             print(f"Max Stellar SNR = {s_clip:.2f}...")
-            #logfile.write(f"Max Stellar SNR = {s_clip:.2f}...\n")
             if s_clip < SNR_Star or np.isinf(SNR_Star) or np.isnan(SNR_Star):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its stars are heinous looking")
-                #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its stars are heinous looking\n")
                 print("Trying the gas...")
                 print("Trying the gas...\n",file=logfile)
                 g_clip = np.nanmax(g_flux)
                 print(f"Max Gas SNR = {g_clip:.2f}...")
-                #logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
                 if g_clip < SNR_Gas or np.isinf(g_clip) or np.isnan(g_clip):
                     print(
                         "Not doing kinemetry on " + str(
                             galaxy[f]) + "because its gas is also heinous looking")
-                    #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its gas is also heinous looking\n")
                     continue
                 else:
                     print("Doing kinemetry on the gas only!")
@@ -326,7 +314,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                        #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                         continue
                     print("Doing kinemetry on gas!")
                     print("Doing kinemetry on gas!", file=logfile)
@@ -344,15 +331,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                                         even=True)
 
                     kg1 = np.sqrt(kg.cf[:,1]**2 + kg.cf[:, 2] ** 2)
-                    #kg1 = kg.cf[:,2]
                     kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
                     kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
                     kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
                     kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
 
                     kgs0 = np.nanmean(kgs.cf[:, 0][(rad / r50[f]) < 1])
-                    # inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
-                    # kg1 = kg1 / (2 * np.sin(inc))
                     gs05 = np.sqrt(0.5 * np.nanmax(kg1) ** 2 + kgs0 ** 2)
                     vasym_g = kg2+kg3+kg4+kg5
                     vasym_g = vasym_g / (4 * gs05)
@@ -384,19 +368,15 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
 
             g_clip = np.nanmax(g_flux)
             print(f"Max Gas SNR = {g_clip:.2f}...")
-            #logfile.write(f"Max Gas SNR = {g_clip:.2f}...\n")
             if g_clip < SNR_Gas or np.isinf(g_clip) or np.isnan(g_clip):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its gas is heinous looking")
-                #logfile.write("Not Plotting or doing Kinemetry on " + str(galaxy[f]) + " because its gas is heinous looking\n")
                 print("Trying the stars...")
                 print("Trying the stars...", file=logfile)
                 s_clip = np.nanmax(s_flux)
                 print(f"Max Star SNR = {s_clip:.2f}...")
-                #logfile.write(f"Max Star SNR = {s_clip:.2f}...\n")
                 if s_clip < SNR_Star or np.isinf(s_clip) or np.isnan(s_clip):
                     print(
                         "Not doing kinemetry on " + str(galaxy[f]) + "because its stars are also heinous looking")
-                    #logfile.write("Not doing kinemetry on " + str(galaxy[f]) + " because its stars are also heinous looking\n")
                     continue
                 else:
                     start = (0.65 / 2) / 0.2
@@ -405,7 +385,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                        #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                         continue
                     print("Doing kinemetry on stars only!")
                     print("Doing kinemetry on stars only!", file=logfile)
@@ -422,15 +401,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                                         bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                         even=True)
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                    #ks1 = ks.cf[:,2]
                     ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
                     ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
                     ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
                     ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
 
                     kss0 = np.nanmean(kss.cf[:, 0][(rad / r50[f]) < 1])
-                    # inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
-                    # ks1 = ks1 / (2 * np.sin(inc))
                     ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
                     vasym_s = ks2+ks3+ks4+ks5
                     vasym_s = vasym_s / (4 * ss05)
@@ -463,7 +439,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                #logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                 continue
             s_velo[np.isnan(s_velo)] = 0
             g_velo[np.isnan(g_velo)] = 0
@@ -492,22 +467,18 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                                 even=True)
 
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-            #ks1 = ks.cf[:,2]
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            #kg1 = kg.cf[:,2]
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
 
             kss0 = np.nanmean(kss.cf[:, 0][(rad / r50[f]) < 1])
-            # inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
-            # ks1 = ks1 / (2 * np.sin(inc))
             ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
 
             vasym_s = ks2 + ks3 + ks4 + ks5
@@ -523,8 +494,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             SNR_s.append(np.nanmean(ks_flux.cf[:, 0]))
 
             kgs0 = np.nanmean(kgs.cf[:, 0][(rad / r50[f]) < 1])
-            # inc = np.arccos(np.sqrt(q[f] ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
-            # kg1 = kg1 / (2 * np.sin(inc))
             gs05 = np.sqrt(0.5 * np.nanmax(kg1) ** 2 + kgs0 ** 2)
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)

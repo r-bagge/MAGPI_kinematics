@@ -475,7 +475,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -507,9 +507,9 @@ if __name__ == '__main__':
         print("Beginning the easy part...")
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        # print("Beginning the second easy part...")
-        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        # stellar_gas_plots_vectorized(results[0])
+        print("Beginning the second easy part...")
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
 
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(results[0])]
@@ -538,6 +538,7 @@ if __name__ == '__main__':
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
+        print(results)
         stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         stellar_gas_plots_vectorized(results[0])
 
