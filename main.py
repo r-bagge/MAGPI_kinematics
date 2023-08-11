@@ -475,7 +475,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -530,7 +530,7 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
@@ -559,6 +559,6 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv")
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.5)
