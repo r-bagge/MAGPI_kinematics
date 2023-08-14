@@ -145,7 +145,7 @@ def MAGPI_kinemetry_parrallel(args):
     n = 100
     SNR_Gas = 20
     SNR_Star = 3
-    logfile = open("plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
+    logfile = open("MAGPI_Plots/plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
     if z > 0.35:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
