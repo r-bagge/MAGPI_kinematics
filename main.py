@@ -15,9 +15,11 @@ from magpi_kinemetry import radial_rotation
 
 
 def monte_carlo(args):
-    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = args
+    g_model, g_img, g_img_err, k_flux_g, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = args
     if catch == 1:
-        v_asym_gmc = np.zeros(n)
+        v_asym_gmc_05 = np.zeros(n)
+        v_asym_gmc_15 = np.zeros(n)
+        v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
             model = g_model
             model[np.isnan(model)] = 0
@@ -30,15 +32,17 @@ def monte_carlo(args):
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
+            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
             try:
-                # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
-                v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
+                v_asym_gmc_05[h] = v_asym[(rad_g / np.median(rad_g)) < 1.5][-1]
             except ValueError:
-                v_asym_gmc[h] = np.nan
-        out = np.zeros(v_asym_gmc.shape)
-        out[out == 0] = np.nan
-        return v_asym_gmc, out
+                v_asym_gmc_05[h] = np.nan
+            try:
+                v_asym_gmc_15[h] = v_asym[(rad_g / np.median(rad_g)) < 0.5][-1]
+            except ValueError:
+                v_asym_gmc_15[h] = np.nan
+            v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
+        return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
     elif catch == 2:
         v_asym_smc = np.zeros(n)
         for h in range(n):
@@ -108,13 +112,13 @@ def monte_carlo(args):
 
 
 def monte_carlo_parallel(pars):
-    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = pars
+    g_model, g_img, g_img_err, k_flux_g, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = pars
     cores = None
     if cores is None:
         cores = multiprocessing.cpu_count()
     print(f"Running {n} monte carlos on {cores} Cores!")
     group_size = n // 20
-    args = [(g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, group_size, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs) for _ in range(20)]
+    args = [(g_model, g_img, g_img_err,k_flux_g, q_g, x0_g, y0_g, rad_g, sg, vg, group_size, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs) for _ in range(20)]
     ctx = multiprocessing.get_context()
     pool = ctx.Pool(processes=cores, maxtasksperchild=1)
     try:
@@ -126,7 +130,7 @@ def monte_carlo_parallel(pars):
     else:
         pool.close()
         pool.join()
-        mcs = np.empty((2, n), dtype=np.float64)
+        mcs = np.empty((3, n), dtype=np.float64)
         for i, r in enumerate(vasyms):
             start = i * group_size
             end = start + group_size
@@ -181,7 +185,7 @@ def MAGPI_kinemetry_parrallel(args):
     gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
     if os.path.exists(star_file):
-        star_file_catch = True
+        star_file_catch = False
     else:
         print("No stellar kinematics!")
         logfile.write("No stellar kinematics!\n")
@@ -249,10 +253,13 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+        kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                             bmodel=True, paq=[pa,q], even=True)
+        k_flux_g = kg_flux.cf[:,0]
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
+        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -485,10 +492,12 @@ if __name__ == '__main__':
         quality = file["QOP"].to_numpy()
         galaxy = file["MAGPIID"].to_numpy()
         galaxies = []
-        GasAsym = []
-        GasAsymErr = []
-        StarsAsym = []
-        StarsAsymErr = []
+        GasAsym_05 = []
+        GasAsym_05_Err = []
+        GasAsym_15 = []
+        GasAsym_15_Err = []
+        GasAsym_fw = []
+        GasAsym_fw_Err = []
         print("Beginning the hard part...")
         for i in range(len(file)):
             pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
@@ -497,12 +506,15 @@ if __name__ == '__main__':
                 continue
             mcs = monte_carlo_parallel(args)
             galaxies.append(galaxy[i])
-            print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
-            GasAsym.append(np.nanmean(mcs[0]))
-            GasAsymErr.append(np.nanstd(mcs[0]))
-            print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
-            StarsAsym.append(np.nanmean(mcs[1]))
-            StarsAsymErr.append(np.nanstd(mcs[1]))
+            print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
+            GasAsym_05.append(np.nanmean(mcs[0]))
+            GasAsym_05_Err.append(np.nanstd(mcs[0]))
+            print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
+            GasAsym_15.append(np.nanmean(mcs[1]))
+            GasAsym_15_Err.append(np.nanstd(mcs[1]))
+            print(f"Gas Asym fw={np.nanmean(mcs[1]):.2f}")
+            GasAsym_fw.append(np.nanmean(mcs[2]))
+            GasAsym_fw_Err.append(np.nanstd(mcs[2]))
 
         print("Beginning the easy part...")
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
@@ -516,10 +528,12 @@ if __name__ == '__main__':
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
 
         df = pd.DataFrame({"MAGPIID": galaxies,
-                           "v_asym_g": GasAsym,
-                           "v_asym_g_err": GasAsymErr,
-                           "v_asym_s": StarsAsym,
-                           "v_asym_s_err": StarsAsymErr,
+                           "v_asym_05": GasAsym_05,
+                           "v_asym_05_err": GasAsym_05_Err,
+                           "v_asym_15": GasAsym_15,
+                           "v_asym_15_err": GasAsym_15_Err,
+                           "v_asym_15": GasAsym_fw,
+                           "v_asym_fw_err": GasAsym_fw_Err,
                            "PA_g": results[1],
                            "PA_s": results[2],
                            "D_PA": results[3],
@@ -530,7 +544,7 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_15re_05re.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
