@@ -512,7 +512,7 @@ if __name__ == '__main__':
             print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
             GasAsym_15.append(np.nanmean(mcs[1]))
             GasAsym_15_Err.append(np.nanstd(mcs[1]))
-            print(f"Gas Asym fw={np.nanmean(mcs[1]):.2f}")
+            print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
             GasAsym_fw.append(np.nanmean(mcs[2]))
             GasAsym_fw_Err.append(np.nanstd(mcs[2]))
 
