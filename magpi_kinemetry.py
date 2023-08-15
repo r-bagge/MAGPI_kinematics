@@ -14,23 +14,6 @@ import cmasher as cmr
 from dust_extinction.parameter_averages import CCM89
 from kinemetry_plots import BPT_plots
 
-
-def clean_images(img, pa, a, b, img_err=None):
-    y0, x0 = img.shape
-    y0, x0 = y0 / 2, x0 / 2
-    pa = pa - 90
-    pa = np.radians(pa)
-    for i in range(len(img[:, 0])):
-        for j in range(len(img[0, :])):
-            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
-            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
-                img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < 3:
-                img[i, j] = np.nan
-    return img
-
-
 def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     gal_id = []
     v_rot_g = []

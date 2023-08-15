@@ -8,7 +8,7 @@ from kinemetry import kinemetry
 import multiprocessing
 import sys
 from magpi_kinemetry import MAGPI_kinemetry
-from magpi_kinemetry import clean_images
+from kinemetry_plots import clean_images
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
 from magpi_kinemetry import radial_rotation
