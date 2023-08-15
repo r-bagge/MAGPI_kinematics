@@ -13,7 +13,6 @@ from kinemetry import kinemetry
 import cmasher as cmr
 from dust_extinction.parameter_averages import CCM89
 
-
 def dust_corr(flux, balmer, lam, model):
     ext = model(Rv=3.1)
     ebv = (2.5 / 1.163) * np.log10(balmer / 2.86)
@@ -21,6 +20,37 @@ def dust_corr(flux, balmer, lam, model):
 
     return flux_corr
 
+def list_flat(old_list, new_list):
+    for item in old_list:
+        if type(item) == float:
+            new_list.append(item)
+        elif type(item) == int:
+            new_list.append(item)
+        elif type(item) == list:
+            for item2 in item:
+                new_list.append(item2)
+    return new_list
+
+
+def clean_images(img, pa, a, b, img_err=None,SNR=3):
+    y0, x0 = img.shape
+    y0, x0 = y0 / 2, x0 / 2
+    pa = pa - 90
+    pa = np.radians(pa)
+    for i in range(1,len(img[:, 0])):
+        for j in range(1,len(img[0, :])):
+            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
+            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
+            if side1 + side2 > 8:
+                img[i, j] = np.nan
+            if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5):
+                new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
+                new_img = np.nanmedian(new_img)
+                if np.isnan(new_img):
+                    img[i,j]=np.nan
+                else:
+                    img[i, j] = new_img
+    return img
 
 def aperture_photometry(map, pa, a, b):
     flux = 0
@@ -180,7 +210,7 @@ def BPT_plots(output_file, sample_file, n_re):
         OIII = clean_images(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
         NII = clean_images(NII, pa, r50, r50 * q, img_err=NII / NII_err)
         SII = clean_images(SII, pa, r50, r50 * q, img_err=SII / SII_err)
-        print(os.getcwd())
+
         if os.path.exists("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
             shutil.rmtree("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
         os.mkdir("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
@@ -347,99 +377,6 @@ def BPT_plots(output_file, sample_file, n_re):
     plt.savefig("MAGPI_Plots/plots/BPT.pdf", bbox_inches="tight")
 
     return HA_fluxes, NII_fluxes, OIII_fluxes, HB_fluxes, SII_fluxes, OI_fluxes
-
-
-def ellipse_plots(velo, velo_err, q, r50, field_name, galaxy, output_file):
-    os.mkdir(output_file + "/ellipse_plots")
-    os.mkdir(output_file + "/ellipse_plots/ellipse_circ")
-    y0, x0 = velo.shape
-    y0, x0 = y0 / 2, x0 / 2
-
-    start = (0.65 / 2) / 0.2
-    step = (0.65 / 2) / 0.2
-    end = 2 * r50
-    rad = np.arange(start, end, step)
-
-    k = kinemetry(img=velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                  bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True, cover=0.95)
-    zeros = np.where(k.eccano == 0)[0]
-    p = 0
-    chi2 = []
-    for i in range(2, len(zeros)):
-        p += 1
-        # k
-        k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
-        x = np.degrees(k.eccano[zeros[i - 1]:zeros[i]])
-        ex_mom = k.ex_mom[zeros[i - 1]:zeros[i]]
-        vrec = k.vrec[zeros[i - 1]:zeros[i]]
-        vv = k.vv[zeros[i - 1]:zeros[i]]
-        yEl = k.Yellip[zeros[i - 1]:zeros[i]].astype(int)
-        xEl = k.Xellip[zeros[i - 1]:zeros[i]].astype(int)
-        chi_2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
-        chi_2 = chi2 / (len(ex_mom) - 2)
-        chi2.append(chi_2)
-
-        fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
-        ax1.plot(x, vrec, c="firebrick", label="k," + r"$\chi_\nu^2$" + f":{chi2:.1e}")
-        ax1.scatter(x, ex_mom, s=2)
-        ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), c="k", zorder=2, s=3)
-        ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=velo_err[yEl, xEl] / np.nanmax(k1), fmt=".k",
-                     ls="",
-                     zorder=1)
-        ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), c="firebrick", zorder=1)
-        ax1.scatter(x, ex_mom, s=2)
-        ax1.plot(x, vrec, c="limegreen", label="M2")
-        ax1.plot(x, vv, c="orangered", label=r"B$_1\cos\theta$")
-        ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), c="k", zorder=2, s=3)
-        ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=velo_err[yEl, xEl] / np.nanmax(k1),
-                     fmt=".k", ls="", zorder=1)
-        ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), c="limegreen", zorder=1)
-        ax2.plot(x, (ex_mom - vv) / np.nanmax(k1), c="orangered", zorder=1)
-        ax2.scatter(x, (ex_mom - vv) / np.nanmax(k1), c="k", zorder=2, s=3)
-        ax2.errorbar(x, (ex_mom - vv) / np.nanmax(k1), yerr=velo_err[yEl, xEl] / np.nanmax(k1),
-                     fmt=".k", ls="", zorder=1)
-        ax2.set_xlabel(r"$\theta$")
-        ax2.set_ylabel(r"$\Delta{V}$")
-        ax1.legend()
-        ax1.set_ylabel(r"V [kms$^{-1}$]")
-        # ax2.set_ylim(-0.75, 0.75)
-        ax1.set_title(f'{galaxy}, R={k.rad[i - 1] * 0.2:.2f}"({k.rad[i - 1] / r50:.2f} Re)')
-        ax2.hlines(y=0, xmin=x[0], xmax=x[-1], colors="gray", ls="dashdot")
-        plt.savefig(output_file + "/ellipse_plots/ellipse_circ/ellipse_" + str(p) + ".pdf", bbox_inches="tight")
-
-
-def list_flat(old_list, new_list):
-    for item in old_list:
-        if type(item) == float:
-            new_list.append(item)
-        elif type(item) == int:
-            new_list.append(item)
-        elif type(item) == list:
-            for item2 in item:
-                new_list.append(item2)
-    return new_list
-
-
-def clean_images(img, pa, a, b, img_err=None,SNR=3):
-    y0, x0 = img.shape
-    y0, x0 = y0 / 2, x0 / 2
-    pa = pa - 90
-    pa = np.radians(pa)
-    for i in range(1,len(img[:, 0])):
-        for j in range(1,len(img[0, :])):
-            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
-            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
-                img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR:
-                new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
-                new_img = np.nanmedian(new_img)
-                if np.isnan(new_img):
-                    img[i,j]=new_img
-                else:
-                    img[i, j] = new_img
-    return img
-
 
 def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
     field_name = str(galaxy)[:4]

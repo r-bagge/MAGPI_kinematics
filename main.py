@@ -8,11 +8,9 @@ from kinemetry import kinemetry
 import multiprocessing
 import sys
 from magpi_kinemetry import MAGPI_kinemetry
-from magpi_kinemetry import clean_images
+from kinemetry_plots import clean_images
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
-from magpi_kinemetry import radial_rotation
-
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = args
