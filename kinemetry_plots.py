@@ -21,6 +21,37 @@ def dust_corr(flux, balmer, lam, model):
 
     return flux_corr
 
+def list_flat(old_list, new_list):
+    for item in old_list:
+        if type(item) == float:
+            new_list.append(item)
+        elif type(item) == int:
+            new_list.append(item)
+        elif type(item) == list:
+            for item2 in item:
+                new_list.append(item2)
+    return new_list
+
+
+def clean_images(img, pa, a, b, img_err=None,SNR=3):
+    y0, x0 = img.shape
+    y0, x0 = y0 / 2, x0 / 2
+    pa = pa - 90
+    pa = np.radians(pa)
+    for i in range(1,len(img[:, 0])):
+        for j in range(1,len(img[0, :])):
+            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
+            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
+            if side1 + side2 > 8:
+                img[i, j] = np.nan
+            if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5):
+                new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
+                new_img = np.nanmedian(new_img)
+                if np.isnan(new_img):
+                    img[i,j]=np.nan
+                else:
+                    img[i, j] = new_img
+    return img
 
 def aperture_photometry(map, pa, a, b):
     flux = 0
@@ -407,40 +438,6 @@ def ellipse_plots(velo, velo_err, q, r50, field_name, galaxy, output_file):
         ax2.hlines(y=0, xmin=x[0], xmax=x[-1], colors="gray", ls="dashdot")
         plt.savefig(output_file + "/ellipse_plots/ellipse_circ/ellipse_" + str(p) + ".pdf", bbox_inches="tight")
 
-
-def list_flat(old_list, new_list):
-    for item in old_list:
-        if type(item) == float:
-            new_list.append(item)
-        elif type(item) == int:
-            new_list.append(item)
-        elif type(item) == list:
-            for item2 in item:
-                new_list.append(item2)
-    return new_list
-
-
-def clean_images(img, pa, a, b, img_err=None,SNR=3):
-    y0, x0 = img.shape
-    y0, x0 = y0 / 2, x0 / 2
-    pa = pa - 90
-    pa = np.radians(pa)
-    for i in range(1,len(img[:, 0])):
-        for j in range(1,len(img[0, :])):
-            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
-            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
-                img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR:
-                new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
-                new_img = np.nanmedian(new_img)
-                if np.isnan(new_img):
-                    img[i,j]=new_img
-                else:
-                    img[i, j] = new_img
-    return img
-
-
 def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
     field_name = str(galaxy)[:4]
     csv_file = pd.read_csv(
@@ -577,9 +574,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_s-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
                 ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_g-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -643,9 +640,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_s-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
                 ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_g-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -750,9 +747,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
             ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
             ax2.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                  height=2 * r50 / q, angle=pa_s-90, fc="none", ec="magenta"))
+                                  height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
             ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                  height=2 * r50 / q, angle=pa_g-90, fc="none", ec="magenta"))
+                                  height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
             ax1.set_ylabel("Stars")
             ax4.set_ylabel("Gas")
             for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -889,7 +886,7 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(g_sigma))
                 ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_g-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
                                         [r"SNR [H$_\alpha$]",
@@ -939,7 +936,7 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 p6 = ax6.imshow(g_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.2 * np.nanmax(g_sigma))
                 ax4.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
                 ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                                      height=2 * r50 / q, angle=pa_g-90, fc="none", ec="magenta"))
+                                      height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
                                         [bright_line[:-2] + r" [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
@@ -1026,7 +1023,7 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
         p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
         ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
         ax1.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
-                              height=2 * r50 / q, angle=pa_s-90, fc="none", ec="magenta"))
+                              height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
         ax1.set_ylabel("Stars")
         for p, ax, label in zip([p1, p2, p3], [ax1, ax2, ax3],
                                 [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]", r"SNR",

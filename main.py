@@ -254,7 +254,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
         kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, paq=[pa,q], even=True)
+                             bmodel=True, paq=np.array([pa,q]), even=True)
         k_flux_g = kg_flux.cf[:,0]
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
@@ -532,7 +532,7 @@ if __name__ == '__main__':
                            "v_asym_05_err": GasAsym_05_Err,
                            "v_asym_15": GasAsym_15,
                            "v_asym_15_err": GasAsym_15_Err,
-                           "v_asym_15": GasAsym_fw,
+                           "v_asym_fw": GasAsym_fw,
                            "v_asym_fw_err": GasAsym_fw_Err,
                            "PA_g": results[1],
                            "PA_s": results[2],
@@ -575,4 +575,4 @@ if __name__ == '__main__':
                            })
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.5)
+    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_BPT_15re_05re.csv", "MAGPI_csv/MAGPI_kinemetry_sample_15re_05re.csv", n_re=1.5)
