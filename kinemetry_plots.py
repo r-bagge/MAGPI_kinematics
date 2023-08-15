@@ -43,7 +43,7 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5):
+            if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5)  and i < 5 and j < 5:
                 new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
                 new_img = np.nanmedian(new_img)
                 if np.isnan(new_img):
