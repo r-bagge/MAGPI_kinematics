@@ -324,7 +324,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    just_BPT=False
+    just_BPT=True
     if just_BPT ==True:
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)

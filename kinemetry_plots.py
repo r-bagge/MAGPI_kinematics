@@ -364,7 +364,7 @@ def BPT_plots(output_file, sample_file, n_re):
     ax3.plot(xx, dd, color="k")
     ax3.plot(hh, ll, color="k")
     for ax in [ax1, ax2, ax3]:
-        ax.text(x=0.5, y=-0.5, s="LINERs")
+        ax.text(x=0.3, y=-0.5, s="LINERs")
         ax.text(x=-2, y=1.2, s="Seyferts")
         ax.text(x=-2.2, y=-1.0, s="Star Forming")
         ax.set_ylim(-1.3, 1.8)
