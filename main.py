@@ -209,9 +209,9 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        g_velo[np.isnan(g_velo)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
+        # g_velo[np.isnan(g_velo)] = 0
+        # g_velo_err[np.isnan(g_velo_err)] = 0
+        # g_flux[np.isnan(g_flux)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1])
@@ -259,9 +259,9 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        g_velo[np.isnan(g_velo)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
+        # g_velo[np.isnan(g_velo)] = 0
+        # g_velo_err[np.isnan(g_velo_err)] = 0
+        # g_flux[np.isnan(g_flux)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -309,9 +309,9 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        g_velo[np.isnan(g_velo)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
+        # g_velo[np.isnan(g_velo)] = 0
+        # g_velo_err[np.isnan(g_velo_err)] = 0
+        # g_flux[np.isnan(g_flux)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],fixcen=False)
@@ -324,177 +324,181 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    just_BPT=True
+    just_BPT=False
+    catch = 2
     if just_BPT ==True:
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)
     else:
-        print("Beginning M1")
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        z = file["z"].to_numpy()
-        pa = file["ang_it"].to_numpy()
-        q = file["axrat_it"].to_numpy()
-        re = file["R50_it"].to_numpy() / 0.2
-        quality = file["QOP"].to_numpy()
-        galaxy = file["MAGPIID"].to_numpy()
-        galaxies = []
-        GasAsym_05 = []
-        GasAsym_05_Err = []
-        GasAsym_15 = []
-        GasAsym_15_Err = []
-        GasAsym_fw = []
-        GasAsym_fw_Err = []
-        print("Beginning the hard part...")
-        for i in range(len(file)):
-            pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 1]
-            args = MAGPI_kinemetry_parrallel(pars)
-            if args is None:
-                continue
-            mcs = monte_carlo_parallel(args)
-            galaxies.append(galaxy[i])
-            print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
-            GasAsym_05.append(np.nanmean(mcs[0]))
-            GasAsym_05_Err.append(np.nanstd(mcs[0]))
-            print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
-            GasAsym_15.append(np.nanmean(mcs[1]))
-            GasAsym_15_Err.append(np.nanstd(mcs[1]))
-            print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
-            GasAsym_fw.append(np.nanmean(mcs[2]))
-            GasAsym_fw_Err.append(np.nanstd(mcs[2]))
+        if catch==1:
+            print("Beginning M1")
+            file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+            z = file["z"].to_numpy()
+            pa = file["ang_it"].to_numpy()
+            q = file["axrat_it"].to_numpy()
+            re = file["R50_it"].to_numpy() / 0.2
+            quality = file["QOP"].to_numpy()
+            galaxy = file["MAGPIID"].to_numpy()
+            galaxies = []
+            GasAsym_05 = []
+            GasAsym_05_Err = []
+            GasAsym_15 = []
+            GasAsym_15_Err = []
+            GasAsym_fw = []
+            GasAsym_fw_Err = []
+            print("Beginning the hard part...")
+            for i in range(len(file)):
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 1]
+                args = MAGPI_kinemetry_parrallel(pars)
+                if args is None:
+                    continue
+                mcs = monte_carlo_parallel(args)
+                galaxies.append(galaxy[i])
+                print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
+                GasAsym_05.append(np.nanmean(mcs[0]))
+                GasAsym_05_Err.append(np.nanstd(mcs[0]))
+                print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
+                GasAsym_15.append(np.nanmean(mcs[1]))
+                GasAsym_15_Err.append(np.nanstd(mcs[1]))
+                print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
+                GasAsym_fw.append(np.nanmean(mcs[2]))
+                GasAsym_fw_Err.append(np.nanstd(mcs[2]))
 
-        print("Beginning the easy part...")
-        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        df = pd.DataFrame({"MAGPIID": galaxies,
-                           "v_asym_05": GasAsym_05,
-                           "v_asym_05_err": GasAsym_05_Err,
-                           "v_asym_15": GasAsym_15,
-                           "v_asym_15_err": GasAsym_15_Err,
-                           "v_asym_fw": GasAsym_fw,
-                           "v_asym_fw_err": GasAsym_fw_Err,
-                           "PA_g": results[1],
-                           "PA_s": results[2],
-                           "D_PA": results[3],
-                           "V_rot_g": results[4],
-                           "V_rot_s": results[5],
-                           "Sigma_g": results[6],
-                           "Sigma_s": results[7],
-                           "SNR_g": results[8],
-                           "SNR_s": results[9],
-                           })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1.csv",index=False)
-        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+            print("Beginning the easy part...")
+            results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
+                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+            df = pd.DataFrame({"MAGPIID": galaxies,
+                               "v_asym_05": GasAsym_05,
+                               "v_asym_05_err": GasAsym_05_Err,
+                               "v_asym_15": GasAsym_15,
+                               "v_asym_15_err": GasAsym_15_Err,
+                               "v_asym_fw": GasAsym_fw,
+                               "v_asym_fw_err": GasAsym_fw_Err,
+                               "PA_g": results[1],
+                               "PA_s": results[2],
+                               "D_PA": results[3],
+                               "V_rot_g": results[4],
+                               "V_rot_s": results[5],
+                               "Sigma_g": results[6],
+                               "Sigma_s": results[7],
+                               "SNR_g": results[8],
+                               "SNR_s": results[9],
+                               })
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1.csv",index=False)
+            print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+        if catch==2:
+            print("Beginning M2")
+            file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+            z = file["z"].to_numpy()
+            pa = file["ang_it"].to_numpy()
+            q = file["axrat_it"].to_numpy()
+            re = file["R50_it"].to_numpy() / 0.2
+            quality = file["QOP"].to_numpy()
+            galaxy = file["MAGPIID"].to_numpy()
+            galaxies = []
+            GasAsym_05 = []
+            GasAsym_05_Err = []
+            GasAsym_15 = []
+            GasAsym_15_Err = []
+            GasAsym_fw = []
+            GasAsym_fw_Err = []
+            print("Beginning the hard part...")
+            for i in range(len(file)):
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 2]
+                args = MAGPI_kinemetry_parrallel(pars)
+                if args is None:
+                    continue
+                mcs = monte_carlo_parallel(args)
+                galaxies.append(galaxy[i])
+                print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
+                GasAsym_05.append(np.nanmean(mcs[0]))
+                GasAsym_05_Err.append(np.nanstd(mcs[0]))
+                print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
+                GasAsym_15.append(np.nanmean(mcs[1]))
+                GasAsym_15_Err.append(np.nanstd(mcs[1]))
+                print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
+                GasAsym_fw.append(np.nanmean(mcs[2]))
+                GasAsym_fw_Err.append(np.nanstd(mcs[2]))
 
-        print("Beginning M2")
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        z = file["z"].to_numpy()
-        pa = file["ang_it"].to_numpy()
-        q = file["axrat_it"].to_numpy()
-        re = file["R50_it"].to_numpy() / 0.2
-        quality = file["QOP"].to_numpy()
-        galaxy = file["MAGPIID"].to_numpy()
-        galaxies = []
-        GasAsym_05 = []
-        GasAsym_05_Err = []
-        GasAsym_15 = []
-        GasAsym_15_Err = []
-        GasAsym_fw = []
-        GasAsym_fw_Err = []
-        print("Beginning the hard part...")
-        for i in range(len(file)):
-            pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 2]
-            args = MAGPI_kinemetry_parrallel(pars)
-            if args is None:
-                continue
-            mcs = monte_carlo_parallel(args)
-            galaxies.append(galaxy[i])
-            print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
-            GasAsym_05.append(np.nanmean(mcs[0]))
-            GasAsym_05_Err.append(np.nanstd(mcs[0]))
-            print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
-            GasAsym_15.append(np.nanmean(mcs[1]))
-            GasAsym_15_Err.append(np.nanstd(mcs[1]))
-            print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
-            GasAsym_fw.append(np.nanmean(mcs[2]))
-            GasAsym_fw_Err.append(np.nanstd(mcs[2]))
+            print("Beginning the easy part...")
+            results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
+                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+            df = pd.DataFrame({"MAGPIID": galaxies,
+                               "v_asym_05": GasAsym_05,
+                               "v_asym_05_err": GasAsym_05_Err,
+                               "v_asym_15": GasAsym_15,
+                               "v_asym_15_err": GasAsym_15_Err,
+                               "v_asym_fw": GasAsym_fw,
+                               "v_asym_fw_err": GasAsym_fw_Err,
+                               "PA_g": results[1],
+                               "PA_s": results[2],
+                               "D_PA": results[3],
+                               "V_rot_g": results[4],
+                               "V_rot_s": results[5],
+                               "Sigma_g": results[6],
+                               "Sigma_s": results[7],
+                               "SNR_g": results[8],
+                               "SNR_s": results[9],
+                               })
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", index=False)
+            print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
-        print("Beginning the easy part...")
-        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        df = pd.DataFrame({"MAGPIID": galaxies,
-                           "v_asym_05": GasAsym_05,
-                           "v_asym_05_err": GasAsym_05_Err,
-                           "v_asym_15": GasAsym_15,
-                           "v_asym_15_err": GasAsym_15_Err,
-                           "v_asym_fw": GasAsym_fw,
-                           "v_asym_fw_err": GasAsym_fw_Err,
-                           "PA_g": results[1],
-                           "PA_s": results[2],
-                           "D_PA": results[3],
-                           "V_rot_g": results[4],
-                           "V_rot_s": results[5],
-                           "Sigma_g": results[6],
-                           "Sigma_s": results[7],
-                           "SNR_g": results[8],
-                           "SNR_s": results[9],
-                           })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", index=False)
-        print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+        if catch==3:
 
-        print("Beginning M3")
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        z = file["z"].to_numpy()
-        pa = file["ang_it"].to_numpy()
-        q = file["axrat_it"].to_numpy()
-        re = file["R50_it"].to_numpy() / 0.2
-        quality = file["QOP"].to_numpy()
-        galaxy = file["MAGPIID"].to_numpy()
-        galaxies = []
-        GasAsym_05 = []
-        GasAsym_05_Err = []
-        GasAsym_15 = []
-        GasAsym_15_Err = []
-        GasAsym_fw = []
-        GasAsym_fw_Err = []
-        print("Beginning the hard part...")
-        for i in range(len(file)):
-            pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 3]
-            args = MAGPI_kinemetry_parrallel(pars)
-            if args is None:
-                continue
-            mcs = monte_carlo_parallel(args)
-            galaxies.append(galaxy[i])
-            print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
-            GasAsym_05.append(np.nanmean(mcs[0]))
-            GasAsym_05_Err.append(np.nanstd(mcs[0]))
-            print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
-            GasAsym_15.append(np.nanmean(mcs[1]))
-            GasAsym_15_Err.append(np.nanstd(mcs[1]))
-            print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
-            GasAsym_fw.append(np.nanmean(mcs[2]))
-            GasAsym_fw_Err.append(np.nanstd(mcs[2]))
+            print("Beginning M3")
+            file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+            z = file["z"].to_numpy()
+            pa = file["ang_it"].to_numpy()
+            q = file["axrat_it"].to_numpy()
+            re = file["R50_it"].to_numpy() / 0.2
+            quality = file["QOP"].to_numpy()
+            galaxy = file["MAGPIID"].to_numpy()
+            galaxies = []
+            GasAsym_05 = []
+            GasAsym_05_Err = []
+            GasAsym_15 = []
+            GasAsym_15_Err = []
+            GasAsym_fw = []
+            GasAsym_fw_Err = []
+            print("Beginning the hard part...")
+            for i in range(len(file)):
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 3]
+                args = MAGPI_kinemetry_parrallel(pars)
+                if args is None:
+                    continue
+                mcs = monte_carlo_parallel(args)
+                galaxies.append(galaxy[i])
+                print(f"Gas Asym 05={np.nanmean(mcs[0]):.2f}")
+                GasAsym_05.append(np.nanmean(mcs[0]))
+                GasAsym_05_Err.append(np.nanstd(mcs[0]))
+                print(f"Gas Asym 15={np.nanmean(mcs[1]):.2f}")
+                GasAsym_15.append(np.nanmean(mcs[1]))
+                GasAsym_15_Err.append(np.nanstd(mcs[1]))
+                print(f"Gas Asym fw={np.nanmean(mcs[2]):.2f}")
+                GasAsym_fw.append(np.nanmean(mcs[2]))
+                GasAsym_fw_Err.append(np.nanstd(mcs[2]))
 
-        print("Beginning the easy part...")
-        results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                  n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        df = pd.DataFrame({"MAGPIID": galaxies,
-                           "v_asym_05": GasAsym_05,
-                           "v_asym_05_err": GasAsym_05_Err,
-                           "v_asym_15": GasAsym_15,
-                           "v_asym_15_err": GasAsym_15_Err,
-                           "v_asym_fw": GasAsym_fw,
-                           "v_asym_fw_err": GasAsym_fw_Err,
-                           "PA_g": results[1],
-                           "PA_s": results[2],
-                           "D_PA": results[3],
-                           "V_rot_g": results[4],
-                           "V_rot_s": results[5],
-                           "Sigma_g": results[6],
-                           "Sigma_s": results[7],
-                           "SNR_g": results[8],
-                           "SNR_s": results[9],
-                           })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3.csv", index=False)
+            print("Beginning the easy part...")
+            results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
+                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+            df = pd.DataFrame({"MAGPIID": galaxies,
+                               "v_asym_05": GasAsym_05,
+                               "v_asym_05_err": GasAsym_05_Err,
+                               "v_asym_15": GasAsym_15,
+                               "v_asym_15_err": GasAsym_15_Err,
+                               "v_asym_fw": GasAsym_fw,
+                               "v_asym_fw_err": GasAsym_fw_Err,
+                               "PA_g": results[1],
+                               "PA_s": results[2],
+                               "D_PA": results[3],
+                               "V_rot_g": results[4],
+                               "V_rot_s": results[5],
+                               "Sigma_g": results[6],
+                               "Sigma_s": results[7],
+                               "SNR_g": results[8],
+                               "SNR_s": results[9],
+                               })
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)
