@@ -1,17 +1,14 @@
 import numpy as np
 from astropy.io import fits
-from astropy.cosmology import Planck18 as cosmo
-import astropy.units as u
 import pandas as pd
 import os
 from kinemetry import kinemetry
 import multiprocessing
 import sys
 from magpi_kinemetry import MAGPI_kinemetry
-from kinemetry_plots import clean_images
+from kinemetry_plots import clean_images_velo
+from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
-from kinemetry_plots import stellar_gas_plots
-from magpi_kinemetry import radial_rotation
 
 
 def monte_carlo(args):
@@ -29,7 +26,7 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            v_asym = (k3 + k5) / (2 * k1)
+            v_asym = k5/k1
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -55,7 +52,7 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
+            v_asym = k5 / k1
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -67,30 +64,29 @@ def monte_carlo(args):
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
         return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
     elif catch == 3:
-        if catch == 1:
-            v_asym_gmc_05 = np.zeros(n)
-            v_asym_gmc_15 = np.zeros(n)
-            v_asym_gmc_fw = np.zeros(n)
-            for h in range(n):
-                model = g_model
-                model[np.isnan(model)] = 0
-                model += np.random.normal(loc=0, scale=g_img_err)
-                k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                              rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], fixcen=False)
-                k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
-                k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
-                k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-                v_asym = (k3 + k5) / (2 * k1)
-                try:
-                    v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
-                except ValueError:
-                    v_asym_gmc_05[h] = np.nan
-                try:
-                    v_asym_gmc_15[h] = v_asym[(rad_g / r50) < 1.5][-1]
-                except ValueError:
-                    v_asym_gmc_15[h] = np.nan
-                v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
-            return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
+        v_asym_gmc_05 = np.zeros(n)
+        v_asym_gmc_15 = np.zeros(n)
+        v_asym_gmc_fw = np.zeros(n)
+        for h in range(n):
+            model = g_model
+            model[np.isnan(model)] = 0
+            model += np.random.normal(loc=0, scale=g_img_err)
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
+                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], fixcen=False)
+            k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
+            k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
+            k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
+            v_asym = k5/k1
+            try:
+                v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
+            except ValueError:
+                v_asym_gmc_05[h] = np.nan
+            try:
+                v_asym_gmc_15[h] = v_asym[(rad_g / r50) < 1.5][-1]
+            except ValueError:
+                v_asym_gmc_15[h] = np.nan
+            v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
+        return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
 
 
 def monte_carlo_parallel(pars):
@@ -177,9 +173,9 @@ def MAGPI_kinemetry_parrallel(args):
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err= gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(g_flux)
@@ -223,9 +219,9 @@ def MAGPI_kinemetry_parrallel(args):
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(g_flux)
@@ -269,9 +265,9 @@ def MAGPI_kinemetry_parrallel(args):
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(g_flux)
@@ -372,7 +368,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1.csv",index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1_k51.csv",index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         if catch==2:
             print("Beginning M2")
@@ -428,7 +424,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2_k51.csv", index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
         if catch==3:
@@ -486,7 +482,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3.csv", index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3_k51.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=2)

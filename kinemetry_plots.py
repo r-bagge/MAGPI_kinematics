@@ -32,7 +32,7 @@ def list_flat(old_list, new_list):
                 new_list.append(item2)
     return new_list
 
-def clean_images(img, pa, a, b, img_err=None,SNR=3):
+def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -53,6 +53,27 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
                 else:
                     img[i, j] = new_img
     return img
+
+
+def clean_images_flux(img, pa, a, b, img_err=None,SNR=3):
+    y0, x0 = img.shape
+    y0, x0 = y0 / 2, x0 / 2
+    pa = pa - 90
+    pa = np.radians(pa)
+    img[0,:] = np.nan
+    img[:,0] = np.nan
+    for i in range(1,len(img[:, 0])):
+        for j in range(1,len(img[0, :])):
+            side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
+            side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
+            if side1 + side2 > 8:
+                img[i, j] = np.nan
+            if side1 + side2 < 8 and img_err is not None and abs(img_err[i, j]) < SNR:
+                pass
+            else:
+                img[i, j] = np.nan
+    return img
+
 
 def aperture_photometry(map, pa, a, b):
     flux = 0
@@ -205,13 +226,13 @@ def BPT_plots(output_file, sample_file, n_re):
         SII_err = SII_err + fits_file[56].data
         fits_file.close()
 
-        HA = clean_images(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err)
-        HA_err = clean_images(flux_Ha_err, pa, r50, r50 * q)
-        HB = clean_images(flux_Hb, pa, r50, r50 * q, img_err=flux_Hb / flux_Hb_err)
-        OI = clean_images(OI, pa, r50, r50 * q, img_err=OI / OI_err)
-        OIII = clean_images(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
-        NII = clean_images(NII, pa, r50, r50 * q, img_err=NII / NII_err)
-        SII = clean_images(SII, pa, r50, r50 * q, img_err=SII / SII_err)
+        HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err)
+        HA_err = clean_images_flux(flux_Ha_err, pa, r50, r50 * q)
+        HB = clean_images_flux(flux_Hb, pa, r50, r50 * q, img_err=flux_Hb / flux_Hb_err)
+        OI = clean_images_flux(OI, pa, r50, r50 * q, img_err=OI / OI_err)
+        OIII = clean_images_flux(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
+        NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err)
+        SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err)
 
         if os.path.exists("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
             shutil.rmtree("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
