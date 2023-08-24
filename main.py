@@ -209,10 +209,6 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        # g_velo[np.isnan(g_velo)] = 0
-        # g_velo_err[np.isnan(g_velo_err)] = 0
-        # g_flux[np.isnan(g_flux)] = 0
-
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1])
         kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
@@ -258,10 +254,6 @@ def MAGPI_kinemetry_parrallel(args):
             return
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
-
-        # g_velo[np.isnan(g_velo)] = 0
-        # g_velo_err[np.isnan(g_velo_err)] = 0
-        # g_flux[np.isnan(g_flux)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -309,10 +301,6 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        # g_velo[np.isnan(g_velo)] = 0
-        # g_velo_err[np.isnan(g_velo_err)] = 0
-        # g_flux[np.isnan(g_flux)] = 0
-
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],fixcen=False)
         kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
@@ -348,7 +336,7 @@ if __name__ == '__main__':
             GasAsym_fw_Err = []
             print("Beginning the hard part...")
             for i in range(len(file)):
-                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 1]
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], catch]
                 args = MAGPI_kinemetry_parrallel(pars)
                 if args is None:
                     continue
@@ -404,7 +392,7 @@ if __name__ == '__main__':
             GasAsym_fw_Err = []
             print("Beginning the hard part...")
             for i in range(len(file)):
-                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 2]
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], catch]
                 args = MAGPI_kinemetry_parrallel(pars)
                 if args is None:
                     continue
@@ -462,7 +450,7 @@ if __name__ == '__main__':
             GasAsym_fw_Err = []
             print("Beginning the hard part...")
             for i in range(len(file)):
-                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], 3]
+                pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i], catch]
                 args = MAGPI_kinemetry_parrallel(pars)
                 if args is None:
                     continue
@@ -501,4 +489,4 @@ if __name__ == '__main__':
             df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         print(f"Doing BPT stuff")
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=2)
