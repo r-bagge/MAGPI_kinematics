@@ -5,7 +5,8 @@ import os
 import pandas as pd
 from astropy.cosmology import Planck18 as cosmo
 from kinemetry import kinemetry
-from kinemetry_plots import clean_images
+from kinemetry_plots import clean_images_velo
+from kinemetry_plots import clean_images_flux
 
 def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     gal_id = []
@@ -97,10 +98,10 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             gasfile = fits.open(gas_file)
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
             gasfile.close()
-            g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
 
             clip = np.nanmax(g_flux)
@@ -124,10 +125,10 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 continue
             print("Doing kinemetry on gas only!")
             print("Doing kinemetry on gas only!", file=logfile)
-            g_velo[np.isnan(g_velo)] = 0
-            g_sigma[np.isnan(g_sigma)] = 0
-            g_velo_err[np.isnan(g_velo_err)] = 0
-            g_flux[np.isnan(g_flux)] = 0
+            # g_velo[np.isnan(g_velo)] = 0
+            # g_sigma[np.isnan(g_sigma)] = 0
+            # g_velo_err[np.isnan(g_velo_err)] = 0
+            # g_flux[np.isnan(g_flux)] = 0
 
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
@@ -198,10 +199,10 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 continue
             print("Doing kinemetry on stars only!")
             print("Doing kinemetry on stars only!", file=logfile)
-            s_velo[np.isnan(s_velo)] = 0
-            s_velo_err[np.isnan(s_velo_err)] = 0
-            s_sigma[np.isnan(s_sigma)] = 0
-            s_flux[np.isnan(s_flux)] = 0
+            # s_velo[np.isnan(s_velo)] = 0
+            # s_velo_err[np.isnan(s_velo_err)] = 0
+            # s_sigma[np.isnan(s_sigma)] = 0
+            # s_flux[np.isnan(s_flux)] = 0
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
@@ -251,10 +252,10 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
                                                               gasfile[10].data, gasfile[11].data
             gasfile.close()
-            g_velo = clean_images(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
 
             s_clip = np.nanmax(s_flux)
@@ -285,10 +286,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                         continue
                     print("Doing kinemetry on gas!")
                     print("Doing kinemetry on gas!", file=logfile)
-                    g_velo[np.isnan(g_velo)] = 0
-                    g_sigma[np.isnan(g_sigma)] = 0
-                    g_velo_err[np.isnan(g_velo_err)] = 0
-                    g_flux[np.isnan(g_flux)] = 0
 
                     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                    bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
@@ -555,9 +552,9 @@ def radial_rotation(file):
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
                 gasfile[10].data, gasfile[11].data
             gasfile.close()
-            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
             y0, x0 = s_flux.shape
             x0 = int(x0 / 2)
@@ -619,9 +616,9 @@ def radial_rotation(file):
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
                 gasfile[10].data, gasfile[11].data
             gasfile.close()
-            g_velo = clean_images(g_velo, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images(g_velo_err, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_velo_err = clean_images_velo(g_velo_err, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa[i], r50[i], r50[i] * q[i], img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
             y0, x0 = s_flux.shape
             x0 = int(x0 / 2)

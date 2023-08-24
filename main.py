@@ -310,7 +310,7 @@ def MAGPI_kinemetry_parrallel(args):
 if __name__ == '__main__':
     just_BPT=False
     catch = 2
-    if just_BPT ==True:
+    if just_BPT == True:
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)
     else:
@@ -428,7 +428,6 @@ if __name__ == '__main__':
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
         if catch==3:
-
             print("Beginning M3")
             file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
             z = file["z"].to_numpy()
