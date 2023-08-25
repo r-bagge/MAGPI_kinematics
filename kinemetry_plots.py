@@ -21,6 +21,7 @@ def dust_corr(flux, balmer, lam, model):
 
     return flux_corr
 
+
 def list_flat(old_list, new_list):
     for item in old_list:
         if type(item) == float:
@@ -31,6 +32,7 @@ def list_flat(old_list, new_list):
             for item2 in item:
                 new_list.append(item2)
     return new_list
+
 
 def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
     y0, x0 = img.shape
@@ -45,17 +47,18 @@ def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
-                new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
-                new_img = np.nanmedian(new_img)
-                if np.isnan(new_img):
-                    img[i,j]=np.nan
-                else:
-                    img[i, j] = new_img
+            else:
+                if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
+                    new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
+                    new_img = np.nanmedian(new_img)
+                    if np.isnan(new_img):
+                        img[i,j]=np.nan
+                    else:
+                        img[i, j] = new_img
     return img
 
 
-def clean_images_flux(img, pa, a, b, img_err=None,SNR=3):
+def clean_images_flux(img, pa, a, b, img_err=None, SNR=3):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -68,9 +71,7 @@ def clean_images_flux(img, pa, a, b, img_err=None,SNR=3):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) > SNR:
-                pass
-            else:
+            if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i, j] = np.nan
     return img
 
@@ -240,6 +241,20 @@ def BPT_plots(output_file, sample_file, n_re):
 
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
                              "/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
+
+        HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err)
+        HA_err = clean_images_flux(flux_Ha_err, pa, r50, r50 * q)
+        HB = clean_images_flux(flux_Hb, pa, r50, r50 * q, img_err=flux_Hb / flux_Hb_err)
+        OI = clean_images_flux(OI, pa, r50, r50 * q, img_err=OI / OI_err)
+        OIII = clean_images_flux(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
+        NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err)
+        SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err)
+
+        fig, ax = plt.subplots()
+        ax.imshow(flux_Ha,origin="lower")
+        plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "check.pdf",
+                    bbox_inches='tight')
+
         if not bpt_map == None:
             fig, ax = plt.subplots()
             p = ax.imshow(bpt_map)
@@ -247,13 +262,21 @@ def BPT_plots(output_file, sample_file, n_re):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA, pa, n_re * r50, n_re * r50 * q)
-        HA_err_flux = aperture_photometry(HA_err, pa, n_re * r50, n_re * r50 * q)
-        HB_flux = aperture_photometry(HB, pa, n_re * r50, n_re * r50 * q)
-        OIII_flux = aperture_photometry(OIII, pa, n_re * r50, n_re * r50 * q)
-        NII_flux = aperture_photometry(NII, pa, n_re * r50, n_re * r50 * q)
-        OI_flux = aperture_photometry(OI, pa, n_re * r50, n_re * r50 * q)
-        SII_flux = aperture_photometry(SII, pa, n_re * r50, n_re * r50 * q)
+        # HA_flux = aperture_photometry(HA, pa, n_re * r50, n_re * r50 * q)
+        # HA_err_flux = aperture_photometry(HA_err, pa, n_re * r50, n_re * r50 * q)
+        # HB_flux = aperture_photometry(HB, pa, n_re * r50, n_re * r50 * q)
+        # OIII_flux = aperture_photometry(OIII, pa, n_re * r50, n_re * r50 * q)
+        # NII_flux = aperture_photometry(NII, pa, n_re * r50, n_re * r50 * q)
+        # OI_flux = aperture_photometry(OI, pa, n_re * r50, n_re * r50 * q)
+        # SII_flux = aperture_photometry(SII, pa, n_re * r50, n_re * r50 * q)
+
+        HA_flux = np.nansum(HA)
+        HA_err_flux = np.nansum(HA_err)
+        HB_flux = np.nansum(HB)
+        OIII_flux = np.nansum(OIII)
+        NII_flux = np.nansum(NII)
+        OI_flux =np.nansum(OI)
+        SII_flux = np.nansum(SII)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
@@ -305,7 +328,7 @@ def BPT_plots(output_file, sample_file, n_re):
         if np.log10(OI_fluxes[i] / HA_fluxes[i]) > -0.59 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.89 * np.log10(
                 SII_fluxes[i] / HA_fluxes[i]) + 0.76 and np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.18 * np.log10(
             OI_fluxes[i] / HA_fluxes[i]) + 1.30:
-            print("Seyfert!")
+            print(galaxies[i],"Seyfert!")
             sf_sy_ln[i] = 2
             pass
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.19 + (
@@ -330,19 +353,27 @@ def BPT_plots(output_file, sample_file, n_re):
             print(galaxies[i], "Comp!")
             sf_sy_ln[i] = 0
             pass
+    print("[SII]-BPT")
     SII_bpt = np.zeros(len(HA_fluxes))
     for i in range(len(HA_fluxes)):
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (
                 np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.89 * np.log10(SII_fluxes[i] / HA_fluxes[i]) + 0.76:
             SII_bpt[i] = 3
+            #print(galaxies[i], "LINER!")
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (
                 np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) > 1.89 * np.log10(SII_fluxes[i] / HA_fluxes[i]) + 0.76:
             SII_bpt[i] = 2
+            #print(galaxies[i], "Seyfert!")
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32):
             SII_bpt[i] = 1
-    print(SII_bpt)
+            #print(galaxies[i], "Star Forming!")
+    for k,h in zip(SII_bpt,sf_sy_ln):
+        if k==2 and h==2:
+            print("Both saying Seyfert")
+        if k==3 and h==3:
+            print("Both saying LINER")
     print("All Done!")
 
     df = pd.DataFrame({"MAGPIID": galaxies,
