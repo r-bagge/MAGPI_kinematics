@@ -26,8 +26,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            #v_asym = k5/k1
-            v_asym = (k3+k5) / 2*k1
+            v_asym = k5/k1
+            #v_asym = (k3+k5) / 2*k1
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -53,8 +53,8 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            #v_asym = k5 / k1
-            v_asym = (k2+k3+k4+k5)/(4*k1)
+            v_asym = k5 / k1
+            #v_asym = (k2+k3+k4+k5)/(4*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -78,8 +78,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            #v_asym = k5/k1
-            v_asym = (k3+k5)/(2*k1)
+            v_asym = k5/k1
+            #v_asym = (k3+k5)/(2*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:

@@ -48,23 +48,24 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
     return img
 
 
-os.chdir("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW")
+os.chdir("/Users/z5408076/Documents/OneDrive - UNSW")
 sample = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv")
-logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Plots/log.txt","w")
+logfile = open("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Plots/log.txt","w")
 n_nans = []
 n_not_nans = []
 vasym_err = []
 for g in sample["MAGPIID"].to_numpy():
     galaxy = g
+    print("Beginning "+str(g)+"...")
     logfile.write(str(g)+"\n")
     field = str(galaxy)[:4]
-    master= pd.read_csv("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
+    master= pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv",skiprows=16)
     master = master[master["MAGPIID"].isin([galaxy])]
     pa = master["ang_it"].to_numpy()
     q = master["axrat_it"].to_numpy()[0]
     r50 = master['R50_it'].to_numpy()/0.2
 
-    gasfile = fits.open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI"+str(galaxy)+"_GIST_EmissionLines.fits")
+    gasfile = fits.open("MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI"+str(galaxy)+"_GIST_EmissionLines.fits")
     g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
     gasfile.close()
 
@@ -112,7 +113,7 @@ for g in sample["MAGPIID"].to_numpy():
     ax4.set_xlim(-0.05, 2.05)
 
     gasfile = fits.open(
-        "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+        "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
             galaxy) + "_GIST_EmissionLines.fits")
     g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
     gasfile.close()
@@ -158,7 +159,7 @@ for g in sample["MAGPIID"].to_numpy():
 
     vasyms = sample[sample["MAGPIID"].isin([g])]
     gasfile = fits.open(
-        "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+        "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
             galaxy) + "_GIST_EmissionLines.fits")
     g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
     gasfile.close()
@@ -203,4 +204,4 @@ plt.savefig("MAGPI_Plots/Maps_Check/nans_v_sigma.pdf",bbox_inches="tight")
 df = pd.DataFrame({"MAGPIID":sample["MAGPIID"].to_numpy(),
                    "v_asym_15_err":vasym_err,
                    "NaNs_at_ellipse":n_nans/n_not_nans})
-df.to_csv("MAGPI_ellipse_nans.csv",index=False)
+df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
