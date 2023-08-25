@@ -26,7 +26,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            v_asym = k5/k1
+            #v_asym = k5/k1
+            v_asym = (k3+k5) / 2*k1
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -52,7 +53,8 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            v_asym = k5 / k1
+            #v_asym = k5 / k1
+            v_asym = (k2+k3+k4+k5)/(4*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -76,7 +78,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            v_asym = k5/k1
+            #v_asym = k5/k1
+            v_asym = (k3+k5)/(2*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
             except ValueError:
@@ -309,7 +312,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 if __name__ == '__main__':
     just_BPT=False
-    catch = 2
+    catch = 1
     if just_BPT == True:
         print(f"Doing BPT stuff")
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)
@@ -370,6 +373,7 @@ if __name__ == '__main__':
                                })
             df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1_k51.csv",index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+        catch=2
         if catch==2:
             print("Beginning M2")
             file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
@@ -426,7 +430,7 @@ if __name__ == '__main__':
                                })
             df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2_k51.csv", index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-
+        catch=3
         if catch==3:
             print("Beginning M3")
             file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
