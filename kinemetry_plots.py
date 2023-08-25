@@ -68,7 +68,7 @@ def clean_images_flux(img, pa, a, b, img_err=None,SNR=3):
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > 8:
                 img[i, j] = np.nan
-            if side1 + side2 < 8 and img_err is not None and abs(img_err[i, j]) < SNR:
+            if img_err is not None and abs(img_err[i, j]) > SNR:
                 pass
             else:
                 img[i, j] = np.nan
