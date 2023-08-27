@@ -5,6 +5,7 @@ import os
 import pandas as pd
 from astropy.cosmology import Planck18 as cosmo
 from kinemetry import kinemetry
+from kinemetry_plots import clean_images
 
 def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
     gal_id = []
