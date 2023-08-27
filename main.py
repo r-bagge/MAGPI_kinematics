@@ -8,7 +8,8 @@ from kinemetry import kinemetry
 import multiprocessing
 import sys
 from magpi_kinemetry import MAGPI_kinemetry
-from kinemetry_plots import clean_images
+from kinemetry_plots import clean_images_velo
+from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
 
@@ -18,7 +19,7 @@ def monte_carlo(args):
         v_asym_gmc = np.zeros(n)
         for h in range(n):
             model = g_model
-            model[np.isnan(model)] = 0
+            # model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
@@ -41,7 +42,7 @@ def monte_carlo(args):
         v_asym_smc = np.zeros(n)
         for h in range(n):
             model = s_model
-            model[np.isnan(model)] = 0
+            # model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
@@ -66,8 +67,8 @@ def monte_carlo(args):
         for h in range(n):
             s_model_2 = s_model
             g_model_2 = g_model
-            s_model_2[np.isnan(s_model_2)] = 0
-            g_model_2[np.isnan(g_model_2)] = 0
+            # s_model_2[np.isnan(s_model_2)] = 0
+            # g_model_2[np.isnan(g_model_2)] = 0
             s_model_2 += np.random.normal(loc=0, scale=s_img_err)
             g_model_2 += np.random.normal(loc=0, scale=g_img_err)
 
@@ -204,11 +205,11 @@ def MAGPI_kinemetry_parrallel(args):
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
             gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
         gasfile.close()
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma_err = clean_images(g_sigma_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma_err = clean_images_velo(g_sigma_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(g_flux)
@@ -238,10 +239,10 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
 
-        g_velo[np.isnan(g_velo)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
-        g_sigma[np.isnan(g_sigma)] = 0
+        # g_velo[np.isnan(g_velo)] = 0
+        # g_velo_err[np.isnan(g_velo_err)] = 0
+        # g_flux[np.isnan(g_flux)] = 0
+        # g_sigma[np.isnan(g_sigma)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -285,10 +286,10 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on stars only!")
         print("Doing kinemetry on stars only!", file=logfile)
 
-        s_velo[np.isnan(s_velo)] = 0
-        s_velo_err[np.isnan(s_velo_err)] = 0
-        s_sigma[np.isnan(s_sigma)] = 0
-        s_flux[np.isnan(s_flux)] = 0
+        # s_velo[np.isnan(s_velo)] = 0
+        # s_velo_err[np.isnan(s_velo_err)] = 0
+        # s_sigma[np.isnan(s_sigma)] = 0
+        # s_flux[np.isnan(s_flux)] = 0
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -309,9 +310,9 @@ def MAGPI_kinemetry_parrallel(args):
         starfile.close()
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
         gasfile.close()
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         s_clip = np.nanmax(s_flux)
@@ -352,10 +353,10 @@ def MAGPI_kinemetry_parrallel(args):
                 print("Doing kinemetry on gas!")
                 print("Doing kinemetry on gas!", file=logfile)
 
-                g_velo[np.isnan(g_velo)] = 0
-                g_sigma[np.isnan(g_sigma)] = 0
-                g_velo_err[np.isnan(g_velo_err)] = 0
-                g_flux[np.isnan(g_flux)] = 0
+                # g_velo[np.isnan(g_velo)] = 0
+                # g_sigma[np.isnan(g_sigma)] = 0
+                # g_velo_err[np.isnan(g_velo_err)] = 0
+                # g_flux[np.isnan(g_flux)] = 0
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -398,10 +399,10 @@ def MAGPI_kinemetry_parrallel(args):
                     logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                     return
 
-                s_velo[np.isnan(s_velo)] = 0
-                s_velo_err[np.isnan(s_velo_err)] = 0
-                s_sigma[np.isnan(s_sigma)] = 0
-                s_flux[np.isnan(s_flux)] = 0
+                # s_velo[np.isnan(s_velo)] = 0
+                # s_velo_err[np.isnan(s_velo_err)] = 0
+                # s_sigma[np.isnan(s_sigma)] = 0
+                # s_flux[np.isnan(s_flux)] = 0
 
                 print("Doing kinemetry on stars only!")
                 print("Doing kinemetry on stars only!", file=logfile)
@@ -436,15 +437,15 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
 
-        s_velo[np.isnan(s_velo)] = 0
-        s_velo_err[np.isnan(s_velo_err)] = 0
-        s_sigma[np.isnan(s_sigma)] = 0
-        s_flux[np.isnan(s_flux)] = 0
-
-        g_velo[np.isnan(g_velo)] = 0
-        g_sigma[np.isnan(g_sigma)] = 0
-        g_velo_err[np.isnan(g_velo_err)] = 0
-        g_flux[np.isnan(g_flux)] = 0
+        # s_velo[np.isnan(s_velo)] = 0
+        # s_velo_err[np.isnan(s_velo_err)] = 0
+        # s_sigma[np.isnan(s_sigma)] = 0
+        # s_flux[np.isnan(s_flux)] = 0
+        #
+        # g_velo[np.isnan(g_velo)] = 0
+        # g_sigma[np.isnan(g_sigma)] = 0
+        # g_velo_err[np.isnan(g_velo_err)] = 0
+        # g_flux[np.isnan(g_flux)] = 0
 
         print("Doing kinemetry on stars and gas!")
         print("Doing kinemetry on stars and gas!", file=logfile)
@@ -506,8 +507,8 @@ if __name__ == '__main__':
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
-        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        # stellar_gas_plots_vectorized(results[0])
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
 
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(results[0])]
