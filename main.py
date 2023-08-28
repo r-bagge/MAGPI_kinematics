@@ -29,11 +29,11 @@ def monte_carlo(args):
             v_asym = k5/k1
             #v_asym = (k3+k5) / 2*k1
             try:
-                v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
+                v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
-                v_asym_gmc_15[h] = v_asym[(rad_g / r50) < 1.5][-1]
+                v_asym_gmc_15[h] = v_asym[-1]
             except ValueError:
                 v_asym_gmc_15[h] = np.nan
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
@@ -56,11 +56,11 @@ def monte_carlo(args):
             v_asym = k5 / k1
             #v_asym = (k2+k3+k4+k5)/(4*k1)
             try:
-                v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
+                v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
-                v_asym_gmc_15[h] = v_asym[(rad_g / r50) < 1.5][-1]
+                v_asym_gmc_15[h] = v_asym[-1]
             except ValueError:
                 v_asym_gmc_15[h] = np.nan
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
@@ -81,11 +81,11 @@ def monte_carlo(args):
             v_asym = k5/k1
             #v_asym = (k3+k5)/(2*k1)
             try:
-                v_asym_gmc_05[h] = v_asym[(rad_g / r50) < 0.5][-1]
+                v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
-                v_asym_gmc_15[h] = v_asym[(rad_g / r50) < 1.5][-1]
+                v_asym_gmc_15[h] = v_asym[-1]
             except ValueError:
                 v_asym_gmc_15[h] = np.nan
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
@@ -126,7 +126,7 @@ def MAGPI_kinemetry_parrallel(args):
     n_re = 2
     res_cutoff = 0.7 / 0.2
     cutoff = 1.2
-    n_ells = 5
+    n_ells = 3
     n = 100
     SNR_Gas = 20
     logfile = open("MAGPI_Plots/plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
@@ -197,9 +197,9 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = r50 / 2
+        step = (0.7 / 2) / 0.2
+        end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -243,9 +243,9 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = r50 / 2
+        step = (0.7 / 2) / 0.2
+        end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -289,9 +289,9 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = r50 / 2
+        step = (0.7 / 2) / 0.2
+        end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
