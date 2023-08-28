@@ -22,7 +22,8 @@ def clean_images_median(img, pa, a, b, img_err=None,SNR=3):
                 img[i, j] = np.nan
             else:
                 if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
-                    new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
+                    new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],
+                               img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
                     new_img = np.nanmedian(new_img)
                     if np.isnan(new_img):
                         img[i,j]=np.nan
@@ -47,10 +48,10 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
                 img[i,j]=np.nan
     return img
 
-
-os.chdir("/Users/z5408076/Documents/OneDrive - UNSW")
+# Put in try condition for other onedrive
+os.chdir("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW")
 sample = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv")
-logfile = open("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Plots/log.txt","w")
+logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Plots/log.txt","w")
 n_nans = []
 n_not_nans = []
 vasym_err = []
@@ -65,15 +66,20 @@ for g in sample["MAGPIID"].to_numpy():
     q = master["axrat_it"].to_numpy()[0]
     r50 = master['R50_it'].to_numpy()/0.2
 
-    gasfile = fits.open("MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI"+str(galaxy)+"_GIST_EmissionLines.fits")
-    g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
-    gasfile.close()
+    try:
+        # put in try condition for mac onedrive
+        starfile = fits.open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy)+"_kinematics_ppxf-maps.fits")
+    except FileNotFoundError:
+        print("No stellar kinematics!")
+        continue
+    s_flux, s_velo, s_velo_err = starfile[7].data, starfile[1].data, starfile[3].data
+    starfile.close()
 
-    g_velo = clean_images_median(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_velo_err = clean_images_median(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = clean_images_median(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = g_flux / g_flux_err
-    y0,x0 = g_flux.shape
+    s_velo = clean_images_median(s_velo, pa, r50, r50 * q, img_err=s_flux)
+    s_velo_err = clean_images_median(s_velo, pa, r50, r50 * q, img_err=s_flux)
+    #s_flux = clean_images_median(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+    #g_flux = g_flux / g_flux_err
+    y0,x0 = s_flux.shape
     y0,x0 = y0/2,x0/2
 
     start = (0.65 / 2) / 0.2
@@ -82,7 +88,7 @@ for g in sample["MAGPIID"].to_numpy():
     rad = np.arange(start, end, step)
 
     fig,((ax1,ax3),(ax4,ax6)) = plt.subplots(2,2,figsize=(10,6),sharey="row")
-    kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+    kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
     kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
     kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -93,7 +99,7 @@ for g in sample["MAGPIID"].to_numpy():
     logfile.write("Masking, leaving nans in\n")
     print(rad/r50,file=logfile)
     print(vasym,file=logfile)
-    p=ax1.imshow(g_velo,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
+    p=ax1.imshow(s_velo,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
     ax1.add_patch(Ellipse(xy=(x0, y0), width=1 * r50,height=1 * r50 / q, angle=pa, fc="none", ec="limegreen"))
     ax1.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,height=2 * r50 / q, angle=pa, fc="none", ec="magenta"))
     ax1.add_patch(Ellipse(xy=(x0, y0), width=3 * r50,height=3 * r50 / q, angle=pa, fc="none", ec="limegreen"))
@@ -112,20 +118,21 @@ for g in sample["MAGPIID"].to_numpy():
     ax4.set_xlabel(r"R/R$_{50}$")
     ax4.set_xlim(-0.05, 2.05)
 
-    gasfile = fits.open(
-        "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
-            galaxy) + "_GIST_EmissionLines.fits")
-    g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
-    gasfile.close()
+    try:
+        starfile = fits.open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy)+"_kinematics_ppxf-maps.fits")
+    except FileNotFoundError:
+        print("No stellar kinematics!")
+        continue
+    s_flux, s_velo, s_velo_err = starfile[7].data, starfile[1].data, starfile[3].data
+    starfile.close()
 
-    g_velo_2re = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = g_flux / g_flux_err
-    y0, x0 = g_flux.shape
+    s_velo = clean_images_median(s_velo, pa, r50, r50 * q, img_err=s_flux)
+    s_velo_err = clean_images_median(s_velo, pa, r50, r50 * q, img_err=s_flux)
+    #s_velo[np.isnan(s_velo)]=0
+    y0, x0 = s_flux.shape
     y0, x0 = y0 / 2, x0 / 2
 
-    kg_2re = kinemetry(img=g_velo_2re, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+    kg_2re = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
     kg1_2re = np.sqrt(kg_2re.cf[:, 1] ** 2 + kg_2re.cf[:, 2] ** 2)
     kg2_2re = np.sqrt(kg_2re.cf[:, 3] ** 2 + kg_2re.cf[:, 4] ** 2)
@@ -141,7 +148,7 @@ for g in sample["MAGPIID"].to_numpy():
     ax6.set_xlabel(r"R/R$_{50}$")
     ax6.set_xlim(-0.05, 2.05)
 
-    p=ax3.imshow(g_velo_2re,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
+    p=ax3.imshow(s_velo,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
     ax3.add_patch(Ellipse(xy=(x0, y0), width=1 * r50,height=1 * r50 / q, angle=pa, fc="none", ec="limegreen"))
     ax3.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,height=2 * r50 / q, angle=pa, fc="none", ec="magenta"))
     ax3.add_patch(Ellipse(xy=(x0, y0), width=3 * r50,height=3 * r50 / q, angle=pa, fc="none", ec="limegreen"))
@@ -155,53 +162,62 @@ for g in sample["MAGPIID"].to_numpy():
         ax3.set_xlim(0,2*x0)
         ax3.set_ylim(0,2*x0)
     plt.colorbar(p,ax=ax3,location="top",pad=0.047,fraction=0.05,label=r"V [kms$^{-1}$]")
-    plt.savefig("MAGPI_Plots/Maps_Check/"+str(g)+"_check.pdf",bbox_inches='tight')
+    plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/"+str(g)+"_check.pdf",bbox_inches='tight')
 
-    vasyms = sample[sample["MAGPIID"].isin([g])]
-    gasfile = fits.open(
-        "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
-            galaxy) + "_GIST_EmissionLines.fits")
-    g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
-    gasfile.close()
+def vasyms_nans():
+    sample = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv")
+    logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Plots/log.txt", "w")
+    n_nans = []
+    n_not_nans = []
+    vasym_err = []
+    for g in sample["MAGPIID"].to_numpy():
+        galaxy = g
+        vasyms = sample[sample["MAGPIID"].isin([g])]
+        gasfile = fits.open(
+            "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+                galaxy) + "_GIST_EmissionLines.fits")
+        g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
+        gasfile.close()
 
-    g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-    g_flux = g_flux / g_flux_err
-    y0, x0 = g_flux.shape
-    y0, x0 = y0 / 2, x0 / 2
+        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = g_flux / g_flux_err
+        y0, x0 = g_flux.shape
+        y0, x0 = y0 / 2, x0 / 2
 
-    start = (0.65 / 2) / 0.2
-    step = (0.65 / 2) / 0.2
-    end = 2 * r50
-    rad = np.arange(start, end, step)
+        start = (0.65 / 2) / 0.2
+        step = (0.65 / 2) / 0.2
+        end = 2 * r50
+        rad = np.arange(start, end, step)
 
-    kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                   bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
-    zeros_kg = np.where(kg.eccano == 0)[0]
-    zeros_kg = zeros_kg[1:]
-    x = zeros_kg[(rad / r50) < 1.5][-1]
-    y = zeros_kg[(rad / r50) < 1.5][-2]
-    n_not_nans.append(len(kg.ex_mom[y:x]))
-    v_ellip_nans = kg.ex_mom[y:x][np.isnan(kg.ex_mom[y:x])]
-    n_nans.append(len(v_ellip_nans))
-    vasym_err.append(vasyms["v_asym_15_err"].to_numpy()[0])
-n_not_nans = np.array(n_not_nans)
-n_nans = np.array(n_nans)
-vasym_err = np.array(vasym_err)
+        kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+        zeros_kg = np.where(kg.eccano == 0)[0]
+        zeros_kg = zeros_kg[1:]
+        x = zeros_kg[(rad / r50) < 1.5][-1]
+        y = zeros_kg[(rad / r50) < 1.5][-2]
+        n_not_nans.append(len(kg.ex_mom[y:x]))
+        v_ellip_nans = kg.ex_mom[y:x][np.isnan(kg.ex_mom[y:x])]
+        n_nans.append(len(v_ellip_nans))
+        vasym_err.append(vasyms["v_asym_15_err"].to_numpy()[0])
+    n_not_nans = np.array(n_not_nans)
+    n_nans = np.array(n_nans)
+    vasym_err = np.array(vasym_err)
 
-fig,ax = plt.subplots()
-ax.scatter(n_nans/n_not_nans,vasym_err)
-ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
-ax.vlines(0.5,ymin=0,ymax=0.4,ls="dashed",color="k")
-ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
-ax.set_xlabel("Frac. of NaNs at the ellipse")
-ax.set_yscale("log")
-#ax.set_xscale("log")
-ax.set_xlim(-0.1,1.1)
-plt.savefig("MAGPI_Plots/Maps_Check/nans_v_sigma.pdf",bbox_inches="tight")
+    fig,ax = plt.subplots()
+    ax.scatter(n_nans/n_not_nans,vasym_err)
+    ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
+    ax.vlines(0.5,ymin=0,ymax=0.4,ls="dashed",color="k")
+    ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
+    ax.set_xlabel("Frac. of NaNs at the ellipse")
+    ax.set_yscale("log")
+    #ax.set_xscale("log")
+    ax.set_xlim(-0.1,1.1)
+    plt.savefig("MAGPI_Plots/Maps_Check/nans_v_sigma.pdf",bbox_inches="tight")
 
-df = pd.DataFrame({"MAGPIID":sample["MAGPIID"].to_numpy(),
-                   "v_asym_15_err":vasym_err,
-                   "NaNs_at_ellipse":n_nans/n_not_nans})
-df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
+    df = pd.DataFrame({"MAGPIID":sample["MAGPIID"].to_numpy(),
+                       "v_asym_15_err":vasym_err,
+                       "NaNs_at_ellipse":n_nans/n_not_nans})
+    df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
+
