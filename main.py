@@ -30,12 +30,12 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
-            print(v_asym)
-            try:
-                # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
-                v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
-            except ValueError:
-                v_asym_gmc[h] = np.nan
+            v_asym_gmc[h] = v_asym[-1]
+            # try:
+            #     # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
+            #     v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
+            # except ValueError:
+            #     v_asym_gmc[h] = np.nan
         out = np.zeros(v_asym_gmc.shape)
         out[out == 0] = np.nan
         return v_asym_gmc, out
@@ -54,12 +54,12 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
-            print(v_asym)
-            try:
-                # v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
-                v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
-            except ValueError:
-                v_asym_smc[h] = np.nan
+            v_asym_smc[h] = v_asym[-1]
+            # try:
+            #     # v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
+            #     v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
+            # except ValueError:
+            #     v_asym_smc[h] = np.nan
         out = np.zeros(v_asym_smc.shape)
         out[out == 0] = np.nan
         return out, v_asym_smc
@@ -87,7 +87,6 @@ def monte_carlo(args):
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
             v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * s05)
-            print(v_asym_s)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -96,17 +95,19 @@ def monte_carlo(args):
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
             v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * s05)
-            print(v_asym_g)
-            try:
-                # v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
-                v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
-            except ValueError:
-                v_asym_smc[h] = np.nan
-            try:
-                # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
-                v_asym_gmc[h] = v_asym_g[(rad_g / np.median(rad_g)) < 1][-1]
-            except ValueError:
-                v_asym_gmc[h] = np.nan
+            v_asym_gmc[h] = v_asym_g[-1]
+            v_asym_smc[h] = v_asym_s[-1]
+            # try:
+            #     # v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
+            #     v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
+            # except ValueError:
+            #     v_asym_smc[h] = np.nan
+            # try:
+            #     # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
+            #     v_asym_gmc[h] = v_asym_g[(rad_g / np.median(rad_g)) < 1][-1]
+            # except ValueError:
+            #
+            #     v_asym_gmc[h] = np.nan
         return v_asym_gmc, v_asym_smc
 
 
@@ -141,7 +142,7 @@ def monte_carlo_parallel(pars):
 def MAGPI_kinemetry_parrallel(args):
     galaxy, pa, q, z, r50, quality = args
     field = str(galaxy)[:4]
-    n_re = 2
+    n_re = 1
     res_cutoff = 0.7 / 0.2
     cutoff = 1
     n_ells = 5
@@ -266,10 +267,6 @@ def MAGPI_kinemetry_parrallel(args):
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
         s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
         s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
-        #g_sigma_err = clean_images_velo(s_sigma_err, pa, r50, r50 * q, img_err=s_flux)
-        # s_flux = clean_images_flux(s_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        # g_flux = g_flux / g_flux_err
-
 
         clip = np.nanmax(s_flux)
         y0, x0 = s_flux.shape
@@ -309,9 +306,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        #vs = vs / (2 * np.sin(inc))
 
         return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
@@ -381,9 +376,7 @@ def MAGPI_kinemetry_parrallel(args):
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-                #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-                #vg = vg / (2 * np.sin(inc))
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
 
@@ -474,9 +467,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
-        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        #vg = vg / (2 * np.sin(inc))
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -484,15 +475,13 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad/np.median(rad)) < 1])
-        #inc = np.arccos(np.sqrt(q ** 2 - 0.2 ** 2) / (1 - 0.2 ** 2))
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        #vs = vs / (2 * np.sin(inc))
 
         return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -524,9 +513,9 @@ if __name__ == '__main__':
         print("Beginning the easy part...")
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
-        print("Beginning the second easy part...")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        stellar_gas_plots_vectorized(results[0])
+        # print("Beginning the second easy part...")
+        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        # stellar_gas_plots_vectorized(results[0])
 
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(results[0])]
