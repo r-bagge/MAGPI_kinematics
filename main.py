@@ -125,7 +125,7 @@ def MAGPI_kinemetry_parrallel(args):
     field = str(galaxy)[:4]
     n_re = 2
     res_cutoff = 0.7 / 0.2
-    cutoff = 1
+    cutoff = 1.2
     n_ells = 5
     n = 100
     SNR_Gas = 20
