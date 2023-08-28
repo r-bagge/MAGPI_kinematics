@@ -148,7 +148,7 @@ def maps_check():
         g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
         gasfile.close()
 
-        s_velo = clean_images_median(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        s_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         s_velo[np.isnan(s_velo)]=0
         y0, x0 = g_flux.shape
         y0, x0 = y0 / 2, x0 / 2
@@ -235,9 +235,9 @@ def vasyms_nans():
         y0, x0 = g_flux.shape
         y0, x0 = y0 / 2, x0 / 2
 
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = 2 * r50
+        start = r50 / 2
+        step = (0.7 / 2) / 0.2
+        end = 1.5 * r50
         rad = np.arange(start, end, step)
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -257,7 +257,7 @@ def vasyms_nans():
     fig,ax = plt.subplots()
     ax.scatter(n_nans/n_not_nans,vasym_err)
     ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
-    ax.vlines(0.5,ymin=0,ymax=0.4,ls="dashed",color="k")
+    ax.vlines(0.3,ymin=0,ymax=0.4,ls="dashed",color="k")
     ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
     ax.set_xlabel("Frac. of NaNs at the ellipse")
     ax.set_yscale("log")
@@ -270,6 +270,6 @@ def vasyms_nans():
                        "NaNs_at_ellipse":n_nans/n_not_nans})
     df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
 
-#vasyms_nans()
+# vasyms_nans()
 maps_check()
 

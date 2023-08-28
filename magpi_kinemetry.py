@@ -8,7 +8,7 @@ from kinemetry import kinemetry
 from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 
-def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
+def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, SNR_Star=3, SNR_Gas=20):
     gal_id = []
     v_rot_g = []
     v_rot_s = []
@@ -116,13 +116,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             elif np.isinf(clip) or np.isnan(clip):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
-            start = (0.65 / 2) / 0.2
-            step = (0.65 / 2) / 0.2
-            end = n_re * r50[f]
+            start = r50 / 2
+            step = (0.7 / 2) / 0.2
+            end = 1.5 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                continue
+                logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                return
             print("Doing kinemetry on gas only!")
             print("Doing kinemetry on gas only!", file=logfile)
             # g_velo[np.isnan(g_velo)] = 0
@@ -190,13 +191,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             elif np.isinf(clip) or np.isnan(clip):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
-            start = (0.65 / 2) / 0.2
-            step = (0.65 / 2) / 0.2
-            end = n_re * r50[f]
+            start = r50 / 2
+            step = (0.7 / 2) / 0.2
+            end = 1.5 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                continue
+                logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                return
             print("Doing kinemetry on stars only!")
             print("Doing kinemetry on stars only!", file=logfile)
             # s_velo[np.isnan(s_velo)] = 0
@@ -277,13 +279,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                 else:
                     print("Doing kinemetry on the gas only!")
                     print("Doing kinemetry on the gas only!", file=logfile)
-                    start = (0.65 / 2) / 0.2
-                    step = (0.65 / 2) / 0.2
-                    end = n_re * r50[f]
+                    start = r50 / 2
+                    step = (0.7 / 2) / 0.2
+                    end = 1.5 * r50
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                        continue
+                        logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                        return
                     print("Doing kinemetry on gas!")
                     print("Doing kinemetry on gas!", file=logfile)
 
@@ -344,13 +347,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                         "Not doing kinemetry on " + str(galaxy[f]) + "because its stars are also heinous looking")
                     continue
                 else:
-                    start = (0.65 / 2) / 0.2
-                    step = (0.65 / 2) / 0.2
-                    end = n_re * r50[f]
+                    start = r50 / 2
+                    step = (0.7 / 2) / 0.2
+                    end = 1.5 * r50
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                        continue
+                        logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                        return
                     print("Doing kinemetry on stars only!")
                     print("Doing kinemetry on stars only!", file=logfile)
                     s_velo[np.isnan(s_velo)] = 0
@@ -398,13 +402,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     d_pas.append(d_pa)
                     continue
 
-            start = (0.65 / 2) / 0.2
-            step = (0.65 / 2) / 0.2
-            end = n_re * r50[f]
+            start = r50 / 2
+            step = (0.7 / 2) / 0.2
+            end = 1.5 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-                continue
+                logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
+                return
             s_velo[np.isnan(s_velo)] = 0
             g_velo[np.isnan(g_velo)] = 0
             s_sigma[np.isnan(s_sigma)] = 0

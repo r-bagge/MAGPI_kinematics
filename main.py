@@ -35,7 +35,7 @@ def monte_carlo(args):
             try:
                 v_asym_gmc_15[h] = v_asym[-1]
             except ValueError:
-                v_asym_gmc_15[h] = np.nan
+                v_asym_gmc_15[h] = np.nan3
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
         return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
     elif catch == 2:
@@ -125,7 +125,7 @@ def MAGPI_kinemetry_parrallel(args):
     field = str(galaxy)[:4]
     n_re = 2
     res_cutoff = 0.7 / 0.2
-    cutoff = 1.2
+    cutoff = 1
     n_ells = 3
     n = 100
     SNR_Gas = 20
@@ -353,7 +353,7 @@ if __name__ == '__main__':
 
             print("Beginning the easy part...")
             results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+                                      n_ells=3, SNR_Star=3, SNR_Gas=20)
             df = pd.DataFrame({"MAGPIID": galaxies,
                                "v_asym_05": GasAsym_05,
                                "v_asym_05_err": GasAsym_05_Err,
