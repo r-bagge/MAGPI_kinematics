@@ -30,6 +30,7 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
+            print(v_asym)
             try:
                 # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
                 v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
@@ -53,6 +54,7 @@ def monte_carlo(args):
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
+            print(v_asym)
             try:
                 # v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
                 v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
@@ -85,6 +87,7 @@ def monte_carlo(args):
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
             v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * s05)
+            print(v_asym_s)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -93,6 +96,7 @@ def monte_carlo(args):
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
             v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * s05)
+            print(v_asym_g)
             try:
                 # v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
                 v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
@@ -259,6 +263,14 @@ def MAGPI_kinemetry_parrallel(args):
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
+        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
+        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
+        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
+        #g_sigma_err = clean_images_velo(s_sigma_err, pa, r50, r50 * q, img_err=s_flux)
+        # s_flux = clean_images_flux(s_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        # g_flux = g_flux / g_flux_err
+
+
         clip = np.nanmax(s_flux)
         y0, x0 = s_flux.shape
         x0 = int(x0 / 2)
@@ -308,8 +320,14 @@ def MAGPI_kinemetry_parrallel(args):
         gasfile = fits.open(gas_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
+
+        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
+        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
+        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
+
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
         gasfile.close()
+
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
@@ -474,7 +492,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
