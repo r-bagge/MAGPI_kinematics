@@ -91,7 +91,7 @@ def maps_check():
         end = 1.5 * r50
         rad = np.arange(start, end, step)
 
-        fig,((ax2,ax5),(ax1,ax3),(ax4,ax6)) = plt.subplots(3,2,figsize=(10,14),sharey="row")
+        fig,((ax2,ax5),(ax1,ax3),(ax4,ax6)) = plt.subplots(3,2,figsize=(12,14),sharey="row")
         p2=ax2.imshow(s_velo,cmap="cmr.redshift",vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
         plt.colorbar(p2,ax=ax2,label=r"DATA (MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
         kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
