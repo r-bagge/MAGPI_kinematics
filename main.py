@@ -27,7 +27,7 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             #v_asym = k5/k1
-            v_asym = (k3+k5) / 2*k1
+            v_asym = (k3+k5)/(2*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
@@ -35,7 +35,7 @@ def monte_carlo(args):
             try:
                 v_asym_gmc_15[h] = v_asym[-1]
             except ValueError:
-                v_asym_gmc_15[h] = np.nan3
+                v_asym_gmc_15[h] = np.nan
             v_asym_gmc_fw[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
         return v_asym_gmc_05, v_asym_gmc_15, v_asym_gmc_fw
     elif catch == 2:
@@ -410,7 +410,7 @@ if __name__ == '__main__':
 
             print("Beginning the easy part...")
             results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+                                      n_ells=3, SNR_Star=3, SNR_Gas=20)
             df = pd.DataFrame({"MAGPIID": galaxies,
                                "v_asym_05": GasAsym_05,
                                "v_asym_05_err": GasAsym_05_Err,
@@ -467,7 +467,7 @@ if __name__ == '__main__':
 
             print("Beginning the easy part...")
             results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv", sample=galaxies,
-                                      n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20)
+                                      n_ells=3, SNR_Star=3, SNR_Gas=20)
             df = pd.DataFrame({"MAGPIID": galaxies,
                                "v_asym_05": GasAsym_05,
                                "v_asym_05_err": GasAsym_05_Err,

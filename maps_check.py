@@ -83,7 +83,6 @@ def maps_check():
         gasfile.close()
 
         s_velo = clean_images_median(g_velo, pa, r50, r50 * q, img_err=g_flux/g_flux_err)
-        #s_velo[np.isnan(s_velo)] = 0
         y0,x0 = g_flux.shape
         y0,x0 = y0/2,x0/2
 
@@ -92,7 +91,9 @@ def maps_check():
         end = 1.5 * r50
         rad = np.arange(start, end, step)
 
-        fig,((ax1,ax3),(ax4,ax6)) = plt.subplots(2,2,figsize=(10,6),sharey="row")
+        fig,((ax2,ax5),(ax1,ax3),(ax4,ax6)) = plt.subplots(3,2,figsize=(10,14),sharey="row")
+        p2=ax2.imshow(s_velo,cmap="cmr.redshift",vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
+        plt.colorbar(p2,ax=ax2,label=r"DATA (MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
         kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -110,22 +111,24 @@ def maps_check():
         logfile.write("Masking, leaving nans in\n")
         print(rad/r50,file=logfile)
         print(vasym,file=logfile)
-        p=ax1.imshow(kg.velkin,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
-        ax1.scatter(xEl,yEl,c="magenta",s=1)
+        p=ax1.imshow(kg.velkin,cmap="cmr.redshift",vmin=-np.nanmax(kg.velkin),vmax=np.nanmax(kg.velkin),origin="lower")
+        ax1.plot(xEl,yEl,c="magenta")
+        ax2.plot(xEl, yEl, c="magenta")
         x = zeros_kg[-1]
         y = zeros_kg[-2]
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
-        ax1.scatter(xEl, yEl, c="magenta", s=1)
+        ax1.plot(xEl, yEl, c="magenta")
+        ax2.plot(xEl, yEl, c="magenta")
         # ax1.set_xticks([])
         # ax1.set_yticks([])
-        if y0 > x0:
-            ax3.set_xlim(y0 / 2, 3 * y0 / 2)
-            ax3.set_ylim(y0 / 2, 3 * y0 / 2)
-        if y0 < x0:
-            ax3.set_xlim(x0 / 2, 3 * x0 / 2)
-            ax3.set_ylim(x0 / 2, 3 * x0 / 2)
-        plt.colorbar(p, ax=ax1, location="top",pad=0.047,fraction=0.05,label=r"V [kms$^{-1}$]")
+        # if y0 > x0:
+        #     ax1.set_xlim(y0 / 2, 3 * y0 / 2)
+        #     ax1.set_ylim(y0 / 2, 3 * y0 / 2)
+        # if y0 < x0:
+        #     ax1.set_xlim(x0 / 2, 3 * x0 / 2)
+        #     ax1.set_ylim(x0 / 2, 3 * x0 / 2)
+        plt.colorbar(p, ax=ax1, location="top",pad=0.047,fraction=0.05,label=r"MODEL (MEDIAN) [kms$^{-1}$]")
         ax4.scatter(rad/r50,vasym)
         ax4.set_ylabel(r"v$_{asym}$")
         ax4.set_xlabel(r"R/R$_{50}$")
@@ -148,9 +151,12 @@ def maps_check():
         gasfile.close()
 
         s_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        s_velo[np.isnan(s_velo)]=0
+        #s_velo[np.isnan(s_velo)]=0
         y0, x0 = g_flux.shape
         y0, x0 = y0 / 2, x0 / 2
+
+        p5 = ax5.imshow(s_velo, cmap="cmr.redshift", vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo), origin="lower")
+        plt.colorbar(p5, ax=ax5, label=r"DATA (NO MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
 
         kg_2re = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -175,40 +181,61 @@ def maps_check():
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
         logfile.write("Masking, leaving nans in\n")
-        p = ax3.imshow(kg_2re.velkin, cmap="cmr.redshift", vmin=-220, vmax=220, origin="lower")
-        ax3.scatter(xEl, yEl, c="magenta", s=1)
+        p = ax3.imshow(kg_2re.velkin, cmap="cmr.redshift", vmin=-np.nanmax(kg.velkin),vmax=np.nanmax(kg.velkin), origin="lower")
+        ax3.plot(xEl, yEl, c="magenta")
+        ax5.plot(xEl, yEl, c="magenta")
         # 1.5Re
         x = zeros_kg[-1]
         y = zeros_kg[-2]
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
-        ax3.scatter(xEl, yEl, c="magenta", s=1)
+        ax3.plot(xEl, yEl, c="magenta")
+        ax5.plot(xEl, yEl, c="magenta")
         # ax3.set_xticks([])
         # ax3.set_yticks([])
-        if y0>x0:
-            ax3.set_xlim(y0/2,3*y0/2)
-            ax3.set_ylim(y0/2,3*y0/2)
-        if y0<x0:
-            ax3.set_xlim(x0/2,3*x0/2)
-            ax3.set_ylim(x0/2,3*x0/2)
-        plt.colorbar(p,ax=ax3,location="top",pad=0.047,fraction=0.05,label=r"V [kms$^{-1}$]")
+        # if y0>x0:
+        #     ax3.set_xlim(y0/2,3*y0/2)
+        #     ax3.set_ylim(y0/2,3*y0/2)
+        # if y0<x0:
+        #     ax3.set_xlim(x0/2,3*x0/2)
+        #     ax3.set_ylim(x0/2,3*x0/2)
+        plt.colorbar(p,ax=ax3,location="top",pad=0.047,fraction=0.05,label=r"MODEL (NO MEDIAN) [kms$^{-1}$]")
         try:
             plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/check/"+str(g)+"_check.pdf",bbox_inches='tight')
         except FileNotFoundError:
             plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/Maps_Check/check/"+str(g)+"_check.pdf", bbox_inches='tight')
 
-        k_M2 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+        try:
+            gasfile = fits.open(
+                "/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+                    galaxy) + "_GIST_EmissionLines.fits")
+        except FileNotFoundError:
+            try:
+                fits.open(
+                    "/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
+                        galaxy) + "_GIST_EmissionLines.fits")
+            except FileNotFoundError:
+                print("No gas kinematics!")
+            continue
+
+        g_flux, g_flux_err, g_velo, g_velo_err = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data
+        gasfile.close()
+
+        s_velo = clean_images_median(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+
+        k_M2 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                          bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                          allterms=True, ring=0, fixcen=True)
-        k_M1 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
+        k_M1 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                          bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                          allterms=False, ring=0, fixcen=True)
-        k_M3 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
+        k_M3 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
                          bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                          allterms=False, ring=0, fixcen=False)
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex="row", sharey="row")
-        ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
+        p1=ax1.imshow(s_velo, cmap="cmr.redshift", vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo))
+        plt.colorbar(p1,ax=ax1,location="top",pad=0.047,fraction=0.05,label=r"DATA")
         zeros_kg = np.where(k_M2.eccano == 0)[0]
         # zeros_kg = zeros_kg[1:]
         x = zeros_kg[1]
@@ -237,10 +264,12 @@ def maps_check():
         ax3.scatter(k_M3.xc[0], k_M3.yc[0], ec="magenta", c="k", s=8, zorder=3)
         ax3.scatter(k_M3.xc[-1], k_M3.yc[-1], ec="r", c="k", s=8, zorder=3)
         ax3.plot(k_M3.xc, k_M3.yc, c="w", zorder=2)
-        ax2.imshow(k_M2.velkin, cmap="cmr.redshift", vmin=-120, vmax=120)
-        ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-120, vmax=120)
-        ax1.set_xlim(x0 / 2, 3 * x0 / 2)
-        ax1.set_ylim(y0 / 2, 3 * y0 / 2)
+        p2=ax2.imshow(k_M2.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M2.velkin),vmax=np.nanmax(k_M2.velkin))
+        plt.colorbar(p2, ax=ax2, location="top", pad=0.047, fraction=0.05, label=r"M2")
+        p3=ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M3.velkin),vmax=np.nanmax(k_M3.velkin))
+        plt.colorbar(p3, ax=ax3, location="top", pad=0.047, fraction=0.05, label=r"M3")
+        # ax1.set_xlim(x0 / 2, 3 * x0 / 2)
+        # ax1.set_ylim(y0 / 2, 3 * y0 / 2)
         try:
             plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/M2_M3/" + str(galaxy) + "_M2_M3.pdf",bbox_inches='tight')
         except FileNotFoundError:
