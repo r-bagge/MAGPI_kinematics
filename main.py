@@ -29,7 +29,7 @@ def monte_carlo(args):
             #v_asym = k5/k1
             v_asym = (k3+k5)/(2*k1)
             try:
-                v_asym_gmc_05[h] = v_asym[0]
+                v_asym_gmc_05[h] = v_asym[1]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
@@ -56,7 +56,7 @@ def monte_carlo(args):
             #v_asym = k5 / k1
             v_asym = (k2+k3+k4+k5)/(4*k1)
             try:
-                v_asym_gmc_05[h] = v_asym[0]
+                v_asym_gmc_05[h] = v_asym[1]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
@@ -81,7 +81,7 @@ def monte_carlo(args):
             #v_asym = k5/k1
             v_asym = (k3+k5)/(2*k1)
             try:
-                v_asym_gmc_05[h] = v_asym[0]
+                v_asym_gmc_05[h] = v_asym[1]
             except ValueError:
                 v_asym_gmc_05[h] = np.nan
             try:
@@ -197,8 +197,8 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = r50 / 2
         step = (0.65 / 2) / 0.2
+        start = r50 / 2 - step
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -243,8 +243,8 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = r50 / 2
         step = (0.65 / 2) / 0.2
+        start = r50 / 2 - step
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -289,8 +289,8 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = r50 / 2
         step = (0.65 / 2) / 0.2
+        start = r50 / 2 - step
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:

@@ -151,7 +151,6 @@ def maps_check():
         gasfile.close()
 
         s_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        #s_velo[np.isnan(s_velo)]=0
         y0, x0 = g_flux.shape
         y0, x0 = y0 / 2, x0 / 2
 
@@ -234,7 +233,7 @@ def maps_check():
                          allterms=False, ring=0, fixcen=False)
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex="row", sharey="row")
-        p1=ax1.imshow(s_velo, cmap="cmr.redshift", vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo))
+        p1=ax1.imshow(s_velo, cmap="cmr.redshift", vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
         plt.colorbar(p1,ax=ax1,location="top",pad=0.047,fraction=0.05,label=r"DATA")
         zeros_kg = np.where(k_M2.eccano == 0)[0]
         # zeros_kg = zeros_kg[1:]
@@ -264,9 +263,9 @@ def maps_check():
         ax3.scatter(k_M3.xc[0], k_M3.yc[0], ec="magenta", c="k", s=8, zorder=3)
         ax3.scatter(k_M3.xc[-1], k_M3.yc[-1], ec="r", c="k", s=8, zorder=3)
         ax3.plot(k_M3.xc, k_M3.yc, c="w", zorder=2)
-        p2=ax2.imshow(k_M2.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M2.velkin),vmax=np.nanmax(k_M2.velkin))
+        p2=ax2.imshow(k_M2.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M2.velkin),vmax=np.nanmax(k_M2.velkin),origin="lower")
         plt.colorbar(p2, ax=ax2, location="top", pad=0.047, fraction=0.05, label=r"M2")
-        p3=ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M3.velkin),vmax=np.nanmax(k_M3.velkin))
+        p3=ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M3.velkin),vmax=np.nanmax(k_M3.velkin),origin="lower")
         plt.colorbar(p3, ax=ax3, location="top", pad=0.047, fraction=0.05, label=r"M3")
         # ax1.set_xlim(x0 / 2, 3 * x0 / 2)
         # ax1.set_ylim(y0 / 2, 3 * y0 / 2)
