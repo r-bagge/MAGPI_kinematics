@@ -31,11 +31,7 @@ def monte_carlo(args):
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
             v_asym_gmc[h] = v_asym[-1]
-            # try:
-            #     # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym) / np.nansum(k_flux_g)
-            #     v_asym_gmc[h] = v_asym[(rad_g / np.median(rad_g)) < 1][-1]
-            # except ValueError:
-            #     v_asym_gmc[h] = np.nan
+
         out = np.zeros(v_asym_gmc.shape)
         out[out == 0] = np.nan
         return v_asym_gmc, out
@@ -55,11 +51,7 @@ def monte_carlo(args):
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
             v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
             v_asym_smc[h] = v_asym[-1]
-            # try:
-            #     # v_asym_smc[h] = np.nansum(k_flux_s * v_asym) / np.nansum(k_flux_s)
-            #     v_asym_smc[h] = v_asym[(rad_s / np.median(rad_s)) < 1][-1]
-            # except ValueError:
-            #     v_asym_smc[h] = np.nan
+
         out = np.zeros(v_asym_smc.shape)
         out[out == 0] = np.nan
         return out, v_asym_smc
@@ -69,8 +61,7 @@ def monte_carlo(args):
         for h in range(n):
             s_model_2 = s_model
             g_model_2 = g_model
-            # s_model_2[np.isnan(s_model_2)] = 0
-            # g_model_2[np.isnan(g_model_2)] = 0
+
             s_model_2 += np.random.normal(loc=0, scale=s_img_err)
             g_model_2 += np.random.normal(loc=0, scale=g_img_err)
 
@@ -97,17 +88,7 @@ def monte_carlo(args):
             v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * s05)
             v_asym_gmc[h] = v_asym_g[-1]
             v_asym_smc[h] = v_asym_s[-1]
-            # try:
-            #     # v_asym_smc[h] = np.nansum(k_flux_s * v_asym_s) / np.nansum(k_flux_s)
-            #     v_asym_smc[h] = v_asym_s[(rad_g / np.median(rad_s)) < 1][-1]
-            # except ValueError:
-            #     v_asym_smc[h] = np.nan
-            # try:
-            #     # v_asym_gmc[h] = np.nansum(k_flux_g * v_asym_g) / np.nansum(k_flux_g)
-            #     v_asym_gmc[h] = v_asym_g[(rad_g / np.median(rad_g)) < 1][-1]
-            # except ValueError:
-            #
-            #     v_asym_gmc[h] = np.nan
+
         return v_asym_gmc, v_asym_smc
 
 
@@ -142,10 +123,9 @@ def monte_carlo_parallel(pars):
 def MAGPI_kinemetry_parrallel(args):
     galaxy, pa, q, z, r50, quality = args
     field = str(galaxy)[:4]
-    n_re = 1
     res_cutoff = 0.7 / 0.2
     cutoff = 1
-    n_ells = 5
+    n_ells = 3
     n = 100
     SNR_Gas = 20
     SNR_Star = 3
@@ -233,9 +213,9 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -243,11 +223,6 @@ def MAGPI_kinemetry_parrallel(args):
             return
         print("Doing kinemetry on gas only!")
         print("Doing kinemetry on gas only!", file=logfile)
-
-        # g_velo[np.isnan(g_velo)] = 0
-        # g_velo_err[np.isnan(g_velo_err)] = 0
-        # g_flux[np.isnan(g_flux)] = 0
-        # g_sigma[np.isnan(g_sigma)] = 0
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -284,9 +259,9 @@ def MAGPI_kinemetry_parrallel(args):
             logfile.write(
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
-        start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -294,11 +269,6 @@ def MAGPI_kinemetry_parrallel(args):
             return
         print("Doing kinemetry on stars only!")
         print("Doing kinemetry on stars only!", file=logfile)
-
-        # s_velo[np.isnan(s_velo)] = 0
-        # s_velo_err[np.isnan(s_velo_err)] = 0
-        # s_sigma[np.isnan(s_sigma)] = 0
-        # s_flux[np.isnan(s_flux)] = 0
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -355,9 +325,9 @@ def MAGPI_kinemetry_parrallel(args):
             else:
                 print("Doing kinemetry on the gas only!")
                 print("Doing kinemetry on the gas only!", file=logfile)
-                start = (0.65 / 2) / 0.2
                 step = (0.65 / 2) / 0.2
-                end = n_re * r50
+                start = (0.65 / 2) / 0.2 - step
+                end = 1 * r50 + step
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -365,11 +335,6 @@ def MAGPI_kinemetry_parrallel(args):
                     return
                 print("Doing kinemetry on gas!")
                 print("Doing kinemetry on gas!", file=logfile)
-
-                # g_velo[np.isnan(g_velo)] = 0
-                # g_sigma[np.isnan(g_sigma)] = 0
-                # g_velo_err[np.isnan(g_velo_err)] = 0
-                # g_flux[np.isnan(g_flux)] = 0
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
@@ -400,20 +365,14 @@ def MAGPI_kinemetry_parrallel(args):
                         galaxy) + " because its gas are also heinous looking\n")
                 return
             else:
-                start = (0.65 / 2) / 0.2
                 step = (0.65 / 2) / 0.2
-                end = n_re * r50
+                start = (0.65 / 2) / 0.2 - step
+                end = 1 * r50 + step
                 rad = np.arange(start, end, step)
-
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                     logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
                     return
-
-                # s_velo[np.isnan(s_velo)] = 0
-                # s_velo_err[np.isnan(s_velo_err)] = 0
-                # s_sigma[np.isnan(s_sigma)] = 0
-                # s_flux[np.isnan(s_flux)] = 0
 
                 print("Doing kinemetry on stars only!")
                 print("Doing kinemetry on stars only!", file=logfile)
@@ -429,34 +388,14 @@ def MAGPI_kinemetry_parrallel(args):
 
                 return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
 
-        start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
             return
-
-        start = (0.65 / 2) / 0.2
-        step = (0.65 / 2) / 0.2
-        end = n_re * r50
-        rad = np.arange(start, end, step)
-
-        if len(rad) < n_ells:
-            print(f"{len(rad)} ellipse/s, Not enough ellipses!")
-            logfile.write(f"{len(rad)} ellipse/s, Not enough ellipses!\n")
-            return
-
-        # s_velo[np.isnan(s_velo)] = 0
-        # s_velo_err[np.isnan(s_velo_err)] = 0
-        # s_sigma[np.isnan(s_sigma)] = 0
-        # s_flux[np.isnan(s_flux)] = 0
-        #
-        # g_velo[np.isnan(g_velo)] = 0
-        # g_sigma[np.isnan(g_sigma)] = 0
-        # g_velo_err[np.isnan(g_velo_err)] = 0
-        # g_flux[np.isnan(g_flux)] = 0
 
         print("Doing kinemetry on stars and gas!")
         print("Doing kinemetry on stars and gas!", file=logfile)

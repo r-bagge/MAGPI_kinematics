@@ -504,18 +504,13 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
                 g_flux = clean_images_velo(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
-            start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
-            end = n_re * r50
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
-                print("Not enough ellipses!")
+                print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
-            # s_velo[np.isnan(s_velo)] = 0
-            # g_velo[np.isnan(g_velo)] = 0
-            # g_velo_err[np.isnan(g_velo_err)] = 0
-            # g_flux[np.isnan(g_flux)] = 0
-            # s_flux[np.isnan(s_flux)] = 0
 
             print("Doing kinemetry on stars and gas!")
 
@@ -691,18 +686,14 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
 
         else:
             print("Doing kinemetry on stars and gas!")
-            start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
-            end = n_re * r50
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
-                print("Not enough ellipses!")
-                # log_file.write("Not enough ellipses!\n")
+                print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
-            # s_velo[np.isnan(s_velo)] = 0
-            # g_velo[np.isnan(g_velo)] = 0
-            # g_flux[np.isnan(g_flux)] = 0
-            # s_flux[np.isnan(s_flux)] = 0
+
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                            cover=0.95)
@@ -851,16 +842,13 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
                 g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
-            start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
-            end = n_re * r50
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
-                print("Not enough ellipses!")
+                print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
-            # g_velo[np.isnan(g_velo)] = 0
-            # g_velo_err[np.isnan(g_velo_err)] = 0
-            # g_flux[np.isnan(g_flux)] = 0
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                            cover=0.95)
@@ -1001,15 +989,13 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
 
-        start = (0.65 / 2) / 0.2
         step = (0.65 / 2) / 0.2
-        end = n_re * r50
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
-            print("Not enough ellipses!")
+            print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
-        # s_velo[np.isnan(s_velo)] = 0
-        # s_flux[np.isnan(s_flux)] = 0
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                        cover=0.95)
