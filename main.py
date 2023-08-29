@@ -26,8 +26,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            v_asym = k5/k1
-            #v_asym = (k3+k5) / 2*k1
+            #v_asym = k5/k1
+            v_asym = (k3+k5) / 2*k1
             try:
                 v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
@@ -53,8 +53,8 @@ def monte_carlo(args):
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
-            v_asym = k5 / k1
-            #v_asym = (k2+k3+k4+k5)/(4*k1)
+            #v_asym = k5 / k1
+            v_asym = (k2+k3+k4+k5)/(4*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
@@ -78,8 +78,8 @@ def monte_carlo(args):
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
-            v_asym = k5/k1
-            #v_asym = (k3+k5)/(2*k1)
+            #v_asym = k5/k1
+            v_asym = (k3+k5)/(2*k1)
             try:
                 v_asym_gmc_05[h] = v_asym[0]
             except ValueError:
@@ -198,7 +198,7 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         start = r50 / 2
-        step = (0.7 / 2) / 0.2
+        step = (0.65 / 2) / 0.2
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -244,7 +244,7 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         start = r50 / 2
-        step = (0.7 / 2) / 0.2
+        step = (0.65 / 2) / 0.2
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -290,7 +290,7 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         start = r50 / 2
-        step = (0.7 / 2) / 0.2
+        step = (0.65 / 2) / 0.2
         end = 1.5 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -371,7 +371,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1_k51.csv",index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M1.csv",index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         catch=2
         if catch==2:
@@ -428,7 +428,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2_k51.csv", index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", index=False)
             print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         catch=3
         if catch==3:
@@ -485,7 +485,7 @@ if __name__ == '__main__':
                                "SNR_g": results[8],
                                "SNR_s": results[9],
                                })
-            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3_k51.csv", index=False)
+            df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_M3.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         print(f"Doing BPT stuff")
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=2)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_M2.csv", n_re=1.5)

@@ -91,7 +91,6 @@ def maps_check():
         step = (0.7/2)/0.2
         end = 1.5 * r50
         rad = np.arange(start, end, step)
-        print(rad)
 
         fig,((ax1,ax3),(ax4,ax6)) = plt.subplots(2,2,figsize=(10,6),sharey="row")
         kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -111,21 +110,21 @@ def maps_check():
         logfile.write("Masking, leaving nans in\n")
         print(rad/r50,file=logfile)
         print(vasym,file=logfile)
-        p=ax1.imshow(kg.velkin,cmap="RdYlBu",vmin=-220,vmax=220,origin="lower")
-        ax1.scatter(xEl,yEl,c="k",s=1)
+        p=ax1.imshow(kg.velkin,cmap="cmr.redshift",vmin=-220,vmax=220,origin="lower")
+        ax1.scatter(xEl,yEl,c="magenta",s=1)
         x = zeros_kg[-1]
         y = zeros_kg[-2]
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
-        ax1.scatter(xEl, yEl, c="k", s=1)
-        ax1.set_xticks([])
-        ax1.set_yticks([])
-        if y0>x0:
-            ax1.set_xlim(0,2*y0)
-            ax1.set_ylim(0,2*y0)
-        if y0<x0:
-            ax1.set_xlim(0,2*x0)
-            ax1.set_ylim(0,2*x0)
+        ax1.scatter(xEl, yEl, c="magenta", s=1)
+        # ax1.set_xticks([])
+        # ax1.set_yticks([])
+        if y0 > x0:
+            ax3.set_xlim(y0 / 2, 3 * y0 / 2)
+            ax3.set_ylim(y0 / 2, 3 * y0 / 2)
+        if y0 < x0:
+            ax3.set_xlim(x0 / 2, 3 * x0 / 2)
+            ax3.set_ylim(x0 / 2, 3 * x0 / 2)
         plt.colorbar(p, ax=ax1, location="top",pad=0.047,fraction=0.05,label=r"V [kms$^{-1}$]")
         ax4.scatter(rad/r50,vasym)
         ax4.set_ylabel(r"v$_{asym}$")
@@ -176,30 +175,80 @@ def maps_check():
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
         logfile.write("Masking, leaving nans in\n")
-        p = ax3.imshow(kg_2re.velkin, cmap="RdYlBu", vmin=-220, vmax=220, origin="lower")
-        ax3.scatter(xEl, yEl, c="k", s=1)
+        p = ax3.imshow(kg_2re.velkin, cmap="cmr.redshift", vmin=-220, vmax=220, origin="lower")
+        ax3.scatter(xEl, yEl, c="magenta", s=1)
         # 1.5Re
         x = zeros_kg[-1]
         y = zeros_kg[-2]
         xEl = kg.Xellip[y:x]
         yEl = kg.Yellip[y:x]
-        ax3.scatter(xEl, yEl, c="k", s=1)
-        ax3.set_xticks([])
-        ax3.set_yticks([])
+        ax3.scatter(xEl, yEl, c="magenta", s=1)
+        # ax3.set_xticks([])
+        # ax3.set_yticks([])
         if y0>x0:
-            ax3.set_xlim(0,2*y0)
-            ax3.set_ylim(0,2*y0)
+            ax3.set_xlim(y0/2,3*y0/2)
+            ax3.set_ylim(y0/2,3*y0/2)
         if y0<x0:
-            ax3.set_xlim(0,2*x0)
-            ax3.set_ylim(0,2*x0)
+            ax3.set_xlim(x0/2,3*x0/2)
+            ax3.set_ylim(x0/2,3*x0/2)
         plt.colorbar(p,ax=ax3,location="top",pad=0.047,fraction=0.05,label=r"V [kms$^{-1}$]")
         try:
-            plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/"+str(g)+"_check.pdf",bbox_inches='tight')
+            plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/check/"+str(g)+"_check.pdf",bbox_inches='tight')
         except FileNotFoundError:
-            plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/Maps_Check/"+str(g)+"_check.pdf", bbox_inches='tight')
+            plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/Maps_Check/check/"+str(g)+"_check.pdf", bbox_inches='tight')
+
+        k_M2 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         allterms=True, ring=0, fixcen=True)
+        k_M1 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
+                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         allterms=False, ring=0, fixcen=True)
+        k_M3 = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
+                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         allterms=False, ring=0, fixcen=False)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex="row", sharey="row")
+        ax1.imshow(g_velo, cmap="cmr.redshift", vmin=-120, vmax=120)
+        zeros_kg = np.where(k_M2.eccano == 0)[0]
+        # zeros_kg = zeros_kg[1:]
+        x = zeros_kg[1]
+        y = zeros_kg[0]
+        xEl = k_M2.Xellip[y:x]
+        yEl = k_M2.Yellip[y:x]
+        # ax2.scatter(xEl,yEl,c="magenta",s=1)
+        # ax1.scatter(xEl,yEl,c="magenta",s=1)
+        ax2.plot(xEl, yEl, c="magenta")
+        ax1.plot(xEl, yEl, c="magenta")
+        x = zeros_kg[-1]
+        y = zeros_kg[-2]
+        xEl = k_M2.Xellip[y:x]
+        yEl = k_M2.Yellip[y:x]
+        # ax2.scatter(xEl, yEl, c="magenta", s=1)
+        # ax1.scatter(xEl,yEl,c="magenta",s=1)
+        ax1.plot(xEl, yEl, c="magenta")
+        ax2.plot(xEl, yEl, c="magenta")
+        zeros_kg = np.where(k_M3.eccano == 0)[0]
+        r = np.sqrt(((k_M3.xc - x0) ** 2) + ((k_M3.yc - y0) ** 2))
+        r = np.insert(r, 0, 0)
+        k_M3.rad = np.insert(k_M3.rad, 0, 0)
+        k_M3.xc = np.insert(k_M3.xc, 0, x0)
+        k_M3.yc = np.insert(k_M3.yc, 0, y0)
+        ax3.scatter(k_M3.xc, k_M3.yc, ec="w", c="k", s=5, zorder=3)
+        ax3.scatter(k_M3.xc[0], k_M3.yc[0], ec="magenta", c="k", s=8, zorder=3)
+        ax3.scatter(k_M3.xc[-1], k_M3.yc[-1], ec="r", c="k", s=8, zorder=3)
+        ax3.plot(k_M3.xc, k_M3.yc, c="w", zorder=2)
+        ax2.imshow(k_M2.velkin, cmap="cmr.redshift", vmin=-120, vmax=120)
+        ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-120, vmax=120)
+        ax1.set_xlim(x0 / 2, 3 * x0 / 2)
+        ax1.set_ylim(y0 / 2, 3 * y0 / 2)
+        try:
+            plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/M2_M3/" + str(galaxy) + "_M2_M3.pdf",bbox_inches='tight')
+        except FileNotFoundError:
+            plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/Maps_Check/M2_M3/" + str(galaxy) + "_M2_M3.pdf", bbox_inches='tight')
 
 def vasyms_nans():
     sample = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2.csv")
+    bpt = pd.read_csv("MAGPI_csv/MAGPI_kinemetry_sample_M2_BPT.csv")
     try:
         logfile = open("/Users/ryanbagge/Library/CloudStorage/OneDrive-UNSW/MAGPI_Plots/log.txt", "w")
     except FileNotFoundError:
@@ -217,6 +266,8 @@ def vasyms_nans():
         r50 = master['R50_it'].to_numpy() / 0.2
 
         vasyms = sample[sample["MAGPIID"].isin([g])]
+        bpts = bpt[bpt["MAGPIID"].isin([g])]
+        ty = bpt["type (sf+AGN=0, sf=1, sy=2, ln=3)"].to_numpy()
         try:
             gasfile = fits.open(
                 "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
@@ -255,7 +306,8 @@ def vasyms_nans():
     vasym_err = np.array(vasym_err)
 
     fig,ax = plt.subplots()
-    ax.scatter(n_nans/n_not_nans,vasym_err)
+    ax.scatter((n_nans/n_not_nans)[ty==1],vasym_err[ty==1],label="HII")
+    ax.scatter((n_nans/n_not_nans)[ty!=1],vasym_err[ty!=1],ec="magenta",color='tab:blue',label="AGN")
     ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
     ax.vlines(0.3,ymin=0,ymax=0.4,ls="dashed",color="k")
     ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
@@ -263,6 +315,7 @@ def vasyms_nans():
     ax.set_yscale("log")
     #ax.set_xscale("log")
     ax.set_xlim(-0.1,1.1)
+    ax.legend()
     plt.savefig("MAGPI_Plots/Maps_Check/nans_v_sigma.pdf",bbox_inches="tight")
 
     df = pd.DataFrame({"MAGPIID":sample["MAGPIID"].to_numpy(),

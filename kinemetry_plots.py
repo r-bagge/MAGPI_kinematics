@@ -516,10 +516,10 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
             gasfile[10].data, gasfile[11].data
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(s_flux)
@@ -546,8 +546,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             g_velo = gasfile[9].data
             g_flux = gasfile[bright_line].data
             g_flux_err = gasfile[bright_line_err].data
-            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
             print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!")
             bl_check = np.count_nonzero(~np.isnan(g_flux))
@@ -558,8 +558,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_velo = gasfile[9].data
                 g_flux = gasfile[49].data
                 g_flux_err = gasfile[50].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
             start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
@@ -608,9 +608,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                     4].data
                 g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
                 gasfile[10].data, gasfile[11].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q)
-                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
                 g_flux = g_flux / g_flux_err
                 starfile.close()
                 gasfile.close()
@@ -675,9 +675,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
                     bright_line_err].data, gasfile[
                     9].data, gasfile[10].data, gasfile[11].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q)
-                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
                 starfile.close()
                 gasfile.close()
 
@@ -782,9 +782,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
             g_flux, g_flux_err, g_velo, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
                 11].data
-            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
             starfile.close()
             gasfile.close()
@@ -849,10 +849,10 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
             10].data, gasfile[11].data
-        g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma = clean_images(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
         clip = np.nanmax(g_flux)
@@ -879,8 +879,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             g_velo = gasfile[9].data
             g_flux = gasfile[bright_line].data
             g_flux_err = gasfile[bright_line_err].data
-            g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-            g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+            g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
             print("Only " + str(np.count_nonzero(~np.isnan(g_flux))) + " spaxels survive!")
             bl_check = np.count_nonzero(~np.isnan(g_flux))
@@ -891,8 +891,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_velo = gasfile[9].data
                 g_flux = gasfile[49].data
                 g_flux_err = gasfile[50].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
             start = (0.65 / 2) / 0.2
             step = (0.65 / 2) / 0.2
@@ -926,9 +926,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
             if ha_check > bl_check:
                 g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[
                     9].data, gasfile[10].data, gasfile[11].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q)
-                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
                 g_flux = g_flux / g_flux_err
                 gasfile.close()
 
@@ -977,9 +977,9 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                 g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
                     bright_line_err].data, gasfile[
                     9].data, gasfile[10].data, gasfile[11].data
-                g_velo = clean_images(g_velo, pa, r50, r50 * q)
-                g_sigma = clean_images(g_sigma, pa, r50, r50 * q)
-                g_flux = clean_images(g_flux, pa, r50, r50 * q)
+                g_velo = clean_images_velo(g_velo, pa, r50, r50 * q)
+                g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q)
+                g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
                 gasfile.close()
 
                 fig, (ax4, ax5, ax6) = plt.subplots(1, 3, figsize=(5, 8))
