@@ -91,7 +91,7 @@ def maps_check():
         end = 1.5 * r50
         rad = np.arange(start, end, step)
 
-        fig,((ax2,ax5),(ax1,ax3),(ax4,ax6)) = plt.subplots(3,2,figsize=(10,14),sharey="row")
+        fig,((ax2,ax5),(ax1,ax3),(ax4,ax6)) = plt.subplots(3,2,figsize=(12,14),sharey="row")
         p2=ax2.imshow(s_velo,cmap="cmr.redshift",vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
         plt.colorbar(p2,ax=ax2,label=r"DATA (MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
         kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -295,7 +295,7 @@ def vasyms_nans():
 
         vasyms = sample[sample["MAGPIID"].isin([g])]
         bpts = bpt[bpt["MAGPIID"].isin([g])]
-        ty = bpt["type (sf+AGN=0, sf=1, sy=2, ln=3)"].to_numpy()
+        ty = bpt["type(sf+AGN=0, sf=1, sy=2, ln=3)"].to_numpy()
         try:
             gasfile = fits.open(
                 "MAGPI_Maps/MAGPI" + field + "/Emission_Line/MAGPI" + str(
@@ -337,7 +337,7 @@ def vasyms_nans():
     ax.scatter((n_nans/n_not_nans)[ty==1],vasym_err[ty==1],label="HII")
     ax.scatter((n_nans/n_not_nans)[ty!=1],vasym_err[ty!=1],ec="magenta",color='tab:blue',label="AGN")
     ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
-    ax.vlines(0.3,ymin=0,ymax=0.4,ls="dashed",color="k")
+    ax.vlines(0.35,ymin=0,ymax=0.4,ls="dashed",color="k")
     ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
     ax.set_xlabel("Frac. of NaNs at the ellipse")
     ax.set_yscale("log")
@@ -351,6 +351,6 @@ def vasyms_nans():
                        "NaNs_at_ellipse":n_nans/n_not_nans})
     df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
 
-# vasyms_nans()
-maps_check()
+vasyms_nans()
+#maps_check()
 
