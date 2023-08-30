@@ -249,8 +249,9 @@ def maps_check():
         y = zeros_kg[-2]
         xEl = k_M2.Xellip[y:x]
         yEl = k_M2.Yellip[y:x]
-        # ax2.scatter(xEl, yEl, c="magenta", s=1)
-        # ax1.scatter(xEl,yEl,c="magenta",s=1)
+        print(s_velo[yEl.astype(int), xEl.astype(int)])
+        ax2.scatter(xEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], yEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], c="cyan", s=2)
+        ax1.scatter(xEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])],yEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], c="cyan",s=2)
         ax1.plot(xEl, yEl, c="magenta")
         ax2.plot(xEl, yEl, c="magenta")
         zeros_kg = np.where(k_M3.eccano == 0)[0]
@@ -351,6 +352,6 @@ def vasyms_nans():
                        "NaNs_at_ellipse":n_nans/n_not_nans})
     df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
 
-vasyms_nans()
-#maps_check()
+#vasyms_nans()
+maps_check()
 

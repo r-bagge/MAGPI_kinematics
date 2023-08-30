@@ -12,16 +12,15 @@ from kinemetry_plots import BPT_plots
 
 
 def monte_carlo(args):
-    g_model, g_img, g_img_err, k_flux_g, q_g, x0_g, y0_g, rad_g, vg, n, r50, catch = args
+    g_model, g_img, g_img_err, k_flux_g, pa_g, q_g, x0_g, y0_g, rad_g, vg, n, r50, catch = args
     if catch == 1:
         v_asym_gmc_05 = np.zeros(n)
         v_asym_gmc_15 = np.zeros(n)
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
-            model = g_model
+            model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
-            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1])
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g,paq=np.array([pa_g,q_g]))
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -42,10 +41,10 @@ def monte_carlo(args):
         v_asym_gmc_15 = np.zeros(n)
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
-            model = g_model
+            model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
-            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
+                          paq=np.array([pa_g,q_g]), allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -68,10 +67,10 @@ def monte_carlo(args):
         v_asym_gmc_15 = np.zeros(n)
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
-            model = g_model
+            model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
-            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], fixcen=False)
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g,
+                          paq=np.array([pa_g,q_g]), fixcen=False)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k3 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k5 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -90,13 +89,13 @@ def monte_carlo(args):
 
 
 def monte_carlo_parallel(pars):
-    g_model, g_img, g_img_err, k_flux_g, q_g, x0_g, y0_g, rad_g, vg, n, r50, catch = pars
+    g_model, g_img, g_img_err, k_flux_g, pa_g, q_g, x0_g, y0_g, rad_g, vg, n, r50, catch = pars
     cores = None
     if cores is None:
         cores = multiprocessing.cpu_count()
     print(f"Running {n} monte carlos on {cores} Cores!")
     group_size = n // 20
-    args = [(g_model, g_img, g_img_err,k_flux_g, q_g, x0_g, y0_g, rad_g, vg, group_size, r50, catch) for _ in range(20)]
+    args = [(g_model, g_img, g_img_err, k_flux_g, pa_g, q_g, x0_g, y0_g, rad_g, vg, group_size, r50, catch) for _ in range(20)]
     ctx = multiprocessing.get_context()
     pool = ctx.Pool(processes=cores, maxtasksperchild=1)
     try:
@@ -211,7 +210,7 @@ def MAGPI_kinemetry_parrallel(args):
         k_flux_g = kg_flux.cf[:,0]
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, q, x0, y0, rad, vg, n, r50, catch
+        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, pa, q, x0, y0, rad, vg, n, r50, catch
 
     # Gas kinemetry using M2
     if gas_file_catch and catch==2:
@@ -257,7 +256,7 @@ def MAGPI_kinemetry_parrallel(args):
         k_flux_g = kg_flux.cf[:, 0]
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, q, x0, y0, rad, vg, n, r50, catch
+        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, pa, q, x0, y0, rad, vg, n, r50, catch
 
     # Gas kinemetry using M3
     if gas_file_catch and catch==3:
@@ -303,7 +302,7 @@ def MAGPI_kinemetry_parrallel(args):
         k_flux_g = kg_flux.cf[:, 0]
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, q, x0, y0, rad, vg, n, r50, catch
+        return kg_velo.velkin, g_velo, g_velo_err, k_flux_g, pa, q, x0, y0, rad, vg, n, r50, catch
 
 
 if __name__ == '__main__':
