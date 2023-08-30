@@ -45,7 +45,7 @@ def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
+            if side1 + side2 > 4:
                 img[i, j] = np.nan
             else:
                 if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
@@ -69,7 +69,7 @@ def clean_images_flux(img, pa, a, b, img_err=None, SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
+            if side1 + side2 > 4:
                 img[i, j] = np.nan
             if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i, j] = np.nan

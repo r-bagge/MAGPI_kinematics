@@ -18,7 +18,7 @@ def clean_images_median(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
+            if side1 + side2 > 4:
                 img[i, j] = np.nan
             else:
                 if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
@@ -42,7 +42,7 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 8:
+            if side1 + side2 > 4:
                 img[i, j] = np.nan
             if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i,j]=np.nan
@@ -95,7 +95,7 @@ def maps_check():
         p2=ax2.imshow(s_velo,cmap="cmr.redshift",vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
         plt.colorbar(p2,ax=ax2,label=r"DATA (MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
         kg = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                               bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
         kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
         kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)
@@ -158,7 +158,7 @@ def maps_check():
         plt.colorbar(p5, ax=ax5, label=r"DATA (NO MEDIAN) [kms$^{-1}$]",location="top",pad=0.047,fraction=0.05,)
 
         kg_2re = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                               bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg1_2re = np.sqrt(kg_2re.cf[:, 1] ** 2 + kg_2re.cf[:, 2] ** 2)
         kg2_2re = np.sqrt(kg_2re.cf[:, 3] ** 2 + kg_2re.cf[:, 4] ** 2)
         kg3_2re = np.sqrt(kg_2re.cf[:, 5] ** 2 + kg_2re.cf[:, 6] ** 2)
@@ -223,13 +223,13 @@ def maps_check():
         s_velo = clean_images_median(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
         k_M2 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1],
                          allterms=True, ring=0, fixcen=True)
         k_M1 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
-                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1],
                          allterms=False, ring=0, fixcen=True)
         k_M3 = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=6, plot=False, verbose=False, radius=rad,
-                         bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                         bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1],
                          allterms=False, ring=0, fixcen=False)
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex="row", sharey="row")
@@ -249,7 +249,6 @@ def maps_check():
         y = zeros_kg[-2]
         xEl = k_M2.Xellip[y:x]
         yEl = k_M2.Yellip[y:x]
-        print(s_velo[yEl.astype(int), xEl.astype(int)])
         ax2.scatter(xEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], yEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], c="cyan", s=2)
         ax1.scatter(xEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])],yEl[np.isnan(s_velo[yEl.astype(int), xEl.astype(int)])], c="cyan",s=2)
         ax1.plot(xEl, yEl, c="magenta")
@@ -321,7 +320,7 @@ def vasyms_nans():
         rad = np.arange(start, end, step)
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                       bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         zeros_kg = np.where(kg.eccano == 0)[0]
         zeros_kg = zeros_kg[1:]
         x = zeros_kg[(rad / r50) < 1.5][-1]
