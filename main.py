@@ -19,7 +19,6 @@ def monte_carlo(args):
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
             model = g_model
-            model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1])
@@ -44,7 +43,6 @@ def monte_carlo(args):
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
             model = g_model
-            model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
@@ -71,7 +69,6 @@ def monte_carlo(args):
         v_asym_gmc_fw = np.zeros(n)
         for h in range(n):
             model = g_model
-            model[np.isnan(model)] = 0
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=6, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], fixcen=False)
@@ -123,7 +120,6 @@ def monte_carlo_parallel(pars):
 def MAGPI_kinemetry_parrallel(args):
     galaxy, pa, q, z, r50, quality, catch = args
     field = str(galaxy)[:4]
-    n_re = 2
     res_cutoff = 0.7 / 0.2
     cutoff = 1
     n_ells = 3
