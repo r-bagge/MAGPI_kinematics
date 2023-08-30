@@ -8,7 +8,7 @@ from kinemetry import kinemetry
 from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 
-def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_Gas=20):
+def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     gal_id = []
     v_rot_g = []
     v_rot_s = []
@@ -143,11 +143,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             gs05 = np.sqrt(0.5*np.nanmax(kg1)**2 + kgs0**2)
             vasym_g = kg2+kg3+kg4+kg5
             vasym_g = vasym_g/(4*gs05)
-            vasym_g[np.isnan(vasym_g)]=0
-            try:
-                vasym_g = vasym_g[(rad / r50[f]) < 1][-1]
-            except IndexError:
-                vasym_g = np.nan
+            vasym_g = vasym_g[-1]
             gas_s05.append(vasym_g)
             star_s05.append(np.nan)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
@@ -217,11 +213,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             kss0 = np.nanmean(kss.cf[:, 0][(rad / r50[f]) < 1])
             ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
             vasym_s = vasym_s / (4 * ss05)
-            vasym_s[np.isnan(vasym_s)] = 0
-            try:
-                vasym_s = vasym_s[rad / r50[f] < 1][-1]
-            except IndexError:
-                vasym_s = np.nan
+            vasym_s = vasym_s[-1]
             star_s05.append(vasym_s)
             gas_s05.append(np.nan)
             SNR_g.append(np.nan)
@@ -307,11 +299,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     gs05 = np.sqrt(0.5 * np.nanmax(kg1) ** 2 + kgs0 ** 2)
                     vasym_g = kg2+kg3+kg4+kg5
                     vasym_g = vasym_g / (4 * gs05)
-                    vasym_g[np.isnan(vasym_g)] = 0
-                    try:
-                        vasym_g = vasym_g[rad / r50[f] < 1][-1]
-                    except IndexError:
-                        vasym_g = np.nan
+                    vasym_g = vasym_g[-1]
                     gas_s05.append(vasym_g)
                     star_s05.append(np.nan)
                     SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
@@ -373,11 +361,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
                     ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
                     vasym_s = ks2+ks3+ks4+ks5
                     vasym_s = vasym_s / (4 * ss05)
-                    vasym_s[np.isnan(vasym_s)] = 0
-                    try:
-                        vasym_s = vasym_s[rad / r50[f] < 1][-1]
-                    except IndexError:
-                        vasym_s = np.nan
+                    vasym_s = vasym_s[-1]
                     star_s05.append(vasym_s)
                     gas_s05.append(np.nan)
                     SNR_g.append(np.nan)
@@ -434,30 +418,21 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=5, n_re=2, SNR_Star=3, SNR_G
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
 
-            kss0 = np.nanmean(kss.cf[:, 0][(rad / r50[f]) < 1])
+            kss0 = np.nanmean(kss.cf[:, 0])
             ss05 = np.sqrt(0.5 * np.nanmax(ks1) ** 2 + kss0 ** 2)
 
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
-            vasym_s[np.isnan(vasym_s)] = 0
-            try:
-                vasym_s = vasym_s[rad / r50[f] < 1][-1]
-            except IndexError:
-                vasym_s = np.nan
             star_s05.append(vasym_s)
             v_rot_s.append(np.nanmax(ks1))
             v_sigma_s.append(kss0)
             SNR_s.append(np.nanmean(ks_flux.cf[:, 0]))
 
-            kgs0 = np.nanmean(kgs.cf[:, 0][(rad / r50[f]) < 1])
+            kgs0 = np.nanmean(kgs.cf[:, 0])
             gs05 = np.sqrt(0.5 * np.nanmax(kg1) ** 2 + kgs0 ** 2)
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)
-            vasym_g[np.isnan(vasym_g)] = 0
-            try:
-                vasym_g = vasym_g[rad / r50[f] < 1][-1]
-            except IndexError:
-                vasym_g = np.nan
+            vasym_g = vasym_g[-1]
             gas_s05.append(vasym_g)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
 
