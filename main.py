@@ -18,8 +18,7 @@ def monte_carlo(args):
     if catch == 1:
         v_asym_gmc = np.zeros(n)
         for h in range(n):
-            model = g_model
-            # model[np.isnan(model)] = 0
+            model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
@@ -38,8 +37,7 @@ def monte_carlo(args):
     elif catch == 2:
         v_asym_smc = np.zeros(n)
         for h in range(n):
-            model = s_model
-            # model[np.isnan(model)] = 0
+            model = s_img
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
@@ -59,8 +57,8 @@ def monte_carlo(args):
         v_asym_smc = np.zeros(n)
         v_asym_gmc = np.zeros(n)
         for h in range(n):
-            s_model_2 = s_model
-            g_model_2 = g_model
+            s_model_2 = s_img
+            g_model_2 = g_img
 
             s_model_2 += np.random.normal(loc=0, scale=s_img_err)
             g_model_2 += np.random.normal(loc=0, scale=g_img_err)

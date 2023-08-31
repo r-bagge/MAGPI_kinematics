@@ -32,7 +32,7 @@ def list_flat(old_list, new_list):
     return new_list
 
 
-def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
+def clean_images_velo(img, pa, a, b, img_err=None,SNR=3, n_re=2):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -43,7 +43,7 @@ def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 4:
+            if side1 + side2 > n_re**2:
                 img[i, j] = np.nan
             else:
                 if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
@@ -56,7 +56,7 @@ def clean_images_velo(img, pa, a, b, img_err=None,SNR=3):
     return img
 
 
-def clean_images_flux(img, pa, a, b, img_err=None, SNR=3):
+def clean_images_flux(img, pa, a, b, img_err=None, SNR=3,n_re=2):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -67,13 +67,13 @@ def clean_images_flux(img, pa, a, b, img_err=None, SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 4:
+            if side1 + side2 > n_re**2:
                 img[i, j] = np.nan
             if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i, j] = np.nan
     return img
 
-def aperture_photometry(map, pa, a, b):
+def aperture_photometry(map, pa, a, b, n_re=2):
     flux = 0
     map[np.isnan(map)] = 0
     map[np.isinf(map)] = 0
@@ -85,7 +85,7 @@ def aperture_photometry(map, pa, a, b):
         for j in range(len(map[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 < 8:
+            if side1 + side2 < n_re**2:
                 flux += map[i, j]
             else:
                 map[i, j] = np.nan
@@ -259,21 +259,13 @@ def BPT_plots(output_file, sample_file, n_re):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        # HA_flux = aperture_photometry(HA, pa, n_re * r50, n_re * r50 * q)
-        # HA_err_flux = aperture_photometry(HA_err, pa, n_re * r50, n_re * r50 * q)
-        # HB_flux = aperture_photometry(HB, pa, n_re * r50, n_re * r50 * q)
-        # OIII_flux = aperture_photometry(OIII, pa, n_re * r50, n_re * r50 * q)
-        # NII_flux = aperture_photometry(NII, pa, n_re * r50, n_re * r50 * q)
-        # OI_flux = aperture_photometry(OI, pa, n_re * r50, n_re * r50 * q)
-        # SII_flux = aperture_photometry(SII, pa, n_re * r50, n_re * r50 * q)
-
-        HA_flux = np.nansum(HA)
-        HA_err_flux = np.nansum(HA_err)
-        HB_flux = np.nansum(HB)
-        OIII_flux = np.nansum(OIII)
-        NII_flux = np.nansum(NII)
-        OI_flux =np.nansum(OI)
-        SII_flux = np.nansum(SII)
+        HA_flux = aperture_photometry(HA,pa,r50,r50 * q,n_re)
+        HA_err_flux = aperture_photometry(HA_err, pa,r50,r50 * q,n_re)
+        HB_flux = aperture_photometry(HB, pa,r50,r50 * q,n_re)
+        OIII_flux = aperture_photometry(OIII, pa,r50,r50 * q,n_re)
+        NII_flux = aperture_photometry(NII,pa,r50,r50 * q,n_re)
+        OI_flux = aperture_photometry(OI, pa,r50,r50 * q,n_re)
+        SII_flux = aperture_photometry(SII, pa,r50,r50 * q,n_re)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
