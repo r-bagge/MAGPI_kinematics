@@ -1,13 +1,15 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 from kinemetry import kinemetry
+from astropy.cosmology import Planck18 as cosmo
 import numpy as np
 from astropy.io import fits
+import astropy.units as u
 import pandas as pd
 import os
 import cmasher
 
-def clean_images_median(img, pa, a, b, img_err=None,SNR=3):
+def clean_images_median(img, pa, a, b, img_err=None,SNR=3,n_re=2):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -18,7 +20,7 @@ def clean_images_median(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 4:
+            if side1 + side2 > n_re**2:
                 img[i, j] = np.nan
             else:
                 if img_err is not None and abs(img_err[i, j]) < SNR and i < (len(img[:,0]) - 5) and j < (len(img[0,:])-5) and i > 5 and j > 5:
@@ -31,7 +33,7 @@ def clean_images_median(img, pa, a, b, img_err=None,SNR=3):
                         img[i, j] = new_img
     return img
 
-def clean_images(img, pa, a, b, img_err=None,SNR=3):
+def clean_images(img, pa, a, b, img_err=None,SNR=3,n_re=2):
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
@@ -42,7 +44,7 @@ def clean_images(img, pa, a, b, img_err=None,SNR=3):
         for j in range(1,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > 4:
+            if side1 + side2 > n_re**2:
                 img[i, j] = np.nan
             if img_err is not None and abs(img_err[i, j]) < SNR:
                 img[i,j]=np.nan
@@ -70,6 +72,7 @@ def maps_check():
         pa = master["ang_it"].to_numpy()[0]
         q = master["axrat_it"].to_numpy()[0]
         r50 = master['R50_it'].to_numpy()[0]/0.2
+        z = master["z"].to_numpy()[0]
 
         try:
             gasfile = fits.open("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_Maps/MAGPI"+field+"/Emission_Line/MAGPI"+str(galaxy)+"_GIST_EmissionLines.fits")
@@ -232,7 +235,7 @@ def maps_check():
                          bmodel=True, rangePA=[pa-20, pa+20], rangeQ=[q - 0.1, q + 0.1],
                          allterms=False, ring=0, fixcen=False)
 
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex="row", sharey="row")
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         p1=ax1.imshow(s_velo, cmap="cmr.redshift", vmin=-np.nanmax(s_velo),vmax=np.nanmax(s_velo),origin="lower")
         plt.colorbar(p1,ax=ax1,location="top",pad=0.047,fraction=0.05,label=r"DATA")
         zeros_kg = np.where(k_M2.eccano == 0)[0]
@@ -267,8 +270,39 @@ def maps_check():
         plt.colorbar(p2, ax=ax2, location="top", pad=0.047, fraction=0.05, label=r"M2")
         p3=ax3.imshow(k_M3.velkin, cmap="cmr.redshift", vmin=-np.nanmax(k_M3.velkin),vmax=np.nanmax(k_M3.velkin),origin="lower")
         plt.colorbar(p3, ax=ax3, location="top", pad=0.047, fraction=0.05, label=r"M3")
-        # ax1.set_xlim(x0 / 2, 3 * x0 / 2)
-        # ax1.set_ylim(y0 / 2, 3 * y0 / 2)
+        for ax in [ax1,ax2,ax3]:
+            if ax==ax2:
+                #ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_xlabel("x [kpc]")
+            ax.set_xlim(x0 / 2, 3 * x0 / 2)
+            ax.set_ylim(y0 / 2, 3 * y0 / 2)
+            ticks = ax.get_xticks()
+            ticks = np.radians(ticks*0.2/3600)*cosmo.luminosity_distance(z).to(u.kpc).value
+            x0_ = np.radians(x0 * 0.2 / 3600) * cosmo.luminosity_distance(z).to(u.kpc).value
+            #ticks = ticks - x0_
+            #ticks = ticks - np.median(ticks)
+            print(ticks)
+            new_ticks = []
+            for i in ticks:
+                new_ticks.append(f"{i:.0f}")
+            ax.set_xticklabels(new_ticks)
+            ticks = ax.get_yticks()
+            ticks = np.radians(ticks * 0.2 / 3600) * cosmo.luminosity_distance(z).to(u.kpc).value
+            y0_ = np.radians(y0 * 0.2 / 3600) * cosmo.luminosity_distance(z).to(u.kpc).value
+            #ticks = ticks - y0_
+            print(ticks)
+            new_ticks = []
+            for i in ticks:
+                new_ticks.append(f"{i:.0f}")
+            ax.set_yticklabels(new_ticks)
+            ax.set_xlabel("x [kpc]")
+            ax1.set_ylabel("y [kpc]")
+            if ax==ax3:
+                ax.yaxis.tick_right()
+                ax.set_ylabel("y [kpc]")
+                ax.yaxis.set_label_position("right")
+
         try:
             plt.savefig("/Volumes/LDS/Astro/PhD/MAGPI/plots/Maps_Check/M2_M3/" + str(galaxy) + "_M2_M3.pdf",bbox_inches='tight')
         except FileNotFoundError:
@@ -333,11 +367,12 @@ def vasyms_nans():
     n_nans = np.array(n_nans)
     vasym_err = np.array(vasym_err)
 
+    plt.rcParams.update({"font.size":15})
     fig,ax = plt.subplots()
     ax.scatter((n_nans/n_not_nans)[ty==1],vasym_err[ty==1],label="HII")
-    ax.scatter((n_nans/n_not_nans)[ty!=1],vasym_err[ty!=1],ec="magenta",color='tab:blue',label="AGN")
-    ax.hlines(0.4,xmin=-1,xmax=2,ls="dashed",color="k")
-    ax.vlines(0.35,ymin=0,ymax=0.4,ls="dashed",color="k")
+    ax.scatter((n_nans/n_not_nans)[ty!=1],vasym_err[ty!=1],ec="magenta",color='tab:blue',label="HII+AGN")
+    ax.hlines(0.2,xmin=-1,xmax=2,ls="dashed",color="k")
+    ax.vlines(0.35,ymin=0,ymax=0.2,ls="dashed",color="k")
     ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
     ax.set_xlabel("Frac. of NaNs at the ellipse")
     ax.set_yscale("log")
@@ -345,6 +380,20 @@ def vasyms_nans():
     ax.set_xlim(-0.1,1.1)
     ax.legend()
     plt.savefig("MAGPI_Plots/Maps_Check/nans_v_sigma.pdf",bbox_inches="tight")
+
+    plt.rcParams.update({"font.size": 15})
+    fig, ax = plt.subplots()
+    ax.scatter(sample['SNR_g'][ty == 1], vasym_err[ty == 1], label="HII")
+    ax.scatter(sample['SNR_g'][ty != 1], vasym_err[ty != 1], ec="magenta", color='tab:blue', label="HII+AGN")
+    ax.hlines(0.2, xmin=-5, xmax=90, ls="dashed", color="k")
+    #ax.vlines(0.35, ymin=0, ymax=0.2, ls="dashed", color="k")
+    ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
+    ax.set_xlabel(r"H$\alpha$ SNR")
+    ax.set_yscale("log")
+    # ax.set_xscale("log")
+    ax.set_xlim(-2, 85)
+    ax.legend()
+    plt.savefig("MAGPI_Plots/Maps_Check/vasym_SNR.pdf", bbox_inches="tight")
 
     df = pd.DataFrame({"MAGPIID":sample["MAGPIID"].to_numpy(),
                        "v_asym_15_err":vasym_err,
