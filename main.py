@@ -14,7 +14,7 @@ from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
 
 def monte_carlo(args):
-    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = args
+    g_model, g_img, g_img_err, q_g, pa_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, pa_s, x0_s, y0_s, rad_s, ss, vs = args
     if catch == 1:
         v_asym_gmc = np.zeros(n)
         for h in range(n):
@@ -229,7 +229,7 @@ def MAGPI_kinemetry_parrallel(args):
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 3, None, None, None, None, None, None, None, None, None, None
+        return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None, None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -276,7 +276,7 @@ def MAGPI_kinemetry_parrallel(args):
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
 
-        return None, None, None, None, None, None, None, None, None, None, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
+        return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
     if star_file_catch and gas_file_catch:
         starfile = fits.open(star_file)
@@ -341,7 +341,7 @@ def MAGPI_kinemetry_parrallel(args):
                 sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-                return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 3, None, None, None, None, None, None, None, None, None, None
+                return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None, None
 
         g_clip = np.nanmax(g_flux)
         print(f"Max Gas SNR = {g_clip:.2f}...")
@@ -384,7 +384,7 @@ def MAGPI_kinemetry_parrallel(args):
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
                 vs = vs / (2 * np.sin(inc))
 
-                return None, None, None, None, None, None, None, None, None, None, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
+                return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2
@@ -418,7 +418,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
