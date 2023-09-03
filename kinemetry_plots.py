@@ -122,12 +122,8 @@ def BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, a, b, output_file):
                     OIII[i, j] / HB[i, j]) > 1.89 * np.log10(SII[i, j] / HA[i, j]) + 0.76:
                     BPT_map[i, j] = 2
                     return
-                # if np.log10(OIII[i,j] / HB[i,j]) < 1.30 + 0.72 / (
-                #         np.log10(SII[i,j] / HA[i,j]) - 0.32):
-                #     BPT_map[i] = 1
                 else:
                     pass
-            # Outside 2Re
             else:
                 BPT_map[i, j] = np.nan
 
@@ -421,7 +417,7 @@ def BPT_plots(output_file, sample_file, n_re):
 
     return HA_fluxes, NII_fluxes, OIII_fluxes, HB_fluxes, SII_fluxes, OI_fluxes
 
-def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
+def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     field_name = str(galaxy)[:4]
     csv_file = pd.read_csv(
         "MAGPI_Emission_Lines/MAGPI" + str(field_name) + "/MAGPI" + str(field_name) + "_source_catalogue.csv",
@@ -514,8 +510,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                            cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            pa_g = np.nanmedian(kg.pa)
-            pa_s = np.nanmedian(ks.pa)
+            pa_g = kg.pa[-1]
+            pa_s = ks.pa[-1]
 
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
@@ -695,8 +691,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
 
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            pa_g = np.nanmedian(kg.pa)
-            pa_s = np.nanmedian(ks.pa)
+            pa_g = kg.pa[-1]
+            pa_s = ks.pa[-1]
 
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
@@ -846,8 +842,8 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                            cover=0.95)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-            pa_g = np.nanmedian(kg.pa)
-            q_g = np.nanmedian(kg.q)
+            pa_g = kg.pa[-1]
+            q_g = kg.q[-1]
 
             fig, ax = plt.subplots()
             ax.scatter(kg.rad, kg1, ec="k", zorder=2, label="Gas")
@@ -992,7 +988,7 @@ def stellar_gas_plots(galaxy, n_ells=5, SNR_star=3, SNR_gas=20, n_re=2):
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True,
                        cover=0.95)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-        pa_s = np.nanmedian(ks.pa)
+        pa_s = ks.pa[-1]
 
         fig, ax = plt.subplots()
         ax.scatter(ks.rad, ks1, ec="k", zorder=2, label="Stars")
