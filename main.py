@@ -21,7 +21,7 @@ def monte_carlo(args):
             model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
+                          paq = np.array([pa_g,q_g]), allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -40,7 +40,7 @@ def monte_carlo(args):
             model = s_img
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
-                          rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
+                          paq = np.array([pa_s,q_s]), allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -65,10 +65,10 @@ def monte_carlo(args):
 
             ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                            bmodel=True,
-                           rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
+                           paq = np.array([pa_s,q_s]), allterms=True)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                            bmodel=True,
-                           rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
+                           paq = np.array([pa_g,q_g]), allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -91,13 +91,13 @@ def monte_carlo(args):
 
 
 def monte_carlo_parallel(pars):
-    g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs = pars
+    g_model, g_img, g_img_err, q_g, pa_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, pa_s, x0_s, y0_s, rad_s, ss, vs = pars
     cores = None
     if cores is None:
         cores = multiprocessing.cpu_count()
     print(f"Running {n} monte carlos on {cores} Cores!")
     group_size = n // 20
-    args = [(g_model, g_img, g_img_err, q_g, x0_g, y0_g, rad_g, sg, vg, group_size, catch, s_model, s_img, s_img_err, q_s, x0_s, y0_s, rad_s, ss, vs) for _ in range(20)]
+    args = [(g_model, g_img, g_img_err, q_g, pa_g, x0_g, y0_g, rad_g, sg, vg, group_size, catch, s_model, s_img, s_img_err, q_s, pa_s, x0_s, y0_s, rad_s, ss, vs) for _ in range(20)]
     ctx = multiprocessing.get_context()
     pool = ctx.Pool(processes=cores, maxtasksperchild=1)
     try:
@@ -212,7 +212,7 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2 - step
+        start = (0.65 / 2) / 0.2
         end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -229,7 +229,7 @@ def MAGPI_kinemetry_parrallel(args):
         sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
+        return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 3, None, None, None, None, None, None, None, None, None, None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -258,7 +258,7 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2 - step
+        start = (0.65 / 2) / 0.2
         end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -276,7 +276,7 @@ def MAGPI_kinemetry_parrallel(args):
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
 
-        return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
+        return None, None, None, None, None, None, None, None, None, None, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
     if star_file_catch and gas_file_catch:
         starfile = fits.open(star_file)
@@ -324,7 +324,7 @@ def MAGPI_kinemetry_parrallel(args):
                 print("Doing kinemetry on the gas only!")
                 print("Doing kinemetry on the gas only!", file=logfile)
                 step = (0.65 / 2) / 0.2
-                start = (0.65 / 2) / 0.2 - step
+                start = (0.65 / 2) / 0.2
                 end = 1 * r50 + step
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
@@ -341,7 +341,7 @@ def MAGPI_kinemetry_parrallel(args):
                 sg = np.nanmean(kg_sigma.cf[:, 0][(rad / np.median(rad)) < 1])
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
 
-                return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None
+                return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 3, None, None, None, None, None, None, None, None, None, None
 
         g_clip = np.nanmax(g_flux)
         print(f"Max Gas SNR = {g_clip:.2f}...")
@@ -364,7 +364,7 @@ def MAGPI_kinemetry_parrallel(args):
                 return
             else:
                 step = (0.65 / 2) / 0.2
-                start = (0.65 / 2) / 0.2 - step
+                start = (0.65 / 2) / 0.2
                 end = 1 * r50 + step
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
@@ -384,10 +384,10 @@ def MAGPI_kinemetry_parrallel(args):
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
                 vs = vs / (2 * np.sin(inc))
 
-                return None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
+                return None, None, None, None, None, None, None, None, None, None, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2 - step
+        start = (0.65 / 2) / 0.2
         end = 1 * r50 + step
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
@@ -414,7 +414,7 @@ def MAGPI_kinemetry_parrallel(args):
         ss = np.nanmean(ks_sigma.cf[:, 0][(rad/np.median(rad)) < 1])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, x0, y0, rad, ss, vs
+        return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
 
 if __name__ == '__main__':
