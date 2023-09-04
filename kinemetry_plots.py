@@ -597,7 +597,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_file/" + str(galaxy) + "_stellar_kinemetry.fits",
+                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
             else:
                 s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \

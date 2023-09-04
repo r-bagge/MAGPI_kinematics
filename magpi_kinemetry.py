@@ -117,7 +117,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 continue
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2
-            end = 1 * r50 + step
+            end = 1 * r50[f] + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -183,7 +183,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 continue
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2
-            end = 1 * r50 + step
+            end = 1 * r50[f] + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -268,7 +268,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     print("Doing kinemetry on the gas only!", file=logfile)
                     step = (0.65 / 2) / 0.2
                     start = (0.65 / 2) / 0.2
-                    end = 1 * r50 + step
+                    end = 1 * r50[f] + step
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -374,7 +374,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2
-            end = 1 * r50 + step
+            end = 1 * r50[f] + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
