@@ -85,7 +85,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             gas_file_catch = True
         else:
             print("No gas kinematics!")
-
             gas_file_catch = False
 
         # Check to see if there is neither gas or star data
@@ -117,8 +116,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -152,17 +151,13 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             v_sigma_g.append(kgs0)
             v_rot_s.append(np.nan)
             v_sigma_s.append(np.nan)
-            pa_g = np.nanmedian(kg.pa)
-            pa_s = np.nanmedian(np.nan)
+            pa_g = kg.pa[-1]
+            pa_s = np.nan
             d_pa = np.abs(np.nan)
             gal_id.append(galaxy[f])
-            if pa_g==-120 or pa_g==120:
-                pa_gs.append(np.nan)
-                d_pas.append(np.nan)
-            else:
-                pa_gs.append(pa_g)
-                pa_ss.append(pa_s)
-                d_pas.append(d_pa)
+            pa_gs.append(pa_g)
+            pa_ss.append(pa_s)
+            d_pas.append(d_pa)
 
         # Stellar kinemetry
         if star_file_catch and gas_file_catch==False:
@@ -187,8 +182,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -221,8 +216,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             v_rot_s.append(np.nanmax(ks1))
             v_sigma_s.append(kss0)
-            pa_g = np.nanmedian(np.nan)
-            pa_s = np.nanmedian(ks.pa)
+            pa_g = np.nan
+            pa_s = ks.pa[-1]
             d_pa = np.abs(np.nan)
 
             gal_id.append(galaxy[f])
@@ -272,8 +267,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     print("Doing kinemetry on the gas only!")
                     print("Doing kinemetry on the gas only!", file=logfile)
                     step = (0.65 / 2) / 0.2
-                    start = (0.65 / 2) / 0.2 - step
-                    end = 1 * r50[f] + step
+                    start = (0.65 / 2) / 0.2
+                    end = 1 * r50 + step
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -308,17 +303,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     v_rot_s.append(np.nan)
                     v_sigma_g.append(kgs0)
                     v_sigma_s.append(np.nan)
-                    pa_g = np.nanmedian(kg.pa)
-                    pa_s = np.nanmedian(np.nan)
+                    pa_g = kg.pa[-1]
+                    pa_s = np.nan
                     d_pa = np.abs(np.nan)
+
                     gal_id.append(galaxy[f])
-                    if pa_g == -120 or pa_g == 120:
-                        pa_gs.append(np.nan)
-                        d_pas.append(np.nan)
-                    else:
-                        pa_gs.append(pa_g)
-                        pa_ss.append(pa_s)
-                        d_pas.append(d_pa)
+                    pa_gs.append(pa_g)
+                    pa_ss.append(pa_s)
+                    d_pas.append(d_pa)
                     continue
 
             g_clip = np.nanmax(g_flux)
@@ -381,8 +373,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     continue
 
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2
+            end = 1 * r50 + step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
