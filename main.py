@@ -212,8 +212,8 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2
-        end = 1 * r50 + step
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -258,8 +258,8 @@ def MAGPI_kinemetry_parrallel(args):
                 "Not doing kinemetry on " + str(galaxy) + " because its heinous looking\n")
             return
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2
-        end = 1 * r50 + step
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -324,8 +324,8 @@ def MAGPI_kinemetry_parrallel(args):
                 print("Doing kinemetry on the gas only!")
                 print("Doing kinemetry on the gas only!", file=logfile)
                 step = (0.65 / 2) / 0.2
-                start = (0.65 / 2) / 0.2
-                end = 1 * r50 + step
+                start = (0.65 / 2) / 0.2 - step
+                end = 1 * r50
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -364,8 +364,8 @@ def MAGPI_kinemetry_parrallel(args):
                 return
             else:
                 step = (0.65 / 2) / 0.2
-                start = (0.65 / 2) / 0.2
-                end = 1 * r50 + step
+                start = (0.65 / 2) / 0.2 - step
+                end = 1 * r50
                 rad = np.arange(start, end, step)
                 if len(rad) < n_ells:
                     print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -387,8 +387,8 @@ def MAGPI_kinemetry_parrallel(args):
                 return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vs
 
         step = (0.65 / 2) / 0.2
-        start = (0.65 / 2) / 0.2
-        end = 1 * r50 + step
+        start = (0.65 / 2) / 0.2 - step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")

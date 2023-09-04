@@ -568,8 +568,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
                 print("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf")
-                plt.savefig("plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
-                plt.savefig("plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
                             bbox_inches="tight")
 
                 hdr = fits.Header()
