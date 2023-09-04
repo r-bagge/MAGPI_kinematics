@@ -372,9 +372,9 @@ def vasyms_nans():
     ax.scatter((n_nans/n_not_nans)[ty==1],vasym_err[ty==1],label="HII")
     ax.scatter((n_nans/n_not_nans)[ty!=1],vasym_err[ty!=1],ec="magenta",color='tab:blue',label="HII+AGN")
     ax.hlines(0.2,xmin=-1,xmax=2,ls="dashed",color="k")
-    ax.vlines(0.35,ymin=0,ymax=0.2,ls="dashed",color="k")
+    ax.vlines(0.30,ymin=0,ymax=0.2,ls="dashed",color="k")
     ax.set_ylabel(r"$\sigma (v_{\rm asym})$")
-    ax.set_xlabel("Frac. of NaNs at the ellipse")
+    ax.set_xlabel(r"Frac. of Non-Detect. at 1.5$R_e$")
     ax.set_yscale("log")
     #ax.set_xscale("log")
     ax.set_xlim(-0.1,1.1)
@@ -400,6 +400,6 @@ def vasyms_nans():
                        "NaNs_at_ellipse":n_nans/n_not_nans})
     df.to_csv("MAGPI_csv/MAGPI_ellipse_nans.csv",index=False)
 
-#vasyms_nans()
-maps_check()
+vasyms_nans()
+#maps_check()
 
