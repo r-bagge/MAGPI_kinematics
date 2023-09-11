@@ -483,6 +483,7 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
+        df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
