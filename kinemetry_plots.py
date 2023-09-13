@@ -182,6 +182,8 @@ def BPT_plots(output_file, sample_file, n_re):
     SFR_err = []
     sample = pd.read_csv(sample_file)
     galaxies = sample["MAGPIID"].to_numpy()
+    galaxies = galaxies[~np.isnan(galaxies)]
+    galaxies = galaxies.astype(int)
     for g in galaxies:
         print("Beginning MAGPI" + str(g) + "...")
         csv_file = pd.read_csv(
@@ -199,7 +201,18 @@ def BPT_plots(output_file, sample_file, n_re):
             pass
         else:
             print("No gas spectra!")
-            return
+            HA_fluxes.append(np.nan)
+            HA_err_fluxes.append(np.nan)
+            HB_fluxes.append(np.nan)
+            OIII_fluxes.append(np.nan)
+            NII_fluxes.append(np.nan)
+            OI_fluxes.append(np.nan)
+            SII_fluxes.append(np.nan)
+            SFR = np.array(np.nan)
+            SFR_err = np.array(np.nan)
+            re.append(r50)
+            re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
+            continue
         file = "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
                                                                       :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             g) + "_GIST_EmissionLines.fits"
@@ -361,6 +374,7 @@ def BPT_plots(output_file, sample_file, n_re):
             print("Both saying LINER")
     print("All Done!")
 
+    print(len(galaxies),len(HA_fluxes),len(HA_err_fluxes),len(HB_fluxes),len(OI_fluxes),len(OIII_fluxes),len(NII_fluxes),len(SII_fluxes),len(sf_sy_ln),len(SII_bpt),len(SFR),len(SFR_err),len(re))
     df = pd.DataFrame({"MAGPIID": galaxies,
                        "Ha": HA_fluxes,
                        "Ha_err": HA_err_fluxes,
