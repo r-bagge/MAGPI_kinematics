@@ -208,8 +208,8 @@ def BPT_plots(output_file, sample_file, n_re):
             NII_fluxes.append(np.nan)
             OI_fluxes.append(np.nan)
             SII_fluxes.append(np.nan)
-            SFR = np.array(np.nan)
-            SFR_err = np.array(np.nan)
+            SFR.append(np.nan)
+            SFR_err.append(np.nan)
             re.append(r50)
             re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
             continue
