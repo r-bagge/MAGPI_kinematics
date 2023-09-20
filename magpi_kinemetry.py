@@ -415,6 +415,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
+            vasym_s = vasym_s[-1]
             star_s05.append(vasym_s)
             v_rot_s.append(np.nanmax(ks1))
             v_sigma_s.append(kss0)
