@@ -248,13 +248,13 @@ def BPT_plots(output_file, sample_file, n_re):
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
                              "/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
 
-        HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err)
+        HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err,n_re=n_re)
         HA_err = clean_images_flux(flux_Ha_err, pa, r50, r50 * q)
-        HB = clean_images_flux(flux_Hb, pa, r50, r50 * q, img_err=flux_Hb / flux_Hb_err)
+        HB = clean_images_flux(flux_Hb, pa, r50, r50 * q, img_err=flux_Hb / flux_Hb_err,n_re=n_re)
         OI = clean_images_flux(OI, pa, r50, r50 * q, img_err=OI / OI_err)
-        OIII = clean_images_flux(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err)
-        NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err)
-        SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err)
+        OIII = clean_images_flux(OIII, pa, r50, r50 * q, img_err=OIII / OIII_err,n_re=n_re)
+        NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err,n_re=n_re)
+        SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err,n_re=n_re)
 
         fig, ax = plt.subplots()
         ax.imshow(flux_Ha,origin="lower")
@@ -268,13 +268,20 @@ def BPT_plots(output_file, sample_file, n_re):
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
             plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
-        HA_flux = aperture_photometry(HA,pa,r50,r50 * q,n_re)
-        HA_err_flux = aperture_photometry(HA_err, pa,r50,r50 * q,n_re)
-        HB_flux = aperture_photometry(HB, pa,r50,r50 * q,n_re)
-        OIII_flux = aperture_photometry(OIII, pa,r50,r50 * q,n_re)
-        NII_flux = aperture_photometry(NII,pa,r50,r50 * q,n_re)
-        OI_flux = aperture_photometry(OI, pa,r50,r50 * q,n_re)
-        SII_flux = aperture_photometry(SII, pa,r50,r50 * q,n_re)
+        # HA_flux = aperture_photometry(HA,pa,r50,r50 * q,n_re)
+        # HA_err_flux = aperture_photometry(HA_err, pa,r50,r50 * q,n_re)
+        # HB_flux = aperture_photometry(HB, pa,r50,r50 * q,n_re)
+        # OIII_flux = aperture_photometry(OIII, pa,r50,r50 * q,n_re)
+        # NII_flux = aperture_photometry(NII,pa,r50,r50 * q,n_re)
+        # OI_flux = aperture_photometry(OI, pa,r50,r50 * q,n_re)
+        # SII_flux = aperture_photometry(SII, pa,r50,r50 * q,n_re)
+        HA_flux = np.nansum(HA)
+        HA_err_flux = np.nansum(HA_err)
+        HB_flux = np.nansum(HB)
+        OIII_flux = np.nansum(OIII)
+        NII_flux = np.nansum(NII)
+        OI_flux = np.nansum(OI)
+        SII_flux = np.nansum(SII)
 
         DL = cosmo.luminosity_distance(z).to(u.cm).value
         balmer = HA_flux / HB_flux
