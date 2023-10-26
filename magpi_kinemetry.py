@@ -7,6 +7,7 @@ from astropy.cosmology import Planck18 as cosmo
 from kinemetry import kinemetry
 from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
+import matplotlib.pyplot as plt
 
 def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     gal_id = []
@@ -116,8 +117,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50[f]
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -159,6 +160,49 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
 
+            fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
+            zeros = np.where(kg.eccano == 0)[0][-2:]
+            k1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            x = np.degrees(kg.eccano[zeros[-2]:zeros[-1]])
+            ex_mom = kg.ex_mom[zeros[-2]:zeros[-1]]
+            vrec = kg.vrec[zeros[-2]:zeros[-1]]
+            vv = kg.vv[zeros[-2]:zeros[-1]]
+            yEl = kg.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            xEl = kg.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+            ax1.plot(x, vrec, zorder=1, label='Gas', color="tab:orange")
+            ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color="tab:orange")
+            ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=2,color='tab:orange')
+            ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color='tab:orange')
+            ax2.hlines(0.05,xmin=0,xmax=360,ls="dashed",color="k")
+            ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=g_velo_err[yEl, xEl] / np.nanmax(k1), color="grey",
+                         ls="", zorder=1,capsize=2)
+
+            # zeros = np.where(ks.eccano == 0)[0][-2:]
+            # k1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            # x = np.degrees(ks.eccano[zeros[-2]:zeros[-1]])
+            # ex_mom = ks.ex_mom[zeros[-2]:zeros[-1]]
+            # vrec = ks.vrec[zeros[-2]:zeros[-1]]
+            # yEl = ks.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            # xEl = ks.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            # chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            # chi2 = chi2 + 2 * np.log(len(ex_mom))
+            #
+            # ax1.plot(x, vrec, zorder=1, label="Stars", color='tab:blue')
+            # ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color='tab:blue')
+            # ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=3)
+            # ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1)
+            # ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=s_velo_err[yEl, xEl] / np.nanmax(k1), color="grey",
+            #              ls="", zorder=1)
+            # ax1.legend()
+            ax2.hlines(0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            plt.savefig("MAGPI_Plots/plots/Gas_Stars_Ellipse/" + str(galaxy[f]) + "_gas_star_ellipse.pdf",
+                        bbox_inches='tight')
+
         # Stellar kinemetry
         if star_file_catch and gas_file_catch==False:
             starfile = fits.open(star_file)
@@ -182,8 +226,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 print("Not doing kinemetry on " + str(galaxy[f]) + " because its heinous looking")
                 continue
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50[f]
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -226,6 +270,47 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             d_pas.append(d_pa)
             v_rot_g.append(np.nan)
             v_sigma_s.append(np.nan)
+
+            fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
+            # zeros = np.where(kg.eccano == 0)[0][-2:]
+            # k1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            # x = np.degrees(kg.eccano[zeros[-2]:zeros[-1]])
+            # ex_mom = kg.ex_mom[zeros[-2]:zeros[-1]]
+            # vrec = kg.vrec[zeros[-2]:zeros[-1]]
+            # vv = kg.vv[zeros[-2]:zeros[-1]]
+            # yEl = kg.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            # xEl = kg.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            # chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            # chi2 = chi2 + 2 * np.log(len(ex_mom))
+            #
+            # ax1.plot(x, vrec, zorder=1, label='Gas', color="tab:orange")
+            # ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color="tab:orange")
+            # ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=2)
+            # ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1)
+            # ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=g_velo_err[yEl, xEl] / np.nanmax(k1), color="grey",
+            #              ls="", zorder=1)
+
+            zeros = np.where(ks.eccano == 0)[0][-2:]
+            k1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            x = np.degrees(ks.eccano[zeros[-2]:zeros[-1]])
+            ex_mom = ks.ex_mom[zeros[-2]:zeros[-1]]
+            vrec = ks.vrec[zeros[-2]:zeros[-1]]
+            yEl = ks.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            xEl = ks.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+            ax1.plot(x, vrec, zorder=1, label="Stars", color='tab:blue')
+            ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color='tab:blue')
+            ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=3,color='tab:blue')
+            ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color="tab:blue")
+            ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=s_velo_err[yEl, xEl] / np.nanmax(k1), color="magenta",
+                         ls="", zorder=1,capsize=2)
+            ax2.hlines(0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            ax1.legend()
+            plt.savefig("MAGPI_Plots/plots/Gas_Stars_Ellipse/" + str(galaxy[f]) + "_gas_star_ellipse.pdf",
+                        bbox_inches='tight')
             
         if star_file_catch and gas_file_catch:
             starfile = fits.open(star_file)
@@ -267,8 +352,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     print("Doing kinemetry on the gas only!")
                     print("Doing kinemetry on the gas only!", file=logfile)
                     step = (0.65 / 2) / 0.2
-                    start = (0.65 / 2) / 0.2
-                    end = 1 * r50[f] + step
+                    start = (0.65 / 2) / 0.2 - step
+                    end = 1 * r50[f]
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -311,6 +396,49 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     pa_gs.append(pa_g)
                     pa_ss.append(pa_s)
                     d_pas.append(d_pa)
+
+                    fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
+                    zeros = np.where(kg.eccano == 0)[0][-2:]
+                    k1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+                    x = np.degrees(kg.eccano[zeros[-2]:zeros[-1]])
+                    ex_mom = kg.ex_mom[zeros[-2]:zeros[-1]]
+                    vrec = kg.vrec[zeros[-2]:zeros[-1]]
+                    vv = kg.vv[zeros[-2]:zeros[-1]]
+                    yEl = kg.Yellip[zeros[-2]:zeros[-1]].astype(int)
+                    xEl = kg.Xellip[zeros[-2]:zeros[-1]].astype(int)
+                    chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+                    chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+                    ax1.plot(x, vrec, zorder=1, label='Gas', color="tab:orange")
+                    ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color="tab:orange")
+                    ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=2,color='tab:orange')
+                    ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color='tab:orange')
+                    ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=g_velo_err[yEl, xEl] / np.nanmax(k1),
+                                 color="grey",
+                                 ls="", zorder=1,capsize=2)
+
+                    # zeros = np.where(ks.eccano == 0)[0][-2:]
+                    # k1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+                    # x = np.degrees(ks.eccano[zeros[-2]:zeros[-1]])
+                    # ex_mom = ks.ex_mom[zeros[-2]:zeros[-1]]
+                    # vrec = ks.vrec[zeros[-2]:zeros[-1]]
+                    # yEl = ks.Yellip[zeros[-2]:zeros[-1]].astype(int)
+                    # xEl = ks.Xellip[zeros[-2]:zeros[-1]].astype(int)
+                    # chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+                    # chi2 = chi2 + 2 * np.log(len(ex_mom))
+                    #
+                    # ax1.plot(x, vrec, zorder=1, label="Stars", color='tab:blue')
+                    # ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color='tab:blue')
+                    # ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=3)
+                    # ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1)
+                    # ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=s_velo_err[yEl, xEl] / np.nanmax(k1),
+                    #              color="grey",
+                    #              ls="", zorder=1)
+                    ax2.hlines(0.05, xmin=0, xmax=360, ls="dashed", color="k")
+                    ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+                    ax1.legend()
+                    plt.savefig("MAGPI_Plots/plots/Gas_Stars_Ellipse/" + str(galaxy[f]) + "_gas_star_ellipse.pdf",
+                                bbox_inches='tight')
                     continue
 
             g_clip = np.nanmax(g_flux)
@@ -328,7 +456,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 else:
                     step = (0.65 / 2) / 0.2
                     start = (0.65 / 2) / 0.2 - step
-                    end = 1 * r50[f] + step
+                    end = 1 * r50[f]
                     rad = np.arange(start, end, step)
                     if len(rad) < n_ells:
                         print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -370,11 +498,54 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     pa_gs.append(pa_g)
                     pa_ss.append(pa_s)
                     d_pas.append(d_pa)
+
+                    fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
+                    # zeros = np.where(kg.eccano == 0)[0][-2:]
+                    # k1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+                    # x = np.degrees(kg.eccano[zeros[-2]:zeros[-1]])
+                    # ex_mom = kg.ex_mom[zeros[-2]:zeros[-1]]
+                    # vrec = kg.vrec[zeros[-2]:zeros[-1]]
+                    # vv = kg.vv[zeros[-2]:zeros[-1]]
+                    # yEl = kg.Yellip[zeros[-2]:zeros[-1]].astype(int)
+                    # xEl = kg.Xellip[zeros[-2]:zeros[-1]].astype(int)
+                    # chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+                    # chi2 = chi2 + 2 * np.log(len(ex_mom))
+                    #
+                    # ax1.plot(x, vrec, zorder=1, label='Gas', color="tab:orange")
+                    # ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color="tab:orange")
+                    # ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=2)
+                    # ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1)
+                    # ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=g_velo_err[yEl, xEl] / np.nanmax(k1),
+                    #              color="grey",
+                    #              ls="", zorder=1)
+
+                    zeros = np.where(ks.eccano == 0)[0][-2:]
+                    k1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+                    x = np.degrees(ks.eccano[zeros[-2]:zeros[-1]])
+                    ex_mom = ks.ex_mom[zeros[-2]:zeros[-1]]
+                    vrec = ks.vrec[zeros[-2]:zeros[-1]]
+                    yEl = ks.Yellip[zeros[-2]:zeros[-1]].astype(int)
+                    xEl = ks.Xellip[zeros[-2]:zeros[-1]].astype(int)
+                    chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+                    chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+                    ax1.plot(x, vrec, zorder=1, label="Stars", color='tab:blue')
+                    ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2, color='tab:blue')
+                    ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=3,color="tab:blue")
+                    ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color='tab:blue')
+                    ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=s_velo_err[yEl, xEl] / np.nanmax(k1),
+                                 color="magenta",
+                                 ls="", zorder=1,capsize=2)
+                    ax1.legend()
+                    ax2.hlines(0.05, xmin=0, xmax=360, ls="dashed", color="k")
+                    ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+                    plt.savefig("MAGPI_Plots/plots/Gas_Stars_Ellipse/" + str(galaxy[f]) + "_gas_star_ellipse.pdf",
+                                bbox_inches='tight')
                     continue
 
             step = (0.65 / 2) / 0.2
-            start = (0.65 / 2) / 0.2
-            end = 1 * r50[f] + step
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * r50[f]
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -439,6 +610,47 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             pa_gs.append(pa_g)
             pa_ss.append(pa_s)
             d_pas.append(d_pa)
+
+            fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={"height_ratios": [1, 0.5], "hspace": 0})
+            zeros = np.where(kg.eccano == 0)[0][-2:]
+            k1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            x = np.degrees(kg.eccano[zeros[-2]:zeros[-1]])
+            ex_mom = kg.ex_mom[zeros[-2]:zeros[-1]]
+            vrec = kg.vrec[zeros[-2]:zeros[-1]]
+            vv = kg.vv[zeros[-2]:zeros[-1]]
+            yEl = kg.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            xEl = kg.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+            ax1.plot(x, vrec, zorder=1, label='Gas', color="tab:orange")
+            ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2,color="tab:orange")
+            ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=2,color="tab:orange")
+            ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color='tab:orange')
+            ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=g_velo_err[yEl, xEl] / np.nanmax(k1), color="grey",
+                         ls="", zorder=1,capsize=2)
+
+            zeros = np.where(ks.eccano == 0)[0][-2:]
+            k1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            x = np.degrees(ks.eccano[zeros[-2]:zeros[-1]])
+            ex_mom = ks.ex_mom[zeros[-2]:zeros[-1]]
+            vrec = ks.vrec[zeros[-2]:zeros[-1]]
+            yEl = ks.Yellip[zeros[-2]:zeros[-1]].astype(int)
+            xEl = ks.Xellip[zeros[-2]:zeros[-1]].astype(int)
+            chi2 = np.sum((ex_mom - vrec) ** 2 / (np.std(ex_mom) ** 2))
+            chi2 = chi2 + 2 * np.log(len(ex_mom))
+
+            ax1.plot(x, vrec, zorder=1, label="Stars", color='tab:blue')
+            ax1.scatter(x, ex_mom, s=7, ec="k", zorder=2,color='tab:blue')
+            ax2.scatter(x, (ex_mom - vrec) / np.nanmax(k1), ec="k", zorder=2, s=3,color="tab:blue")
+            ax2.plot(x, (ex_mom - vrec) / np.nanmax(k1), zorder=1,color='tab:blue')
+            ax2.errorbar(x, (ex_mom - vrec) / np.nanmax(k1), yerr=s_velo_err[yEl, xEl] / np.nanmax(k1), color="magenta",
+                         ls="", zorder=1,capsize=2)
+            ax1.legend()
+            ax2.hlines(0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            ax2.hlines(-0.05, xmin=0, xmax=360, ls="dashed", color="k")
+            plt.savefig("MAGPI_Plots/plots/Gas_Stars_Ellipse/" + str(galaxy[f]) + "_gas_star_ellipse.pdf",
+                        bbox_inches='tight')
 
     results = [gal_id,pa_gs,pa_ss,d_pas,v_rot_g,v_rot_s,v_sigma_g,v_sigma_s,SNR_g,SNR_s,gas_s05,star_s05]
     for ls in results:

@@ -28,7 +28,7 @@ def monte_carlo(args):
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
+            v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
             v_asym_gmc[h] = v_asym[-1]
 
         out = np.zeros(v_asym_gmc.shape)
@@ -47,7 +47,7 @@ def monte_carlo(args):
             k4 = np.sqrt(k.cf[:, 6] ** 2 + k.cf[:, 7] ** 2)
             k5 = np.sqrt(k.cf[:, 8] ** 2 + k.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
-            v_asym = (k2 + k3 + k4 + k5) / (4 * k1)
+            v_asym = (k2 + k3 + k4 + k5) / (4 * s05)
             v_asym_smc[h] = v_asym[-1]
 
         out = np.zeros(v_asym_smc.shape)
@@ -75,7 +75,7 @@ def monte_carlo(args):
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vs ** 2 + ss ** 2)
-            v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * ks1)
+            v_asym_s = (ks2 + ks3 + ks4 + ks5) / (4 * s05)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -83,7 +83,7 @@ def monte_carlo(args):
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
             s05 = np.sqrt(0.5 * vg ** 2 + sg ** 2)
-            v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * kg1)
+            v_asym_g = (kg2 + kg3 + kg4 + kg5) / (4 * s05)
             v_asym_gmc[h] = v_asym_g[-1]
             v_asym_smc[h] = v_asym_s[-1]
 
@@ -484,7 +484,7 @@ if __name__ == '__main__':
                            "SNR_s": results[9],
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re.csv",index=False)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
@@ -513,6 +513,7 @@ if __name__ == '__main__':
                            "SNR_g": results[8],
                            "SNR_s": results[9],
                            })
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_1Re_no_err.csv",index=False)
+        df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
