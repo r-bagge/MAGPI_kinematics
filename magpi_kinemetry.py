@@ -157,7 +157,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             v_sigma_g.append(kgs0)
             v_rot_s.append(np.nan)
             v_sigma_s.append(np.nan)
-            pa_g = gas_pa
+            pa_g = kin_pa
             pa_s = np.nan
             d_pa = np.abs(np.nan)
             gal_id.append(galaxy[f])
@@ -512,8 +512,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     v_rot_g.append(np.nan)
                     v_sigma_s.append(kss0)
                     v_sigma_g.append(np.nan)
-                    pa_g = np.nanmedian(np.nan)
-                    pa_s = np.nanmedian(ks.pa)
+                    pa_g = np.nan
+                    pa_s = stellar_kin_pa
                     d_pa = np.abs(np.nan)
                     gal_id.append(galaxy[f])
                     pa_gs.append(pa_g)

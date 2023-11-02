@@ -20,8 +20,8 @@ def monte_carlo(args):
         for h in range(n):
             model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
-            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=False,
-                          rangePA=[pa_g-10,pa_g+10],rangeQ=[q_g-0.01,q_g+0.01], allterms=True)
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
+                          bmodel=False, rangePA=[pa_g-10, pa_g+10], rangeQ=[0.4,0.8], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -39,8 +39,8 @@ def monte_carlo(args):
         for h in range(n):
             model = s_img
             model += np.random.normal(loc=0, scale=s_img_err)
-            k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=False,
-                          rangePA=[pa_s-10,pa_s+10],rangeQ=[q_s-0.01,q_s+0.01], allterms=True)
+            k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
+                        bmodel=False, rangePA=[pa_s-10, pa_s+10], rangeQ=[0.4,0.8], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -65,10 +65,10 @@ def monte_carlo(args):
 
             ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                            bmodel=False,
-                           rangePA=[pa_g-10,pa_g+10],rangeQ=[q_g-0.01,q_g+0.01], allterms=True)
+                           rangePA=[pa_g-10, pa_g+10], rangeQ=[0.4,0.8], allterms=True)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                            bmodel=False,
-                           rangePA=[pa_s-10,pa_s+10],rangeQ=[q_s-0.01,q_s+0.01], allterms=True)
+                           rangePA=[pa_s-10, pa_s+10], rangeQ=[0.4,0.8], allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -365,7 +365,7 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-                pa_g = pa
+                pa_g = gas_kin_pa
                 q_g = q
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, pa_g, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None, None
@@ -408,7 +408,7 @@ def MAGPI_kinemetry_parrallel(args):
 
                 ss = np.nanmean(ks_sigma.cf[:, 0])
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-                pa_s = pa
+                pa_s = stellar_kin_pa
                 q_s = q
 
                 return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa_s, x0, y0, rad, ss, vs
@@ -432,7 +432,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         sg = np.nanmean(kg_sigma.cf[:, 0])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        pa_g = pa
+        pa_g = gas_kin_pa
         q_g = q
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -442,14 +442,14 @@ def MAGPI_kinemetry_parrallel(args):
 
         ss = np.nanmean(ks_sigma.cf[:, 0])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        pa_s = pa
+        pa_s = stellar_kin_pa
         q_s = q
 
         return kg_velo.velkin, g_velo, g_velo_err, q, pa_g, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa_s, x0, y0, rad, ss, vs
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
