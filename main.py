@@ -20,8 +20,8 @@ def monte_carlo(args):
         for h in range(n):
             model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
-            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[0,360],rangeQ=[q_g-0.1,q_g+0.1], allterms=True)
+            k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=False,
+                          rangePA=[pa_g-10,pa_g+10],rangeQ=[q_g-0.01,q_g+0.01], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -39,8 +39,8 @@ def monte_carlo(args):
         for h in range(n):
             model = s_img
             model += np.random.normal(loc=0, scale=s_img_err)
-            k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
-                          rangePA=[0,360],rangeQ=[q_s-0.1,q_s+0.1], allterms=True)
+            k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=False,
+                          rangePA=[pa_s-10,pa_s+10],rangeQ=[q_s-0.01,q_s+0.01], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -64,11 +64,11 @@ def monte_carlo(args):
             g_model_2 += np.random.normal(loc=0, scale=g_img_err)
 
             ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
-                           bmodel=True,
-                           rangePA=[0,360],rangeQ=[q_g-0.1,q_g+0.1], allterms=True)
+                           bmodel=False,
+                           rangePA=[pa_g-10,pa_g+10],rangeQ=[q_g-0.01,q_g+0.01], allterms=True)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
-                           bmodel=True,
-                           rangePA=[0,360],rangeQ=[q_s-0.1,q_s+0.1], allterms=True)
+                           bmodel=False,
+                           rangePA=[pa_s-10,pa_s+10],rangeQ=[q_s-0.01,q_s+0.01], allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -184,12 +184,17 @@ def MAGPI_kinemetry_parrallel(args):
 
     # Gas kinemetry
     if star_file_catch == False and gas_file_catch:
+        gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
+        gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
+        kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        if kin_pa == 999:
+            kin_pa=pa
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
             gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
         gasfile.close()
-        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_sigma_err = clean_images_velo(g_sigma_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
@@ -223,25 +228,30 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on gas only!", file=logfile)
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                            bmodel=False, rangePA=[kin_pa-10, kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        pa_g = kg_velo.pa
-        q_g = kg_velo.q
+        pa_g = kin_pa
+        q_g = q
 
         return kg_velo.velkin, g_velo, g_velo_err, q, pa_g, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None, None
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
+        stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
+        stellar_pa = stellar_pa[stellar_pa.MAGPIID.isin([galaxy])]
+        kin_pa = stellar_pa.PA_gas.to_numpy()[0]
+        if kin_pa == 999:
+            kin_pa = pa
         starfile = fits.open(star_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
-        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
-        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
-        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
+        s_velo = clean_images_velo(s_velo, kin_pa, r50, r50 * q, img_err=s_flux)
+        s_velo_err = clean_images_velo(s_velo_err, kin_pa, r50, r50 * q, img_err=s_flux)
+        s_sigma = clean_images_velo(s_sigma, kin_pa, r50, r50 * q, img_err=s_flux)
 
         clip = np.nanmax(s_flux)
         y0, x0 = s_flux.shape
@@ -271,32 +281,43 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on stars only!", file=logfile)
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                            bmodel=False, rangePA=[kin_pa-10, kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        pa_s = ks_velo.pa
-        q_s = ks_velo.q
+        pa_s = kin_pa
+        q_s = q
 
         return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa_s, x0, y0, rad, ss, vs
 
     if star_file_catch and gas_file_catch:
+        stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
+        stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
+        stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        if stellar_kin_pa == 999:
+            stellar_kin_pa = pa
+        gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
+        gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
+        gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        if stellar_kin_pa == 999:
+            gas_kin_pa = pa
+
         starfile = fits.open(star_file)
         gasfile = fits.open(gas_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
-        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
-        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
+        s_velo = clean_images_velo(s_velo, stellar_kin_pa, r50, r50 * q, img_err=s_flux)
+        s_velo_err = clean_images_velo(s_velo_err, stellar_kin_pa, r50, r50 * q, img_err=s_flux)
         s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
 
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
         gasfile.close()
 
-        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, gas_kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, gas_kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
@@ -339,13 +360,13 @@ def MAGPI_kinemetry_parrallel(args):
                 print("Doing kinemetry on gas!", file=logfile)
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                                    bmodel=False, rangePA=[gas_kin_pa-10, gas_kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                                     bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-                pa_g = kg_velo.pa
-                q_g = kg_velo.q
+                pa_g = pa
+                q_g = q
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, pa_g, x0, y0, rad, sg, vg, n, 1, None, None, None, None, None, None, None, None, None, None
 
@@ -381,14 +402,14 @@ def MAGPI_kinemetry_parrallel(args):
                 print("Doing kinemetry on stars only!")
                 print("Doing kinemetry on stars only!", file=logfile)
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                                    bmodel=False, rangePA=[stellar_kin_pa-10, stellar_kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                                     bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
 
                 ss = np.nanmean(ks_sigma.cf[:, 0])
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-                pa_s = ks_velo.pa
-                q_s = ks_velo.q
+                pa_s = pa
+                q_s = q
 
                 return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa_s, x0, y0, rad, ss, vs
 
@@ -405,24 +426,24 @@ def MAGPI_kinemetry_parrallel(args):
         print("Doing kinemetry on stars and gas!", file=logfile)
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                            bmodel=False, rangePA=[gas_kin_pa-10, gas_kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
 
         sg = np.nanmean(kg_sigma.cf[:, 0])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
-        pa_g = kg_velo.pa
-        q_g = kg_velo.q
+        pa_g = pa
+        q_g = q
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+                            bmodel=False, rangePA=[stellar_kin_pa-10, stellar_kin_pa+10], rangeQ=[0.4,0.8], allterms=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=False, rangePA=[pa-10, pa+10], rangeQ=[0.4,0.8], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
-        pa_s = ks_velo.pa
-        q_s = ks_velo.q
+        pa_s = pa
+        q_s = q
 
         return kg_velo.velkin, g_velo, g_velo_err, q, pa_g, x0, y0, rad, sg, vg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa_s, x0, y0, rad, ss, vs
 
@@ -463,6 +484,7 @@ if __name__ == '__main__':
         print("Beginning the second easy part...")
         stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         stellar_gas_plots_vectorized(results[0])
+
 
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(results[0])]
