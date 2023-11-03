@@ -225,7 +225,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
         pa_g = kg_velo.pa
@@ -273,7 +273,7 @@ def MAGPI_kinemetry_parrallel(args):
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
@@ -341,7 +341,7 @@ def MAGPI_kinemetry_parrallel(args):
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                                     bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
                 pa_g = kg_velo.pa
@@ -383,7 +383,7 @@ def MAGPI_kinemetry_parrallel(args):
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                                     bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
                 ss = np.nanmean(ks_sigma.cf[:, 0])
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
@@ -407,7 +407,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         sg = np.nanmean(kg_sigma.cf[:, 0])
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
@@ -417,7 +417,7 @@ def MAGPI_kinemetry_parrallel(args):
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], even=True)
+                             bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
         ss = np.nanmean(ks_sigma.cf[:, 0])
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
@@ -428,7 +428,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
