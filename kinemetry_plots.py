@@ -534,10 +534,10 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[stellar_kin_pa-10, stellar_kin_pa+10], rangeQ=[0.4,0.8], allterms=True,
+                           bmodel=True, rangePA=[0,360], rangeQ=[0.4,0.8], allterms=True,
                            cover=0.95)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[gas_kin_pa-10, gas_kin_pa+10], rangeQ=[0.4,0.8], allterms=True,
+                           bmodel=True, rangePA=[0,360], rangeQ=[0.4,0.8], allterms=True,
                            cover=0.95)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -719,10 +719,10 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 return
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[stellar_kin_pa-10, stellar_kin_pa+10], rangeQ=[0.4,0.8], allterms=True,
+                           bmodel=True, rangePA=[0,360], rangeQ=[0.4,0.8], allterms=True,
                            cover=0.95)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[gas_kin_pa-10, gas_kin_pa+10], rangeQ=[0.4,0.8], allterms=True,
+                           bmodel=True, rangePA=[0,360], rangeQ=[0.4,0.8], allterms=True,
                            cover=0.95)
 
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
@@ -1037,7 +1037,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[kin_pa-10, kin_pa+10], rangeQ=[0.4,0.8], allterms=True,
+                       bmodel=True, rangePA=[0,360], rangeQ=[0.4,0.8], allterms=True,
                        cover=0.95)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         pa_s = ks.pa[-1]
