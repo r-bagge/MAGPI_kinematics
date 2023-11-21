@@ -140,7 +140,7 @@ def MAGPI_kinemetry_parrallel(args):
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
         return
-    elif r50 < cutoff * res_cutoff:
+    elif r50/cutoff < res_cutoff:
         print(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.2f} pix, not resolved enough!\n")
         return
@@ -226,7 +226,7 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
-        sg = np.nanmean(kg_sigma.cf[:, 0])
+        sg = kg_sigma.cf[:, 0][-1]
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
         pa_g = kg_velo.pa
         q_g = kg_velo.q
@@ -275,7 +275,7 @@ def MAGPI_kinemetry_parrallel(args):
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-        ss = np.nanmean(ks_sigma.cf[:, 0])
+        ss = ks_sigma.cf[:, 0][-1]
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
         pa_s = ks_velo.pa
         q_s = ks_velo.q
@@ -342,7 +342,7 @@ def MAGPI_kinemetry_parrallel(args):
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
-                sg = np.nanmean(kg_sigma.cf[:, 0])
+                sg = kg_sigma.cf[:, 0][-1]
                 vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
                 pa_g = kg_velo.pa
                 q_g = kg_velo.q
@@ -385,7 +385,7 @@ def MAGPI_kinemetry_parrallel(args):
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-                ss = np.nanmean(ks_sigma.cf[:, 0])
+                ss = ks_sigma.cf[:, 0][-1]
                 vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
                 pa_s = ks_velo.pa
                 q_s = ks_velo.q
@@ -409,7 +409,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-        sg = np.nanmean(kg_sigma.cf[:, 0])
+        sg = kg_sigma.cf[:, 0][-1]
         vg = np.max(np.sqrt(kg_velo.cf[:, 1] ** 2 + kg_velo.cf[:, 2] ** 2))
         pa_g = kg_velo.pa
         q_g = kg_velo.q
@@ -419,7 +419,7 @@ def MAGPI_kinemetry_parrallel(args):
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[q - 0.1, q + 0.1], even=True)
 
-        ss = np.nanmean(ks_sigma.cf[:, 0])
+        ss = ks_sigma.cf[:, 0][-1]
         vs = np.max(np.sqrt(ks_velo.cf[:, 1] ** 2 + ks_velo.cf[:, 2] ** 2))
         pa_s = ks_velo.pa
         q_s = ks_velo.q
@@ -484,7 +484,7 @@ if __name__ == '__main__':
                            "SNR_s": results[9],
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_at_1re.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
 
     else:
@@ -514,6 +514,6 @@ if __name__ == '__main__':
                            "SNR_s": results[9],
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
-        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
+        df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_at_1re_no_err.csv",index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
     BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
