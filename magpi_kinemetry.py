@@ -56,7 +56,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 print(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, r50 = {r50[f]:.2f} pix, not resolved enough!\n")
                 continue
-            elif galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
+            elif galaxy == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
                 pa = pa - 90
