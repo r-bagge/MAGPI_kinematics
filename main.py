@@ -130,15 +130,15 @@ def MAGPI_kinemetry_parrallel(args):
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("MAGPI_Plots/plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
-    if z > 0.35:
-        print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
-        return
-    elif z < 0.28:
-        print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
-        return
-    elif quality < 3:
+    # if z > 0.35:
+    #     print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+    #     logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+    #     return
+    # elif z < 0.28:
+    #     print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+    #     logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+    #     return
+    if quality < 3:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
         return
@@ -502,28 +502,30 @@ if __name__ == '__main__':
             os.mkdir("MAGPI_Plots/plots/flux_velo_plots")
         stellar_gas_plots_vectorized(results[0])
 
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        file1 = file[file["MAGPIID"].isin(results[0])]
-        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
-
         df = pd.DataFrame({"MAGPIID": galaxies,
+                           "z":results[1],
                            "v_asym_g": GasAsym,
                            "v_asym_g_err": GasAsymErr,
                            "v_asym_s": StarsAsym,
                            "v_asym_s_err": StarsAsymErr,
-                           "PA_g": results[1],
-                           "PA_s": results[2],
-                           "D_PA": results[3],
-                           "V_rot_g": results[4],
-                           "V_rot_s": results[5],
-                           "Sigma_g": results[6],
-                           "Sigma_s": results[7],
-                           "SNR_g": results[8],
-                           "SNR_s": results[9],
+                           "PA_g": results[2],
+                           "PA_s": results[3],
+                           "D_PA": results[4],
+                           "V_rot_g": results[5],
+                           "V_rot_s": results[6],
+                           "Sigma_g": results[7],
+                           "Sigma_s": results[8],
+                           "SNR_g": results[9],
+                           "SNR_s": results[10],
+                           "re_over_psf":results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
 
     else:
         print("Beginning the easy part...")
@@ -539,25 +541,28 @@ if __name__ == '__main__':
             os.mkdir("MAGPI_Plots/plots/flux_velo_plots")
         stellar_gas_plots_vectorized(results[0])
 
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        file1 = file[file["MAGPIID"].isin(results[0])]
-        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         df = pd.DataFrame({"MAGPIID":results[0],
-                           "v_asym_g":results[10],
+                           "z": results[1],
+                           "v_asym_g":results[11],
                            "v_asym_g_err":np.zeros(len(results[10])),
-                           "v_asym_s":results[11],
+                           "v_asym_s":results[12],
                            "v_asym_s_err":np.zeros(len(results[11])),
-                           "PA_g": results[1],
-                           "PA_s": results[2],
-                           "D_PA": results[3],
-                           "V_rot_g": results[4],
-                           "V_rot_s": results[5],
-                           "Sigma_g": results[6],
-                           "Sigma_s": results[7],
-                           "SNR_g": results[8],
-                           "SNR_s": results[9],
+                           "PA_g": results[2],
+                           "PA_s": results[3],
+                           "D_PA": results[4],
+                           "V_rot_g": results[5],
+                           "V_rot_s": results[6],
+                           "Sigma_g": results[7],
+                           "Sigma_s": results[8],
+                           "SNR_g": results[9],
+                           "SNR_s": results[10],
+                           "re_over_psf": results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
+        file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
+
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-    BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv", n_re=0.5)

@@ -343,7 +343,7 @@ def BPT_plots(output_file, sample_file, n_re):
                 0.73 / (np.log10(OI_fluxes[i] / HA_fluxes[i]) + 0.59)):
             print(galaxies[i], "Seyfert!")
             sf_sy_ln[i] = 2
-            continue
+            pass
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (
                 0.61 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.05)) and np.log10(
             OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + (0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32)) and \
@@ -381,7 +381,7 @@ def BPT_plots(output_file, sample_file, n_re):
             print("Both saying LINER")
     print("All Done!")
 
-    print(len(galaxies),len(HA_fluxes),len(HA_err_fluxes),len(HB_fluxes),len(OI_fluxes),len(OIII_fluxes),len(NII_fluxes),len(SII_fluxes),len(sf_sy_ln),len(SII_bpt),len(SFR),len(SFR_err),len(re))
+    #print(len(galaxies),len(HA_fluxes),len(HA_err_fluxes),len(HB_fluxes),len(OI_fluxes),len(OIII_fluxes),len(NII_fluxes),len(SII_fluxes),len(sf_sy_ln),len(SII_bpt),len(SFR),len(SFR_err),len(re))
     df = pd.DataFrame({"MAGPIID": galaxies,
                        "Ha": HA_fluxes,
                        "Ha_err": HA_err_fluxes,
