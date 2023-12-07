@@ -471,7 +471,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         if gas_kin_pa == 999:
             gas_kin_pa = pa
             catch = +1
-        if catch == 2:
+        if catch == 3:
             print("Bad kin PAs")
             return
         starfile = fits.open(star_file)
@@ -531,7 +531,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 2 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -540,13 +540,13 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[0.4,1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, paq=np.array([pa, q]), allterms=True)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[0.4,1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, paq=np.array([pa, q]), allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            ks1 = ks1/np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            kg1 = kg1 / np.sin(np.arccos(q))
             pa_g = kg.pa[-1]
             pa_s = ks.pa[-1]
 
@@ -559,6 +559,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_xlabel("R [pix]")
             ax.legend()
             plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                        bbox_inches="tight")
+            plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
             starfile.close()
@@ -718,21 +720,20 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 2 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[0.4,1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, paq=np.array([pa, q]), allterms=True)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa-10,pa+10], rangeQ=[0.4,1], allterms=True,
-                           cover=0.95)
-
+                           bmodel=True, paq=np.array([pa, q]), allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            ks1 = ks1 / np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            kg1 = kg1 / np.sin(np.arccos(q))
             pa_g = kg.pa[-1]
             pa_s = ks.pa[-1]
 
@@ -745,6 +746,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_xlabel("R [pix]")
             ax.legend()
             plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                        bbox_inches="tight")
+            plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
             starfile.close()
@@ -881,16 +884,16 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 2 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[gas_pa-10,gas_pa+10], rangeQ=[0.4,1], allterms=True,
-                           cover=0.95)
+                           bmodel=True, paq=np.array([pa, q]), allterms=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
+            kg1 = kg1/np.sin(np.arccos(q))
             pa_g = kg.pa[-1]
             q_g = kg.q[-1]
 
@@ -901,6 +904,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_xlabel("R [pix]")
             ax.legend()
             plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                        bbox_inches="tight")
+            plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
             gasfile.close()
@@ -982,7 +987,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                          r"V [kms$^{-1}$]",
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                # plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
                 plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
                             bbox_inches="tight")
 
@@ -1037,15 +1042,15 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50
+        end = 2 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[stellar_pa-10,stellar_pa+10], rangeQ=[0.4,1], allterms=True,
-                       cover=0.95)
+                       bmodel=True, paq=np.array([pa, q]), allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+        ks1 = ks1 / np.sin(np.arccos(q))
         pa_s = ks.pa[-1]
 
         fig, ax = plt.subplots()
@@ -1055,6 +1060,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         ax.set_xlabel("R [pix]")
         ax.legend()
         plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+                    bbox_inches="tight")
+        plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                     bbox_inches="tight")
 
         starfile.close()
