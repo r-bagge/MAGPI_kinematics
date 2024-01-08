@@ -42,14 +42,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     for f in range(len(master)):
         field = str(galaxy[f])[:4]
         if sample is None:
-            # if z[f] > 0.35:
-            #     print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
-            #     logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-            #     continue
-            # elif z[f] < 0.28:
-            #     print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
-            #     logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
-            #     continue
+            if z[f] > 0.4:
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
+                continue
+            elif z[f] < 0.2:
+                print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!")
+                logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift not in range!\n")
+                continue
             if quality[f] < 3:
                 print(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!")
                 logfile.write(f"MAGPIID = {galaxy[f]}, z = {z[f]:.3f}, Redshift failed QC check!\n")
@@ -147,6 +147,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             fig, ax = plt.subplots()
             ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Gas")
             ax.plot(kg.rad, vrotg, zorder=1)
+            ax.scatter(kg.rad[vrotg == np.nanmax(vrotg)], vrotg[vrotg == np.nanmax(vrotg)], ec="k", label=r"V$_{max}$")
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
@@ -163,10 +164,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             sigmag = np.nanmean(kgs.cf[:, 0])
             gs05 = np.sqrt(0.5 * np.nanmax(vrotg) ** 2 + sigmag ** 2)
 
+            kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
+                                bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
+                                even=True)
+            rad = np.array([0.,0.1,r50[f]])
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[0.4, 1], allterms=True)
-            kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[q[f] - 0.1, q[f] + 0.1], even=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -280,6 +283,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
             ax.plot(ks.rad, vrots, zorder=1)
+            ax.scatter(ks.rad[vrots == np.nanmax(vrots)], vrots[vrots == np.nanmax(vrots)], ec="k", label=r"V$_{max}$",zorder=2)
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
@@ -288,11 +292,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             ss05 = np.sqrt(0.5 * np.nanmax(vrots) ** 2 + sigmas ** 2)
 
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[0.4, 1], allterms=True)
             ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True)
+
+            rad = np.array([0., 0.1, r50[f]])
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[0.4, 1], allterms=True)
+
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -432,6 +439,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     fig, ax = plt.subplots()
                     ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Stars")
                     ax.plot(kg.rad, vrotg, zorder=1)
+                    ax.scatter(kg.rad[vrotg == np.nanmax(vrotg)], vrotg[vrotg == np.nanmax(vrotg)], ec="k",
+                               label=r"V$_{max}$",zorder=2)
                     ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
                     ax.set_xlabel("R [pix]")
                     ax.legend()
@@ -440,11 +449,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     gs05 = np.sqrt(0.5 * np.nanmax(vrotg) ** 2 + sigmag ** 2)
 
-                    kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, rangePA=[pa[f]-10,pa[f]+10], rangeQ=[0.4,1], allterms=True)
                     kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                         bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                         even=True)
+
+                    rad = np.array([0., 0.1, r50[f]])
+
+                    kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                                   bmodel=True, rangePA=[pa[f]-10,pa[f]+10], rangeQ=[0.4,1], allterms=True)
 
                     kg1 = np.sqrt(kg.cf[:,1]**2 + kg.cf[:, 2] ** 2)
                     kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)
@@ -546,6 +558,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     fig, ax = plt.subplots()
                     ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
                     ax.plot(ks.rad, vrots, zorder=1)
+                    ax.scatter(ks.rad[vrots==np.nanmax(vrots)],vrots[vrots==np.nanmax(vrots)],ec="k",label=r"V$_{max}$",zorder=2)
                     ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
                     ax.set_xlabel("R [pix]")
                     ax.legend()
@@ -554,11 +567,14 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     ss05 = np.sqrt(0.5 * np.nanmax(vrots) ** 2 + sigmas ** 2)
 
-                    ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[0.4,1], allterms=True)
                     ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                         bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                         even=True)
+
+                    rad=np.array([0.,0.1,r50[f]])
+                    ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                                   bmodel=True, rangePA=[pa[f]-10, pa[f]+10], rangeQ=[0.4,1], allterms=True)
+
                     ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
                     ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
                     ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -646,6 +662,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
             ax.plot(ks.rad, vrots, zorder=1)
+            ax.scatter(ks.rad[vrots == np.nanmax(vrots)], vrots[vrots == np.nanmax(vrots)], ec="k", label=r"V$_{max}$",
+                       zorder=2)
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
@@ -653,13 +671,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                         bbox_inches="tight")
 
             ss05 = np.sqrt(0.5 * np.nanmax(vrots) ** 2 + sigmas ** 2)
-
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[0.4, 1], allterms=True)
-
             ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True)
+            rad = np.array([0.,0.1,r50[f]])
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[0.4, 1], allterms=True)
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
@@ -683,6 +700,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             fig, ax = plt.subplots()
             ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Stars")
+            ax.scatter(kg.rad[vrotg == np.nanmax(vrotg)], vrotg[vrotg == np.nanmax(vrotg)], ec="k", label=r"V$_{max}$",zorder=2)
             ax.plot(kg.rad, vrotg, zorder=1)
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
@@ -692,11 +710,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             gs05 = np.sqrt(0.5 * np.nanmax(vrotg) ** 2 + sigmag ** 2)
 
-            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[pa[f]-10,pa[f]+10], rangeQ=[0.4,1], allterms=True)
             kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                 bmodel=True, rangePA=[pa[f] - 10, pa[f] + 10], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                 even=True)
+            rad = np.array([0.,0.1,r50[f]])
+            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[pa[f]-10,pa[f]+10], rangeQ=[0.4,1], allterms=True)
 
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)

@@ -130,14 +130,14 @@ def MAGPI_kinemetry_parrallel(args):
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("MAGPI_Plots/plots/MAGPI" + field + "/MAGPI" + field + "_logfile.txt", "w")
-    # if z > 0.35:
-    #     print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-    #     logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
-    #     return
-    # elif z < 0.28:
-    #     print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
-    #     logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
-    #     return
+    if z > 0.4:
+        print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+        return
+    elif z < 0.2:
+        print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!")
+        logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift not in range!\n")
+        return
     if quality < 3:
         print(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!")
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift failed QC check!\n")
@@ -238,7 +238,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, paq=np.array([pa, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-        vrotg = vrotg / np.sin(np.arccos(q))
+        vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -249,6 +249,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
+        rad = np.array([0, 0.1, r50])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa-10,pa+10],rangeQ=[0.4,1], allterms=True)
 
@@ -305,7 +306,7 @@ def MAGPI_kinemetry_parrallel(args):
                        bmodel=True, paq=np.array([pa, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-        vrots = vrots / np.sin(np.arccos(q))
+        vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -316,6 +317,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
+        rad = np.array([0,0.1,r50])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -391,7 +393,7 @@ def MAGPI_kinemetry_parrallel(args):
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, paq=np.array([pa, q]), allterms=True)
                 vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-                vrotg = vrotg / np.sin(np.arccos(q))
+                vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
                 step = (0.65 / 2) / 0.2
                 start = (0.65 / 2) / 0.2 - step
@@ -402,6 +404,7 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, paq=np.array([pa, q]), even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
 
+                rad = np.array([0, 0.1, r50])
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -447,7 +450,7 @@ def MAGPI_kinemetry_parrallel(args):
                                bmodel=True, paq=np.array([pa, q]), allterms=True)
 
                 vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-                vrots = vrots / np.sin(np.arccos(q))
+                vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
 
                 step = (0.65 / 2) / 0.2
                 start = (0.65 / 2) / 0.2 - step
@@ -458,6 +461,7 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, paq=np.array([pa, q]), even=True)
                 ss = np.nanmean(ks_sigma.cf[:, 0])
 
+                rad = np.array([0, 0.1, r50])
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -483,7 +487,7 @@ def MAGPI_kinemetry_parrallel(args):
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, paq=np.array([pa, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
-        vrotg = vrotg / np.sin(np.arccos(q))
+        vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -494,6 +498,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
+        rad = np.array([0, 0.1, r50])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -505,7 +510,7 @@ def MAGPI_kinemetry_parrallel(args):
                        bmodel=True, paq=np.array([pa, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-        vrots = vrots / np.sin(np.arccos(q))
+        vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -516,6 +521,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
+        rad = np.array([0, 0.1, r50])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -523,7 +529,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -556,6 +562,9 @@ if __name__ == '__main__':
         if os.path.exists("MAGPI_Plots/plots/Gas_Stars_Ellipse"):
             shutil.rmtree("MAGPI_Plots/plots/Gas_Stars_Ellipse")
             os.mkdir("MAGPI_Plots/plots/Gas_Stars_Ellipse")
+        if os.path.exists("MAGPI_Plots/plots/rotation_curves"):
+            shutil.rmtree("MAGPI_Plots/plots/rotation_curves")
+            os.mkdir("MAGPI_Plots/plots/rotation_curves")
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=3, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
@@ -588,7 +597,7 @@ if __name__ == '__main__':
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_1re.csv", n_re=1.0)
 
     else:
         print("Beginning the easy part...")
