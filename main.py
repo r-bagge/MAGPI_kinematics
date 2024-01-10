@@ -249,7 +249,6 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
-        rad = np.array([0, 0.1, r50])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa-10,pa+10],rangeQ=[0.4,1], allterms=True)
 
@@ -404,7 +403,6 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, paq=np.array([pa, q]), even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
 
-                rad = np.array([0, 0.1, r50])
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -461,7 +459,6 @@ def MAGPI_kinemetry_parrallel(args):
                                      bmodel=True, paq=np.array([pa, q]), even=True)
                 ss = np.nanmean(ks_sigma.cf[:, 0])
 
-                rad = np.array([0, 0.1, r50])
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                     bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -498,7 +495,6 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
-        rad = np.array([0, 0.1, r50])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
@@ -521,7 +517,6 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
-        rad = np.array([0, 0.1, r50])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
 
