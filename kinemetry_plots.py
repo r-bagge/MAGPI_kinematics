@@ -374,6 +374,15 @@ def BPT_plots(output_file, sample_file, n_re):
         if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + 0.72 / (np.log10(SII_fluxes[i] / HA_fluxes[i]) - 0.32):
             SII_bpt[i] = 1
             #print(galaxies[i], "Star Forming!")
+    NII_bpt = np.zeros(len(HA_fluxes))
+    for i in range(len(HA_fluxes)):
+        if np.log10(OIII_fluxes[i] / HB_fluxes[i]) < 1.30 + 0.72 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.32):
+            NII_bpt[i] = 1
+        if np.log10(OIII_fluxes[i] / HB_fluxes[i]) > 1.30 + 0.72 / (np.log10(NII_fluxes[i] / HA_fluxes[i]) - 0.32):
+            NII_bpt[i] = 2
+        else:
+            NII_bpt[i] = 0
+                # print(galaxies[i], "Star Forming!")
     for k,h in zip(SII_bpt,sf_sy_ln):
         if k==2 and h==2:
             print("Both saying Seyfert")
@@ -392,6 +401,7 @@ def BPT_plots(output_file, sample_file, n_re):
                        "[SII]6718": SII_fluxes,
                        "type(sf+AGN=0, sf=1, sy=2, ln=3)": sf_sy_ln,
                        "type(sf=1, sy=2, ln=3) SII": SII_bpt,
+                       "type(sf=1, AGN>1) NII": NII_bpt,
                        "SFR": SFR,
                        "SFR_err": SFR_err,
                        "re, arcsec": re * 0.2,
