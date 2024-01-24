@@ -473,17 +473,19 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
         catch = 0
         if stellar_kin_pa == 999:
-            stellar_kin_pa = pa
-            catch=+1
+            print("Bad stellar kin PAs, fixing stellar kinPA to photPA")
+            stellar_kin_pa = 999
+            catch = +1
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
         gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
         if gas_kin_pa == 999:
-            gas_kin_pa = pa
+            print("Bad gas kin PAs, fixing gas kinPA to photPA")
+            gas_kin_pa = 999
             catch = +1
         if catch == 3:
-            print("Bad kin PAs")
-            return
+            print("Bad kin PAs, fixing both kinPAs to photPAs")
+
         starfile = fits.open(star_file)
         gasfile = fits.open(gas_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
@@ -541,7 +543,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 2 * r50
+            end = 1 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -549,10 +551,22 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
 
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
-            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+            if stellar_kin_pa == 999:
+                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, paq=np.array([pa, q]),
+                               allterms=True)
+            else:
+                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               allterms=True)
+            if gas_kin_pa == 999:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, paq=np.array([pa, q]),
+                               allterms=True)
+            else:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1/np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -730,16 +744,28 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 2 * r50
+            end = 1 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
 
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
-            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+            if stellar_kin_pa == 999:
+                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, paq=np.array([pa, q]),
+                               allterms=True)
+            else:
+                ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               allterms=True)
+            if gas_kin_pa == 999:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, paq=np.array([pa, q]),
+                               allterms=True)
+            else:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1 / np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -894,13 +920,27 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 2 * r50
+            end = 1 * r50
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
-            kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+            # if stellar_kin_pa == 999:
+            #     ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+            #                    bmodel=True, paq=np.array([pa, q]),
+            #                    allterms=True)
+            # else:
+            #     ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+            #                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+            #                    allterms=True)
+            if kin_pa == 999:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, paq=np.array([pa, q]),
+                               allterms=True)
+            else:
+                kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               allterms=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg1 = kg1/np.sin(np.arccos(q))
@@ -1052,13 +1092,27 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 2 * r50
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
-        ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+        if kin_pa == 999:
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, paq=np.array([pa, q]),
+                           allterms=True)
+        else:
+            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                           allterms=True)
+        # if gas_kin_pa == 999:
+        #     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+        #                    bmodel=True, paq=np.array([pa, q]),
+        #                    allterms=True)
+        # else:
+        #     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+        #                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+        #                    allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         ks1 = ks1 / np.sin(np.arccos(q))
         pa_s = ks.pa[-1]
