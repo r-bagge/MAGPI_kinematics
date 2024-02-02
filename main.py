@@ -50,7 +50,7 @@ def monte_carlo(args):
                 k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                               bmodel=True, paq=np.array([pa, q_s]), allterms=True)
             else:
-                k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_s,
+                k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                               bmodel=True, rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1],
                               allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
@@ -215,10 +215,10 @@ def MAGPI_kinemetry_parrallel(args):
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
             gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
         gasfile.close()
-        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_sigma_err = clean_images_velo(g_sigma_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_sigma_err = clean_images_velo(g_sigma_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
@@ -292,9 +292,9 @@ def MAGPI_kinemetry_parrallel(args):
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
-        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
-        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
-        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
+        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
 
         clip = np.nanmax(s_flux)
         y0, x0 = s_flux.shape
@@ -377,15 +377,15 @@ def MAGPI_kinemetry_parrallel(args):
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
-        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_err=s_flux)
-        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_err=s_flux)
-        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_err=s_flux)
+        s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
 
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
         gasfile.close()
 
-        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
@@ -573,7 +573,7 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, paq=np.array([pa, q]), even=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, paq=np.array([pa, q]), even=True)
-        ss = np.nanmean((ks_flux[:,0]*ks_sigma.cf[:, 0])/ks_flux.cf[:,0])
+        ss = np.nanmean((ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/ks_flux.cf[:,0])
 
         if stellar_kin_pa == 999:
             ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -587,7 +587,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()

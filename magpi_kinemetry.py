@@ -106,9 +106,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             gasfile = fits.open(gas_file)
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
             gasfile.close()
-            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
+            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
+            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
             g_flux = clean_images_flux(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
 
@@ -239,9 +239,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
             starfile.close()
 
-            s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
-            s_velo_err = clean_images_velo(s_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
-            s_sigma = clean_images_velo(s_sigma, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
+            s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
+            s_velo_err = clean_images_velo(s_velo_err, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
+            s_sigma = clean_images_velo(s_sigma, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
 
             clip = np.nanmax(s_flux)
             y0, x0 = s_flux.shape
@@ -383,17 +383,17 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
             starfile.close()
 
-            s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
-            s_velo_err = clean_images_velo(s_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
-            s_sigma = clean_images_velo(s_sigma, pa[f], r50[f], r50[f] * q[f], img_err=s_flux)
+            s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
+            s_velo_err = clean_images_velo(s_velo_err, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
+            s_sigma = clean_images_velo(s_sigma, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
 
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
                                                               gasfile[10].data, gasfile[11].data
             gasfile.close()
 
-            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
-            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
+            g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
+            g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
+            g_sigma = clean_images_velo(g_sigma, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
             g_flux = clean_images_flux(g_flux, pa[f], r50[f], r50[f] * q[f], img_err=g_flux / g_flux_err)
             g_flux = g_flux / g_flux_err
 
