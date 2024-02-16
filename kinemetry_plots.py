@@ -548,7 +548,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 1 * r50+step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -749,7 +749,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 1 * r50+step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -925,7 +925,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
-            end = 1 * r50
+            end = 1 * r50+step
             rad = np.arange(start, end, step)
             if len(rad) < n_ells:
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
