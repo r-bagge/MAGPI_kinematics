@@ -169,7 +169,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             if kin_pa==999:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1], allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0,360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
@@ -301,7 +301,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             if kin_pa == 999:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa[f]-90, q[f]]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                allterms=True)
             else:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -463,7 +463,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     if gas_kin_pa == 999:
                         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                       bmodel=True, paq=np.array([pa[f]-90, q[f]]),
+                                       bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                        allterms=True)
                     else:
                         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -584,7 +584,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     if stellar_kin_pa == 999:
                         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                       bmodel=True, paq=np.array([pa[f]-90, q[f]]),
+                                       bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                        allterms=True)
                     else:
                         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -693,7 +693,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             if stellar_kin_pa == 999:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa[f]-90, q[f]]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                allterms=True)
             else:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
@@ -736,7 +736,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             if gas_kin_pa == 999:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa[f]-90, q[f]]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q[f] - 0.1, q[f] + 0.1],
                                allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,

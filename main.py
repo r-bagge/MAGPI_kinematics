@@ -24,7 +24,7 @@ def monte_carlo(args):
             model += np.random.normal(loc=0, scale=g_img_err)
             if gas_kin_pa == 999:
                 k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
-                                    bmodel=True, paq=np.array([pa, q_g]), allterms=True)
+                                    bmodel=True, rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
             else:
                 k  = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                                     bmodel=True, rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1],
@@ -48,7 +48,7 @@ def monte_carlo(args):
             model += np.random.normal(loc=0, scale=s_img_err)
             if stellar_kin_pa == 999:
                 k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
-                              bmodel=True, paq=np.array([pa, q_s]), allterms=True)
+                              bmodel=True, rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
             else:
                 k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                               bmodel=True, rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1],
@@ -77,14 +77,14 @@ def monte_carlo(args):
 
             if stellar_kin_pa == 999:
                 ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
-                              bmodel=True, paq=np.array([pa, q_s]), allterms=True)
+                              bmodel=True, rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1], allterms=True)
             else:
                 ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                               bmodel=True, rangePA=[0, 360], rangeQ=[q_s - 0.1, q_s + 0.1],
                               allterms=True)
             if gas_kin_pa == 999:
                 kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
-                              bmodel=True, paq=np.array([pa, q_g]), allterms=True)
+                              bmodel=True, rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1], allterms=True)
             else:
                 kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                               bmodel=True, rangePA=[0, 360], rangeQ=[q_g - 0.1, q_g + 0.1],
@@ -272,7 +272,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         if kin_pa == 999:
             kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         else:
             kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -347,7 +347,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         if kin_pa == 999:
             ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         else:
             ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -441,7 +441,7 @@ def MAGPI_kinemetry_parrallel(args):
 
                 if gas_kin_pa == 999:
                     kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                                   bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 else:
                     kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -504,7 +504,7 @@ def MAGPI_kinemetry_parrallel(args):
 
                 if stellar_kin_pa == 999:
                     ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                   bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                                   bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
                 else:
                     ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -548,7 +548,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         if gas_kin_pa == 999:
             kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         else:
             kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -577,7 +577,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         if stellar_kin_pa == 999:
             ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
         else:
             ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -587,7 +587,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -649,7 +649,10 @@ if __name__ == '__main__':
                            "re_over_psf":results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
+        df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
+        df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        df.to_csv("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
@@ -688,6 +691,8 @@ if __name__ == '__main__':
                            "re_over_psf": results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
+        df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
+        df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv", index=False)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]

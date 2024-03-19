@@ -553,19 +553,19 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             if stellar_kin_pa == 999:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             else:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.01, q + 0.01],
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             if gas_kin_pa == 999:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.01, q + 0.01],
+                               bmodel=True, rrangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1/np.sin(np.arccos(q))
@@ -772,19 +772,19 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
 
             if stellar_kin_pa == 999:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             else:
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.01, q + 0.01],
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             if gas_kin_pa == 999:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.01, q + 0.01],
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1 / np.sin(np.arccos(q))
@@ -976,11 +976,11 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             #                    allterms=True)
             if kin_pa == 999:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]),
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.01, q + 0.01],
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -1160,7 +1160,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             return
         if kin_pa == 999:
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]),
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                            allterms=True)
         else:
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
