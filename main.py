@@ -240,7 +240,7 @@ def MAGPI_kinemetry_parrallel(args):
             return
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -260,7 +260,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
 
         kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
@@ -314,7 +314,7 @@ def MAGPI_kinemetry_parrallel(args):
             return
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -334,7 +334,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
 
         ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
@@ -514,7 +514,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
@@ -536,7 +536,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
 
         kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
@@ -566,7 +566,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
-        end = 1 * r50+step
+        end = 1 * r50
         rad = np.arange(start, end, step)
 
         ks_flux = kinemetry(img=s_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,

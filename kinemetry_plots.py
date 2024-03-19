@@ -565,7 +565,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                allterms=True)
             else:
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rrangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1/np.sin(np.arccos(q))
