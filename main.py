@@ -316,7 +316,6 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
-        rad = np.array([0,0.1,r50])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                             bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
@@ -524,7 +523,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = False
+    mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()

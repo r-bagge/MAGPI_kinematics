@@ -483,7 +483,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
         try:
-            gas_kin_pa = gas_pa.PA_stars.to_numpy()[0]
+            gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
         except IndexError:
             gas_kin_pa = 999
         if gas_kin_pa == 999:
