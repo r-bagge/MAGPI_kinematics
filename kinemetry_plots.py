@@ -472,14 +472,20 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         print("Has gas and stellar kinematics!")
         stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
         stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        try:
+            stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        except IndexError:
+            stellar_kin_pa=999
         catch = 0
         if stellar_kin_pa == 999:
             stellar_kin_pa = pa
             catch=+1
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        try:
+            gas_kin_pa = gas_pa.PA_stars.to_numpy()[0]
+        except IndexError:
+            gas_kin_pa = 999
         if gas_kin_pa == 999:
             gas_kin_pa = pa
             catch = +1
@@ -552,9 +558,9 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Doing kinemetry on stars and gas on "+str(galaxy)+"!")
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1/np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -739,9 +745,9 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 return
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks1 = ks1 / np.sin(np.arccos(q))
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
@@ -841,7 +847,10 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     elif os.path.exists(gas_file) and os.path.exists(star_file) == False:
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        try:
+            kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        except IndexError:
+            kin_pa=999
         if kin_pa == 999:
             kin_pa = pa
         print("Has gas kinematics but no stars!")
@@ -849,8 +858,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
             10].data, gasfile[11].data
-        g_velo = clean_images_velo(g_velo, kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
-        g_velo_err = clean_images_velo(g_velo_err, kin_pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
@@ -902,7 +911,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 print(f"{len(rad)} ellipse/s, Not enough ellipses!")
                 return
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, paq=np.array([pa, q]), allterms=True)
+                           bmodel=True, paq=np.array([pa-90, q]), allterms=True)
 
             kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
             kg1 = kg1/np.sin(np.arccos(q))
@@ -1031,7 +1040,10 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         print("Has stellar kinematics but no gas!")
         stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
         stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        try:
+            kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        except IndexError:
+            kin_pa = 999
         if kin_pa == 999:
             kin_pa = pa
         starfile = fits.open(star_file)
@@ -1060,7 +1072,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         ks1 = ks1 / np.sin(np.arccos(q))
         pa_s = ks.pa[-1]
