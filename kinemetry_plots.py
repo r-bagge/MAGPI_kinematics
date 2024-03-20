@@ -51,6 +51,8 @@ def clean_images_velo(img, pa, a, b, img_err=None,SNR=3, n_re=2):
                     new_img = np.nanmedian(new_img)
                     if np.isnan(new_img):
                         img[i,j]=np.nan
+                    elif np.count_nonzero(np.isnan(new_img))>4:
+                        img[i,j]=np.nan
                     else:
                         img[i, j] = new_img
     return img

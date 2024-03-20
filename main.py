@@ -23,7 +23,7 @@ def monte_carlo(args):
             model = g_img
             model += np.random.normal(loc=0, scale=g_img_err)
             k = kinemetry(img=model, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g, bmodel=True,
-                          rangePA=[pa_g-10,pa_g+10],rangeQ=[0.4,1], allterms=True)
+                          rangePA=[0,360],rangeQ=[q_g-0.1,q_g+0.1], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -42,7 +42,7 @@ def monte_carlo(args):
             model = s_img
             model += np.random.normal(loc=0, scale=s_img_err)
             k = kinemetry(img=model, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s, bmodel=True,
-                          rangePA=[pa_s-10,pa_s+10],rangeQ=[0.4,1], allterms=True)
+                          rangePA=[0,360],rangeQ=[q_s-0.1,q_s+0.1], allterms=True)
             k1 = np.sqrt(k.cf[:, 1] ** 2 + k.cf[:, 2] ** 2)
             k2 = np.sqrt(k.cf[:, 3] ** 2 + k.cf[:, 4] ** 2)
             k3 = np.sqrt(k.cf[:, 5] ** 2 + k.cf[:, 6] ** 2)
@@ -67,10 +67,10 @@ def monte_carlo(args):
 
             ks = kinemetry(img=s_model_2, x0=x0_s, y0=y0_s, ntrm=11, plot=False, verbose=False, radius=rad_s,
                            bmodel=True,
-                           rangePA=[pa_s-10,pa_s+10],rangeQ=[0.4,1], allterms=True)
+                           rangePA=[0,360],rangeQ=[q_s-0.1,q_s+0.1], allterms=True)
             kg = kinemetry(img=g_model_2, x0=x0_g, y0=y0_g, ntrm=11, plot=False, verbose=False, radius=rad_g,
                            bmodel=True,
-                           rangePA=[pa_g-10,pa_g+10],rangeQ=[0.4,1], allterms=True)
+                           rangePA=[0,360],rangeQ=[q_g-0.1,q_g+0.1], allterms=True)
             ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
             ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)
             ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)
@@ -236,7 +236,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
         vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
@@ -246,11 +246,11 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, paq=np.array([pa, q]), even=True)
+                             bmodel=True, paq=np.array([pa-90, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[pa-10,pa+10],rangeQ=[0.4,1], allterms=True)
+                            bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
         return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, n, 1, None, None, None, None, None, None, None, None, None, None
 
@@ -302,7 +302,7 @@ def MAGPI_kinemetry_parrallel(args):
         end = 2 * r50
         rad = np.arange(start, end, step)
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
@@ -313,12 +313,12 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, paq=np.array([pa, q]), even=True)
+                             bmodel=True, paq=np.array([pa-90, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
         rad = np.array([0,0.1,r50])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
+                            bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
         return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots
 
@@ -390,7 +390,7 @@ def MAGPI_kinemetry_parrallel(args):
                 rad = np.arange(start, end, step)
 
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]), allterms=True)
+                               bmodel=True, paq=np.array([pa-90, q]), allterms=True)
                 vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
                 vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
@@ -400,11 +400,11 @@ def MAGPI_kinemetry_parrallel(args):
                 rad = np.arange(start, end, step)
 
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, paq=np.array([pa, q]), even=True)
+                                     bmodel=True, paq=np.array([pa-90, q]), even=True)
                 sg = np.nanmean(kg_sigma.cf[:, 0])
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                    bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
+                                    bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
                 return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, n, 1, None, None, None, None, None, None, None, None, None, None
 
@@ -445,7 +445,7 @@ def MAGPI_kinemetry_parrallel(args):
                 end = 2 * r50
                 rad = np.arange(start, end, step)
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa, q]), allterms=True)
+                               bmodel=True, paq=np.array([pa-90, q]), allterms=True)
 
                 vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
                 vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
@@ -456,11 +456,11 @@ def MAGPI_kinemetry_parrallel(args):
                 rad = np.arange(start, end, step)
 
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                     bmodel=True, paq=np.array([pa, q]), even=True)
+                                     bmodel=True, paq=np.array([pa-90, q]), even=True)
                 ss = np.nanmean(ks_sigma.cf[:, 0])
 
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                                    bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
+                                    bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
                 return None, None, None, None, None, None, None, None, None, None, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots
 
@@ -482,7 +482,7 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
         vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q))
 
@@ -492,18 +492,18 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, paq=np.array([pa, q]), even=True)
+                             bmodel=True, paq=np.array([pa-90, q]), even=True)
         sg = np.nanmean(kg_sigma.cf[:, 0])
 
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
+                            bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
         end = 2 * r50
         rad = np.arange(start, end, step)
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
@@ -514,11 +514,11 @@ def MAGPI_kinemetry_parrallel(args):
         rad = np.arange(start, end, step)
 
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                             bmodel=True, paq=np.array([pa, q]), even=True)
+                             bmodel=True, paq=np.array([pa-90, q]), even=True)
         ss = np.nanmean(ks_sigma.cf[:, 0])
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                            bmodel=True, rangePA=[pa - 10, pa + 10], rangeQ=[0.4, 1], allterms=True)
+                            bmodel=True, rangePA=[0,360],rangeQ=[q-0.1,q+0.1], allterms=True)
 
         return kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots
 
