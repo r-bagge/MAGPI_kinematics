@@ -706,7 +706,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             gs05 = np.sqrt(0.5 * np.nanmax(vrotg) ** 2 + sigmag ** 2)
 
             kg_flux = kinemetry(img=g_flux, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
-                                bmodel=True, paq=np.array(pa[f],q[f]),
+                                bmodel=True, paq=np.array([pa[f],q[f]]),
                                 even=True)
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, rangePA=[0,360], rangeQ=[q[f]-0.1,q[f]+0.1], allterms=True)
