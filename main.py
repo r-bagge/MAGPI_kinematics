@@ -587,7 +587,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -649,8 +649,8 @@ if __name__ == '__main__':
                            "re_over_psf":results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
-        df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
-        df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
+        # df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
+        # df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         df.to_csv("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
@@ -691,8 +691,8 @@ if __name__ == '__main__':
                            "re_over_psf": results[13]
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
-        df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
-        df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
+        # df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
+        # df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv", index=False)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
