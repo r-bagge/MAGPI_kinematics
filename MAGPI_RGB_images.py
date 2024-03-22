@@ -49,11 +49,11 @@ def make_rgb_images(sample=None):
         ax.text(x=2.5,y=3,s=f"{10:.0f} kpc",color="w")
         ax.set_title(name)
         if not sample is None:
-            plt.savefig("MAGPI_mini-images/kinemetry_sample_RGB/" + name + ".pdf",bbox_inches="tight")
+            plt.savefig("kinemetry_sample_RGB/" + name + ".pdf",bbox_inches="tight")
         else:
-            plt.savefig("MAGPI_mini-images/RGB_Images/" + name + ".pdf", bbox_inches="tight")
+            plt.savefig("RGB_Images/" + name + ".pdf", bbox_inches="tight")
         print("Finishing " + name + "...")
     print("All Done!")
 
 
-make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv")
+make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")

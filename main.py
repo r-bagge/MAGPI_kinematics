@@ -14,6 +14,7 @@ from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
+from magpi_kinemetry import bar_flag
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, pa_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, pa_s, x0_s, y0_s, rad_s, ss, vs = args
@@ -188,7 +189,10 @@ def MAGPI_kinemetry_parrallel(args):
     if star_file_catch == False and gas_file_catch:
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        try:
+            kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        except IndexError:
+            kin_pa = 999
         if kin_pa == 999:
             kin_pa = pa
             print("Bad Gas PA, skipping")
@@ -258,7 +262,10 @@ def MAGPI_kinemetry_parrallel(args):
     if star_file_catch and gas_file_catch == False:
         stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
         stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        try:
+            kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        except IndexError:
+            kin_pa=999
         if kin_pa == 999:
             kin_pa = pa
             print('Bad Stellar Pa, skipping')
@@ -324,20 +331,26 @@ def MAGPI_kinemetry_parrallel(args):
     if star_file_catch and gas_file_catch:
         stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
         stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
-        catch = 0
+        try:
+            stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
+        except IndexError:
+            stellar_kin_pa = 999
         if stellar_kin_pa == 999:
             stellar_kin_pa = pa
             catch = +1
         gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
         gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        try:
+            gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
+        except IndexError:
+            gas_kin_pa=999
         if gas_kin_pa == 999:
             gas_kin_pa = pa
             catch = +1
+        catch = 3
         if catch == 3:
             print("Bad kin PAs")
-            return
+            pass
         starfile = fits.open(star_file)
         gasfile = fits.open(gas_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
@@ -586,6 +599,7 @@ if __name__ == '__main__':
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        bar_flag(df)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
@@ -625,6 +639,7 @@ if __name__ == '__main__':
                            })
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv",index=False)
+        bar_flag(df)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)

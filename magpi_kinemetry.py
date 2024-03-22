@@ -798,6 +798,198 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     return results
 
 
+def bar_flag(source_cat):
+    galxies = []
+    k2g = []
+    k2s = []
+    k3g = []
+    k3s = []
+    k4g = []
+    k4s = []
+    k5g = []
+    k5s = []
+    for i in range(len(source_cat.MAGPIID.to_numpy())):
+        galaxy = source_cat.MAGPIID.to_numpy()[i]
+        field = str(galaxy)[:4]
+        field = int(field)
+        csv_file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        csv_file = csv_file[csv_file.MAGPIID.isin([galaxy])]
+
+        z = csv_file["z"].to_numpy()[0]
+        pa = csv_file["ang_it"].to_numpy()[0]
+        q = csv_file["axrat_it"].to_numpy()[0]
+        re = csv_file["R50_it"].to_numpy()[0] / 0.2
+        galaxy = csv_file["MAGPIID"].to_numpy()[0]
+        vrots = source_cat.V_rot_s.to_numpy()[i]
+        sigmas = source_cat.Sigma_s.to_numpy()[i]
+        vrotg = source_cat.V_rot_g.to_numpy()[i]
+        sigmag = source_cat.Sigma_g.to_numpy()[i]
+
+        if np.isnan(source_cat.v_asym_g.to_numpy()[i]):
+            print("No gas file doing stellar asymmetry only")
+            starfile = fits.open("/Volumes/DS/MAGPI/MAGPI_Absorption_Lines/MAGPI" + str(field) + "/galaxies/" + str(
+                galaxy) + "_kinematics_ppxf-maps.fits")
+            y0, x0 = starfile[7].data.shape
+            y0, x0 = y0 / 2, x0 / 2
+            sflux = starfile[7].data
+            svelo = starfile[1].data
+            step = (0.65 / 2) / 0.2
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * re
+            rad = np.arange(start, end, step)
+            ks = kinemetry(img=svelo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)[-1]
+            ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)[-1]
+            ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)[-1]
+            ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)[-1]
+            ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)[-1]
+
+            ss05 = np.sqrt(0.5 * vrots ** 2 + sigmas ** 2)
+            vasyms = ks1 + ks2 + ks3 + ks4
+            print(galaxy)
+            galxies.append(galaxy)
+            k2s.append(ks2 / vasyms)
+            k2g.append(np.nan)
+            k3s.append(ks3 / vasyms)
+            k3g.append(np.nan)
+            k4s.append(ks4 / vasyms)
+            k4g.append(np.nan)
+            k5s.append(ks5 / vasyms)
+            k5g.append(np.nan)
+            continue
+        if np.isnan(source_cat.v_asym_s.to_numpy()[i]):
+            print("No stellar file doing gas asymmetry only")
+            gasfile = fits.open("/Volumes/DS/MAGPI/MAGPI_Emission_Lines/MAGPI" + str(field) + "/MAGPI" + str(
+                field) + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(galaxy) + "_GIST_EmissionLines.fits")
+            y0, x0 = gasfile[49].data.shape
+            y0, x0 = y0 / 2, x0 / 2
+            gflux = gasfile[49].data
+            gflux_err = gasfile[50].data
+            gvelo = gasfile[9].data
+            step = (0.65 / 2) / 0.2
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * re
+            rad = np.arange(start, end, step)
+            kg = kinemetry(img=gvelo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)[-1]
+            kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)[-1]
+            kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)[-1]
+            kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)[-1]
+            kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)[-1]
+
+            gs05 = np.sqrt(0.5 * vrotg ** 2 + sigmag ** 2)
+            vasymg = kg1 + kg2 + kg3 + kg4
+            print(galaxy)
+            galxies.append(galaxy)
+            k2s.append(np.nan)
+            k2g.append(kg2 / vasymg)
+            k3s.append(np.nan)
+            k3g.append(kg3 / vasymg)
+            k4s.append(np.nan)
+            k4g.append(kg4 / vasymg)
+            k5s.append(np.nan)
+            k5g.append(kg5 / vasymg)
+            continue
+        else:
+            print("Doing both stars and gas")
+            starfile = fits.open("/Volumes/DS/MAGPI/MAGPI_Absorption_Lines/MAGPI" + str(field) + "/galaxies/" + str(
+                galaxy) + "_kinematics_ppxf-maps.fits")
+            gasfile = fits.open("/Volumes/DS/MAGPI/MAGPI_Emission_Lines/MAGPI" + str(field) + "/MAGPI" + str(
+                field) + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(galaxy) + "_GIST_EmissionLines.fits")
+            y0, x0 = starfile[7].data.shape
+            y0, x0 = y0 / 2, x0 / 2
+
+            gflux = gasfile[49].data
+            gflux_err = gasfile[50].data
+            gvelo = gasfile[9].data
+
+            sflux = starfile[7].data
+            svelo = starfile[1].data
+
+            gvelo = clean_images_velo(gvelo, pa, re, re, gflux / gflux_err, 3, 2)
+            gflux = clean_images_flux(gflux, pa, re, re, gflux / gflux_err, 3, 2)
+
+            svelo = clean_images_velo(svelo, pa, re, re, sflux, 3, 2)
+            sflux = clean_images_flux(sflux, pa, re, re, sflux, 3, 2)
+
+            step = (0.65 / 2) / 0.2
+            start = (0.65 / 2) / 0.2 - step
+            end = 1 * re
+            rad = np.arange(start, end, step)
+            ks = kinemetry(img=svelo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+            kg = kinemetry(img=gvelo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1], allterms=True)
+
+            ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)[-1]
+            ks2 = np.sqrt(ks.cf[:, 3] ** 2 + ks.cf[:, 4] ** 2)[-1]
+            ks3 = np.sqrt(ks.cf[:, 5] ** 2 + ks.cf[:, 6] ** 2)[-1]
+            ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)[-1]
+            ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)[-1]
+
+            ss05 = np.sqrt(0.5 * vrots ** 2 + sigmas ** 2)
+            vasyms = ks1 + ks2 + ks3 + ks4
+
+            kg1 = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)[-1]
+            kg2 = np.sqrt(kg.cf[:, 3] ** 2 + kg.cf[:, 4] ** 2)[-1]
+            kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)[-1]
+            kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)[-1]
+            kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)[-1]
+
+            gs05 = np.sqrt(0.5 * vrotg ** 2 + sigmag ** 2)
+            vasymg = kg1 + kg2 + kg3 + kg4
+            print(galaxy)
+            galxies.append(galaxy)
+            k2s.append(ks2 / vasyms)
+            k2g.append(kg2 / vasymg)
+            k3s.append(ks3 / vasyms)
+            k3g.append(kg3 / vasymg)
+            k4s.append(ks4 / vasyms)
+            k4g.append(kg4 / vasymg)
+            k5s.append(ks5 / vasyms)
+            k5g.append(kg5 / vasymg)
+    galaxies = np.array(galxies)
+    k2s = np.array(k2s)
+    k2g = np.array(k2g)
+    k3s = np.array(k3s)
+    k3g = np.array(k3g)
+    k4s = np.array(k4s)
+    k4g = np.array(k4g)
+    k5s = np.array(k5s)
+    k5g = np.array(k5g)
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 8))
+    ax1.hist(k2s, label="Stars", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax1.hist(k2g, label="Gas", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax2.hist(k3s, label="Stars", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax2.hist(k3g, label="Gas", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax3.hist(k4s, label="Stars", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax3.hist(k4g, label="Gas", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax4.hist(k5s, label="Stars", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    ax4.hist(k5g, label="Gas", histtype="step", bins=np.arange(0, 1.1, 0.05))
+    for ax in [ax1, ax2, ax3, ax4]:
+        ax.vlines(0.25, ymin=0, ymax=35, ls="dashed", color="k")
+        ax.set_xlim(-0.05, 1.05)
+    ax1.set_xlabel(r"$k_2/(k_2+k_3+k_4+k_5)$")
+    ax2.set_xlabel(r"$k_3/(k_2+k_3+k_4+k_5)$")
+    ax3.set_xlabel(r"$k_4/(k_2+k_3+k_4+k_5)$")
+    ax4.set_xlabel(r"$k_5/(k_2+k_3+k_4+k_5)$")
+    ax.legend()
+    plt.savefig("MAGPI_Plots/plots/paper2/kn_vasym.pdf",bbox_inches='tight')
+
+    bars = galaxies[np.where(np.logical_or(k2s > 0.25, k2g > 0.25))[0]]
+    bar_flag = np.zeros_like(source_cat.MAGPIID.to_numpy())
+    for i in range(len(source_cat.MAGPIID.to_numpy())):
+        for j in range(len(bars)):
+            if source_cat.MAGPIID.to_numpy()[i] == bars[j]:
+                bar_flag[i] = 1
+    print(bar_flag)
+    source_cat["BarFlag"] = bar_flag
+    source_cat.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", index=False)
+
+
 
 
 
