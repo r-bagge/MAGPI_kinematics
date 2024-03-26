@@ -5,10 +5,14 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from astropy.cosmology import Planck18 as cosmo
 import astropy.units as u
+import os,shutil
 
 
 def make_rgb_images(sample=None):
     file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+    if os.path.exists("kinemetry_sample_RGB"):
+        shutil.rmtree("kinemetry_sample_RGB")
+    os.mkdir("kinemetry_sample_RGB")
     if not sample is None:
         sample = pd.read_csv(sample)
         file = file[file["MAGPIID"].isin(sample['MAGPIID'])]
@@ -56,4 +60,5 @@ def make_rgb_images(sample=None):
     print("All Done!")
 
 
-make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+#make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_bars_only.csv")
+make_rgb_images()

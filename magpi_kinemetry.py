@@ -972,6 +972,7 @@ def bar_flag(source_cat):
     for ax in [ax1, ax2, ax3, ax4]:
         ax.vlines(0.25, ymin=0, ymax=35, ls="dashed", color="k")
         ax.set_xlim(-0.05, 1.05)
+        ax.set_ylim(0,70)
     ax1.set_xlabel(r"$k_2/(k_2+k_3+k_4+k_5)$")
     ax2.set_xlabel(r"$k_3/(k_2+k_3+k_4+k_5)$")
     ax3.set_xlabel(r"$k_4/(k_2+k_3+k_4+k_5)$")
