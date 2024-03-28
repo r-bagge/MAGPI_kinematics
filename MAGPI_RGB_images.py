@@ -60,5 +60,6 @@ def make_rgb_images(sample=None):
     print("All Done!")
 
 
-#make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_bars_only.csv")
-make_rgb_images()
+make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_bars_only.csv")
+# make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+# make_rgb_images()

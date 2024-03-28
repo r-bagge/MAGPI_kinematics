@@ -808,6 +808,8 @@ def bar_flag(source_cat):
     k4s = []
     k5g = []
     k5s = []
+    npix_s = []
+    npix_g = []
     for i in range(len(source_cat.MAGPIID.to_numpy())):
         galaxy = source_cat.MAGPIID.to_numpy()[i]
         field = str(galaxy)[:4]
@@ -845,6 +847,10 @@ def bar_flag(source_cat):
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)[-1]
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)[-1]
 
+            npixs = ks.Nelem[-1]
+            npix_s.append(npixs)
+            npix_g.append(np.nan)
+
             ss05 = np.sqrt(0.5 * vrots ** 2 + sigmas ** 2)
             vasyms = ks1 + ks2 + ks3 + ks4
             print(galaxy)
@@ -878,6 +884,10 @@ def bar_flag(source_cat):
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)[-1]
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)[-1]
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)[-1]
+
+            npixs = kg.Nelem[-1]
+            npix_g.append(npixs)
+            npix_s.append(np.nan)
 
             gs05 = np.sqrt(0.5 * vrotg ** 2 + sigmag ** 2)
             vasymg = kg1 + kg2 + kg3 + kg4
@@ -929,6 +939,9 @@ def bar_flag(source_cat):
             ks4 = np.sqrt(ks.cf[:, 6] ** 2 + ks.cf[:, 7] ** 2)[-1]
             ks5 = np.sqrt(ks.cf[:, 8] ** 2 + ks.cf[:, 10] ** 2)[-1]
 
+            npixs = ks.Nelem[-1]
+            npix_s.append(npixs)
+
             ss05 = np.sqrt(0.5 * vrots ** 2 + sigmas ** 2)
             vasyms = ks1 + ks2 + ks3 + ks4
 
@@ -937,6 +950,9 @@ def bar_flag(source_cat):
             kg3 = np.sqrt(kg.cf[:, 5] ** 2 + kg.cf[:, 6] ** 2)[-1]
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)[-1]
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)[-1]
+
+            npixs = kg.Nelem[-1]
+            npix_g.append(npixs)
 
             gs05 = np.sqrt(0.5 * vrotg ** 2 + sigmag ** 2)
             vasymg = kg1 + kg2 + kg3 + kg4
@@ -988,6 +1004,8 @@ def bar_flag(source_cat):
                 bar_flag[i] = 1
     print(bar_flag)
     source_cat["BarFlag"] = bar_flag
+    source_cat["npix_s"] = npix_s
+    source_cat["npix_g"] = npix_g
     source_cat.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", index=False)
 
 

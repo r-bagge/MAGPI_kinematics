@@ -293,6 +293,7 @@ def BPT_plots(output_file, sample_file, n_re):
         lum_err = HA_err_flux * (4 * np.pi * DL ** 2)
         SFR.append(lum * 5.5e-42)
         SFR_err.append(lum_err * 5.5e-42)
+        DA = cosmo.angular_diameter_distance(z).to(u.kpc).value
 
         HA_fluxes.append(HA_flux)
         HA_err_fluxes.append(HA_err_flux)
@@ -302,7 +303,7 @@ def BPT_plots(output_file, sample_file, n_re):
         OI_fluxes.append(OI_flux)
         SII_fluxes.append(SII_flux)
         re.append(r50)
-        re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
+        re_DL.append(np.radians(r50 / 3600) * DA)
 
     HA_fluxes = np.array(HA_fluxes)
     HA_err_fluxes = np.array(HA_err_fluxes)
