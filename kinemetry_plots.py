@@ -619,8 +619,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 # ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
                 #                       height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
 
-                ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
-                ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
+                #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
+                #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -694,8 +694,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 #                       height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 ax1.set_ylabel("Stars")
                 ax4.set_ylabel("Gas")
-                ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
-                ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
+                #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
+                #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
                 for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
                                         [r"SNR", r"V [kms$^{-1}$]", r"$\sigma$ [kms$^{-1}$]",
                                          bright_line[:-2] + " [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
@@ -803,8 +803,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             #                       height=2 * r50 / q, angle=pa_s, fc="none", ec="magenta"))
             # ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
             #                       height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
-            ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
-            ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
+            #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
+            #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
             ax1.set_ylabel("Stars")
             ax4.set_ylabel("Gas")
             for p, ax, label in zip([p1, p2, p3, p4, p5, p6], [ax1, ax2, ax3, ax4, ax5, ax6],
@@ -882,7 +882,11 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Finding Brightest Line")
             max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
             max_line = max_line[max_line["MAGPIID"].isin([galaxy])]
-            bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            try:
+                bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            except IndexError:
+                print("Not Plotting or doing Kinemetry on " + str(galaxy) + " because its heinous looking\n")
+                return
             print("Brightest line is " + bright_line)
             bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
 
@@ -950,7 +954,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 # ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
                 #                       height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
-                ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
+                #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
                                         [r"SNR [H$_\alpha$]",
@@ -1002,7 +1006,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 # ax5.add_patch(Ellipse(xy=(x0, y0), width=2 * r50,
                 #                       height=2 * r50 / q, angle=pa_g, fc="none", ec="magenta"))
                 #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="w")
-                ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
+                #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="k")
                 ax4.set_ylabel("Gas")
                 for p, ax, label in zip([p4, p5, p6], [ax4, ax5, ax6],
                                         [bright_line[:-2] + r" [x10$^{-20}$ erg s$^{-1}$ cm$^{-2}$]",
@@ -1104,7 +1108,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         p2 = ax2.imshow(s_velo, origin="lower", cmap="RdYlBu", vmin=-220, vmax=220)
         p3 = ax3.imshow(s_sigma, origin="lower", cmap="copper", vmin=0, vmax=0.5 * np.nanmax(s_sigma))
         ax1.add_patch(Circle(xy=(pix, pix), radius=pix, fc="none", ec="k"))
-        ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
+        #ax2.scatter(ks.Xellip[1:], ks.Yellip[1:], s=1, c="k")
         #ax5.scatter(kg.Xellip[1:], kg.Yellip[1:], s=1, c="w")
         ax1.set_ylabel("Stars")
         for p, ax, label in zip([p1, p2, p3], [ax1, ax2, ax3],
