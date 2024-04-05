@@ -95,7 +95,7 @@ def monte_carlo(args):
 
 def monte_carlo_parallel(pars):
     g_model, g_img, g_img_err, q_g, pa_g, x0_g, y0_g, rad_g, sg, vg, n, catch, s_model, s_img, s_img_err, q_s, pa_s, x0_s, y0_s, rad_s, ss, vs = pars
-    cores = None
+    cores = 2
     if cores is None:
         cores = multiprocessing.cpu_count()
     print(f"Running {n} monte carlos on {cores} Cores!")
