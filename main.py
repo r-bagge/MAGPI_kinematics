@@ -605,7 +605,7 @@ if __name__ == '__main__':
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         stellar_gas_plots_vectorized(results[0])
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_1re.csv", n_re=1.0)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
 
     else:
         print("Beginning the easy part...")
@@ -646,4 +646,4 @@ if __name__ == '__main__':
 
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         stellar_gas_plots_vectorized(results[0])
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv", n_re=0.5)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05_no_err.csv", n_re=1)

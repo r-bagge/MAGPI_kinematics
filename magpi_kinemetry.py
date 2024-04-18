@@ -179,6 +179,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             vasym_g = kg2+kg3+kg4+kg5
             vasym_g = vasym_g/(4*gs05)
+            # vasym_g = kg5
+            # vasym_g = vasym_g / (1 * gs05)
             vasym_g = vasym_g[-1]
             gas_s05.append(vasym_g)
             star_s05.append(np.nan)
@@ -307,6 +309,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
+            # vasym_s = ks5
+            # vasym_s = vasym_s / (1 * ss05)
             vasym_s = vasym_s[-1]
             star_s05.append(vasym_s)
             gas_s05.append(np.nan)
@@ -463,6 +467,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     vasym_g = kg2+kg3+kg4+kg5
                     vasym_g = vasym_g / (4 * gs05)
+                    # vasym_g = kg5
+                    # vasym_g = vasym_g / (1 * gs05)
                     vasym_g = vasym_g[-1]
                     gas_s05.append(vasym_g)
                     star_s05.append(np.nan)
@@ -579,6 +585,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     vasym_s = ks2+ks3+ks4+ks5
                     vasym_s = vasym_s / (4 * ss05)
+                    # vasym_s = ks5
+                    # vasym_s = vasym_s / (1 * ss05)
                     vasym_s = vasym_s[-1]
                     star_s05.append(vasym_s)
                     gas_s05.append(np.nan)
@@ -725,6 +733,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             vasym_s = ks2 + ks3 + ks4 + ks5
             vasym_s = vasym_s / (4 * ss05)
+            # vasym_s = ks5
+            # vasym_s = vasym_s / (1 * ss05)
             vasym_s = vasym_s[-1]
             star_s05.append(vasym_s)
             v_rot_s.append(np.nanmax(vrots))
@@ -733,6 +743,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)
+            # vasym_g = kg5
+            # vasym_g = vasym_g / (1 * gs05)
             vasym_g = vasym_g[-1]
             gas_s05.append(vasym_g)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
