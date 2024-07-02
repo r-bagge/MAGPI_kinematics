@@ -1008,14 +1008,20 @@ def bar_flag(source_cat):
     ax.legend()
     plt.savefig("MAGPI_Plots/plots/paper2/kn_vasym.pdf",bbox_inches='tight')
 
-    bars = galaxies[np.where(np.logical_or(k2s > 0.25, k2g > 0.25))[0]]
-    bar_flag = np.zeros_like(source_cat.MAGPIID.to_numpy())
-    for i in range(len(source_cat.MAGPIID.to_numpy())):
-        for j in range(len(bars)):
-            if source_cat.MAGPIID.to_numpy()[i] == bars[j]:
-                bar_flag[i] = 1
-    print(bar_flag)
-    source_cat["BarFlag"] = bar_flag
+    barsk2 = galaxies[np.where(np.logical_or(k2s > 0.25, k2g > 0.25))[0]]
+    barsk3 = galaxies[np.where(np.logical_or(k3s > 0.25, k3g > 0.25))[0]]
+    bar_flagk2 = np.zeros_like(source_cat.GalaxyID.to_numpy())
+    bar_flagk3 = np.zeros_like(source_cat.GalaxyID.to_numpy())
+    for i in range(len(source_cat.GalaxyID.to_numpy())):
+        for j in range(len(barsk2)):
+            if source_cat.GalaxyID.to_numpy()[i] == barsk2[j]:
+                bar_flagk2[i] = 1
+    for i in range(len(source_cat.GalaxyID.to_numpy())):
+        for j in range(len(barsk3)):
+            if source_cat.GalaxyID.to_numpy()[i] == barsk3[j]:
+                bar_flagk3[i] = 1
+    source_cat["BarFlag_k2"] = bar_flagk2
+    source_cat["BarFlag_k3"] = bar_flagk3
     source_cat["npix_s"] = npix_s
     source_cat["npix_g"] = npix_g
     source_cat.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", index=False)

@@ -27,7 +27,7 @@ def make_rgb_images(sample=None):
         except FileNotFoundError:
             print("No mini image!")
             continue
-        DL = cosmo.luminosity_distance(z[i]).to(u.kpc).value
+        DL = cosmo.angular_diameter_distance(z[i]).to(u.kpc).value
         pix = (np.degrees(10/DL)*3600)/0.2
         print("Beginning "+name+"...")
         g = file["GDATA"].data
@@ -61,7 +61,7 @@ def make_rgb_images(sample=None):
 
 
 
-#make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_bars_only.csv")
-#make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
+# make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05_bars_only.csv")
+# make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_s05.csv")
 make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_gas_dom.csv")
-# make_rgb_images()
+#make_rgb_images()
