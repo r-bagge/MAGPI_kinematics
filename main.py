@@ -1,5 +1,4 @@
 import shutil
-
 import numpy as np
 from astropy.io import fits
 from astropy.cosmology import Planck18 as cosmo
@@ -179,8 +178,11 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    #star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    star_file = "MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy) + "_kinematics_ppxf-maps.fits"
+    # gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    #     galaxy) + "_GIST_EmissionLines.fits"
+    gas_file = "MAGPI_Maps/MAGPI"+field+"Emission_Line/MAGPI"+str(galaxy)+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
     if os.path.exists(star_file):
         star_file_catch = True
