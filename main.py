@@ -654,7 +654,7 @@ if __name__ == '__main__':
         # df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
         # df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
         df.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
-        df.to_csv("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
+        # df.to_csv("/Users/z5408076/Documents/OneDrive - UNSW/MAGPI_csv/MAGPI_kinemetry_sample_s05.csv",index=False)
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
