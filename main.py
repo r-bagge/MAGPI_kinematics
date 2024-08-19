@@ -278,7 +278,7 @@ def MAGPI_kinemetry_parrallel(args):
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                            allterms=True)
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, kin_pa, x0, y0, rad, sg, vrotg, pa, n, 1, None, None, None, None, None, None, None, None, None, None
+        return [kg_velo.velkin, g_velo, g_velo_err, q, kin_pa, x0, y0, rad, sg, vrotg, pa, n, 1, None, None, None, None, None, None, None, None, None, None]
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
@@ -353,7 +353,7 @@ def MAGPI_kinemetry_parrallel(args):
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                            allterms=True)
 
-        return None, None, None, None, None, None, None, None, None, None,pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, kin_pa, x0, y0, rad, ss, vrots
+        return [None, None, None, None, None, None, None, None, None, None,pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, kin_pa, x0, y0, rad, ss, vrots]
 
     if star_file_catch and gas_file_catch:
         stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
@@ -447,7 +447,7 @@ def MAGPI_kinemetry_parrallel(args):
                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                    allterms=True)
 
-                return kg_velo.velkin, g_velo, g_velo_err, q, gas_kin_pa, x0, y0, rad, sg, vrotg,pa, n, 1, None, None, None, None, None, None, None, None, None, None
+                return [kg_velo.velkin, g_velo, g_velo_err, q, gas_kin_pa, x0, y0, rad, sg, vrotg,pa, n, 1, None, None, None, None, None, None, None, None, None, None]
 
         g_clip = np.nanmax(g_flux)
         print(f"Max Gas SNR = {g_clip:.2f}...")
@@ -510,7 +510,7 @@ def MAGPI_kinemetry_parrallel(args):
                                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                                    allterms=True)
 
-                return None, None, None, None, None, None, None, None, None, None,pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, stellar_kin_pa, x0, y0, rad, ss, vrots
+                return [None, None, None, None, None, None, None, None, None, None,pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, stellar_kin_pa, x0, y0, rad, ss, vrots]
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -583,7 +583,7 @@ def MAGPI_kinemetry_parrallel(args):
                            bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                            allterms=True)
 
-        return kg_velo.velkin, g_velo, g_velo_err, q, gas_kin_pa, x0, y0, rad, sg, vrotg, pa, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, stellar_kin_pa, x0, y0, rad, ss, vrots
+        return [kg_velo.velkin, g_velo, g_velo_err, q, gas_kin_pa, x0, y0, rad, sg, vrotg, pa, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, stellar_kin_pa, x0, y0, rad, ss, vrots]
 
 
 if __name__ == '__main__':
