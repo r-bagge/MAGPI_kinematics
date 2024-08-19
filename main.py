@@ -605,6 +605,7 @@ if __name__ == '__main__':
         for i in range(len(file)):
             pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
             args = MAGPI_kinemetry_parrallel(pars)
+            print(args)
             if args is None:
                 continue
             mcs = monte_carlo_parallel(args)
