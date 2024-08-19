@@ -179,10 +179,10 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
     # star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
     # star_file = "MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy) + "_kinematics_ppxf-maps.fits"
-    r = requests.get("https://cloud.datacentral.org.au/teamdata/MAGPI/valueadded/StellarKinematics_v2.2.1/kinematic_maps_spaxels_4MOM_v2.2.1/"+galaxy+"_kinematics_ppxf-maps.fits",auth=("ryan-bagge", "cRuncH%%7991"))
-    with open("MAGPI_Absorption_Line/" + galaxy + '_starfile.fits', 'wb') as f:
+    r = requests.get("https://cloud.datacentral.org.au/teamdata/MAGPI/valueadded/StellarKinematics_v2.2.1/kinematic_maps_spaxels_4MOM_v2.2.1/"+str(galaxy)+"_kinematics_ppxf-maps.fits",auth=("ryan-bagge", "cRuncH%%7991"))
+    with open("MAGPI_Absorption_Line/" + str(galaxy) + '_starfile.fits', 'wb') as f:
         f.write(r.content)
-    star_file = "MAGPI_Absorption_Line/" + galaxy + '_starfile.fits'
+    star_file = "MAGPI_Absorption_Line/" + str(galaxy) + '_starfile.fits'
     # gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
     #     galaxy) + "_GIST_EmissionLines.fits"
     gas_file = "MAGPI_Emission_Line/MAGPI"+str(galaxy)+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
