@@ -634,7 +634,7 @@ if __name__ == '__main__':
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=3, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         if os.path.exists("MAGPI_Plots/plots/flux_velo_plots"):
             shutil.rmtree("MAGPI_Plots/plots/flux_velo_plots")
             os.mkdir("MAGPI_Plots/plots/flux_velo_plots")
@@ -665,7 +665,7 @@ if __name__ == '__main__':
         file1 = file[file["MAGPIID"].isin(df.MAGPIID)]
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-        stellar_gas_plots_vectorized(results[0])
+        # stellar_gas_plots_vectorized(results[0])
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_1re.csv", n_re=1.0)
 
     else:
@@ -676,7 +676,7 @@ if __name__ == '__main__':
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",
                                   n_ells=3, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        #stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         if os.path.exists("MAGPI_Plots/plots/flux_velo_plots"):
             shutil.rmtree("MAGPI_Plots/plots/flux_velo_plots")
             os.mkdir("MAGPI_Plots/plots/flux_velo_plots")
