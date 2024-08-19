@@ -296,6 +296,7 @@ def MAGPI_kinemetry_parrallel(args):
         starfile = fits.open(star_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
+        os.remove(star_file)
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
@@ -594,6 +595,8 @@ def MAGPI_kinemetry_parrallel(args):
 if __name__ == '__main__':
     mc = True
     if mc == True:
+        if os.path.exists("MAGPI_Absoprtion_Line"):
+            shutil.rmtree("MAGPI_Absorption_Line")
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
         pa = file["ang_it"].to_numpy()
