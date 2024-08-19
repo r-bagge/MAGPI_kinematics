@@ -36,6 +36,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     pa = master["ang_it"].to_numpy()
     quality = master["QOP"].to_numpy()
     galaxy = master["MAGPIID"].to_numpy()
+    print(z)
     DL = cosmo.luminosity_distance(z).to(u.kpc).value
     res_cutoff = 0.7/0.2
     cutoff = 1
