@@ -1,8 +1,6 @@
 import shutil
 import numpy as np
 from astropy.io import fits
-from astropy.cosmology import Planck18 as cosmo
-import astropy.units as u
 import pandas as pd
 import os
 from kinemetry import kinemetry
@@ -13,6 +11,7 @@ from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
+import requests
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, gas_kin_pa, x0_g, y0_g, rad_g, sg, vg, pa, n, catch, s_model, s_img, s_img_err, q_s, stellar_kin_pa, x0_s, y0_s, rad_s, ss, vs = args
@@ -178,11 +177,15 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    #star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    star_file = "MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy) + "_kinematics_ppxf-maps.fits"
+    # star_file = "MAGPI_Absorption_Lines/MAGPI" + field + "/galaxies/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    # star_file = "MAGPI_Maps/MAGPI"+field+"/Absorption_Line/"+str(galaxy) + "_kinematics_ppxf-maps.fits"
+    r = requests.get("https://cloud.datacentral.org.au/teamdata/MAGPI/valueadded/StellarKinematics_v2.2.1/kinematic_maps_spaxels_4MOM_v2.2.1/"+galaxy+"_kinematics_ppxf-maps.fits",auth=("ryan-bagge", "cRuncH%%7991"))
+    with open("MAGPI_Absoprtion_Line/" + galaxy + '_starfile.fits', 'wb') as f:
+        f.write(r.content)
+    star_file = "MAGPI_Absoprtion_Line/" + galaxy + '_starfile.fits'
     # gas_file = "MAGPI_Emission_Lines/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
     #     galaxy) + "_GIST_EmissionLines.fits"
-    gas_file = "MAGPI_Maps/MAGPI"+field+"Emission_Line/MAGPI"+str(galaxy)+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    gas_file = "MAGPI_Emission_Line/MAGPI"+str(galaxy)+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
     if os.path.exists(star_file):
         star_file_catch = True
