@@ -194,6 +194,7 @@ def MAGPI_kinemetry_parrallel(args):
         print("No gas kinematics!")
         logfile.write("No gas kinematics!\n")
         gas_file_catch = False
+    print(star_file_catch,gas_file_catch)
 
     # Check to see if there is neither gas or star data
     if star_file_catch == False and gas_file_catch == False:
