@@ -178,7 +178,7 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
     star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_4MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Line/MAGPI"+str(galaxy)+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    gas_file = "MAGPI_Emission_Line/MAGPI"+field+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(star_file):
