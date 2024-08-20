@@ -194,7 +194,6 @@ def MAGPI_kinemetry_parrallel(args):
         print("No gas kinematics!")
         logfile.write("No gas kinematics!\n")
         gas_file_catch = False
-    print(star_file_catch,gas_file_catch)
 
     # Check to see if there is neither gas or star data
     if star_file_catch == False and gas_file_catch == False:
@@ -607,8 +606,6 @@ if __name__ == '__main__':
             args = MAGPI_kinemetry_parrallel(pars)
             if args is None:
                 continue
-            else:
-                print(len(args))
             mcs = monte_carlo_parallel(args)
             galaxies.append(galaxy[i])
             print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
