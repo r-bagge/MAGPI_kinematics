@@ -187,14 +187,14 @@ def BPT_plots(output_file, sample_file, n_re):
     for g in galaxies:
         print("Beginning MAGPI" + str(g) + "...")
         csv_file = pd.read_csv(
-            "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[:4] + "_source_catalogue.csv", skiprows=16)
+            "MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         csv_file = csv_file[csv_file["MAGPIID"].isin([g])]
         z = csv_file["z"].to_numpy()[0]
         r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
         q = csv_file["axrat_it"].to_numpy()[0]
         pa = csv_file["ang_it"].to_numpy()[0]
         DL = cosmo.luminosity_distance(z).to(u.kpc).value
-        file = "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
+        file = "MAGPI_Emission_Line/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
                                                                       :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             g) + "_GIST_EmissionLines.fits"
         if os.path.exists(file):
@@ -213,7 +213,7 @@ def BPT_plots(output_file, sample_file, n_re):
             re.append(r50)
             re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
             continue
-        file = "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
+        file = "MAGPI_Emission_Line/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
                                                                       :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             g) + "_GIST_EmissionLines.fits"
         fits_file = fits.open(file)
@@ -241,12 +241,12 @@ def BPT_plots(output_file, sample_file, n_re):
         NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err)
         SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err)
 
-        if os.path.exists("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
-            shutil.rmtree("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
-        os.mkdir("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
+        if os.path.exists("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
+            shutil.rmtree("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
+        os.mkdir("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
 
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
-                             "/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
+                             "MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
 
         HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err,n_re=n_re)
         HA_err = clean_images_flux(flux_Ha_err, pa, r50, r50 * q)
@@ -258,7 +258,7 @@ def BPT_plots(output_file, sample_file, n_re):
 
         fig, ax = plt.subplots()
         ax.imshow(flux_Ha,origin="lower")
-        plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "check.pdf",
+        plt.savefig("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "check.pdf",
                     bbox_inches='tight')
 
         if not bpt_map == None:
@@ -266,7 +266,7 @@ def BPT_plots(output_file, sample_file, n_re):
             p = ax.imshow(bpt_map)
             cbar = plt.colorbar(p, ax=ax, ticks=[1, 2, 3])
             cbar.ax.set_yticklabels(["HII", "Seyfert", "LINER"])
-            plt.savefig("/Volumes/DS/MAGPI/MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
+            plt.savefig("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "bpt_map.pdf")
 
         # HA_flux = aperture_photometry(HA,pa,r50,r50 * q,n_re)
         # HA_err_flux = aperture_photometry(HA_err, pa,r50,r50 * q,n_re)
@@ -451,7 +451,7 @@ def BPT_plots(output_file, sample_file, n_re):
 def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     field_name = str(galaxy)[:4]
     csv_file = pd.read_csv(
-        "MAGPI_Emission_Lines/MAGPI" + str(field_name) + "/MAGPI" + str(field_name) + "_source_catalogue.csv",
+        "MAGPI_csv/MAGPI_master_source_catalogue.csv",
         skiprows=16)
     csv_file = csv_file[csv_file['MAGPIID'].isin([galaxy])]
     z = csv_file["z"].to_numpy()[0]
@@ -461,9 +461,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     DL = cosmo.luminosity_distance(z).to(u.kpc).value
     pix = np.radians(0.33 / 3600) * DL
 
-    star_file = "MAGPI_Absorption_Lines/MAGPI" + field_name + "/galaxies/" + str(
-        galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Lines/MAGPI" + field_name + "/MAGPI" + field_name + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_4MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    gas_file = "MAGPI_Emission_Line/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(gas_file) and os.path.exists(star_file):
@@ -582,8 +581,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
-            plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
-                        bbox_inches="tight")
+            # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+            #             bbox_inches="tight")
             plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
@@ -683,7 +682,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
             else:
                 s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, \
@@ -756,7 +755,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
 
 
@@ -801,8 +800,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
-            plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
-                        bbox_inches="tight")
+            # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+            #             bbox_inches="tight")
             plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
@@ -871,8 +870,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                      r"$\sigma$ [kms$^{-1}$]"]):
                 plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
             plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
-            plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
-                        bbox_inches="tight")
+            # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+            #             bbox_inches="tight")
 
             hdr = fits.Header()
             hdr["COMMENT"] = '========================================================================'
@@ -899,7 +898,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             hdr["BUNIT"] = None
 
             out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7, hdu8, hdu9, hdu10])
-            out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+            out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                         overwrite=True)
 
 
@@ -994,8 +993,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             ax.set_ylabel(r"V$_{rot}$ [kms$^{-1}$]")
             ax.set_xlabel("R [pix]")
             ax.legend()
-            plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
-                        bbox_inches="tight")
+            # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_Vrot.pdf",
+            #             bbox_inches="tight")
             plt.savefig("MAGPI_Plots/plots/rotation_curves/" + str(galaxy) + "_Vrot.pdf",
                         bbox_inches="tight")
 
@@ -1047,8 +1046,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
                 plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
-                plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
-                            bbox_inches="tight")
+                # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                #             bbox_inches="tight")
 
                 hdr = fits.Header()
                 hdr["COMMENT"] = '========================================================================'
@@ -1070,7 +1069,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
 
             else:
@@ -1098,9 +1097,9 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                          r"V [kms$^{-1}$]",
                                          r"$\sigma$ [kms$^{-1}$]"]):
                     plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
-                # plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
-                plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
-                            bbox_inches="tight")
+                plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
+                # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+                #             bbox_inches="tight")
 
                 hdr = fits.Header()
                 hdr["COMMENT"] = '========================================================================'
@@ -1122,7 +1121,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 hdr["BUNIT"] = None
 
                 out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-                out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+                out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                             overwrite=True)
 
 
@@ -1233,8 +1232,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                                  r"$\sigma$ [kms$^{-1}$]"]):
             plt.colorbar(p, ax=ax, label=label, pad=0, fraction=0.047, location="top")
         plt.savefig("MAGPI_Plots/plots/flux_velo_plots/" + str(galaxy) + "_fluxplots.pdf", bbox_inches="tight")
-        plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
-                    bbox_inches="tight")
+        # plt.savefig("MAGPI_Plots/plots/MAGPI" + field_name + "/flux_plots/" + str(galaxy) + "_fluxplots.pdf",
+        #             bbox_inches="tight")
 
         hdr = fits.Header()
         hdr["COMMENT"] = '========================================================================'
@@ -1256,5 +1255,5 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         hdr["BUNIT"] = None
 
         out = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5])
-        out.writeto("MAGPI_Plots/plots/MAGPI" + field_name + "/fits_files/" + str(galaxy) + "_stellar_kinemetry.fits",
+        out.writeto("MAGPI_Plots/MAGPI_Plots/fitsfiles/" + str(galaxy) + "_stellar_kinemetry.fits",
                     overwrite=True)
