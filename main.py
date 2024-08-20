@@ -605,9 +605,10 @@ if __name__ == '__main__':
         for i in range(len(file)):
             pars = [galaxy[i], pa[i], q[i], z[i], re[i], quality[i]]
             args = MAGPI_kinemetry_parrallel(pars)
-            print(len(args))
             if args is None:
                 continue
+            else:
+                print(len(args))
             mcs = monte_carlo_parallel(args)
             galaxies.append(galaxy[i])
             print(f"Gas Asym={np.nanmean(mcs[0]):.2f}")
