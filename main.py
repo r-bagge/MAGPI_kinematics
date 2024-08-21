@@ -11,7 +11,6 @@ from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
-import requests
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, gas_kin_pa, x0_g, y0_g, rad_g, sg, vg, pa, n, catch, s_model, s_img, s_img_err, q_s, stellar_kin_pa, x0_s, y0_s, rad_s, ss, vs = args
@@ -188,13 +187,6 @@ def MAGPI_kinemetry_parrallel(args):
 
     # Gas kinemetry
     if star_file_catch == False and gas_file_catch:
-        # gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
-        # gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        # kin_pa = gas_pa.PA_gas.to_numpy()[0]
-        # if kin_pa == 999:
-        #     kin_pa = pa
-        #     print("Bad Gas PA, skipping")
-        #     pass
         gasfile = fits.open(gas_file)
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
             gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
@@ -261,13 +253,6 @@ def MAGPI_kinemetry_parrallel(args):
 
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
-        # stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
-        # stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        # kin_pa = stellar_pa.PA_stars.to_numpy()[0]
-        # if kin_pa == 999:
-        #     kin_pa = 999
-        #     print('Bad Stellar Pa, fixing kinPA to photPA')
-        #     pass
         starfile = fits.open(star_file)
         s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
@@ -331,25 +316,9 @@ def MAGPI_kinemetry_parrallel(args):
         return [None, None, None, None, None, None, None, None, None, None, pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots]
 
     if star_file_catch and gas_file_catch:
-        # stellar_pa = pd.read_csv("MAGPI_csv/MAGPI_stellar_PA.csv")
-        # stellar_pa = stellar_pa[stellar_pa.ID.isin([galaxy])]
-        # stellar_kin_pa = stellar_pa.PA_stars.to_numpy()[0]
-        # catch = 0
-        # if stellar_kin_pa == 999:
-        #     stellar_kin_pa = 999
-        #     catch = +1
-        # gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
-        # gas_pa = gas_pa[gas_pa.ID.isin([galaxy])]
-        # gas_kin_pa = gas_pa.PA_gas.to_numpy()[0]
-        # if gas_kin_pa == 999:
-        #     gas_kin_pa = 999
-        #     catch = +1
-        # if catch == 3:
-        #     print("Bad kin PAs")
-        #     return
         starfile = fits.open(star_file)
         gasfile = fits.open(gas_file)
-        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
@@ -585,7 +554,6 @@ if __name__ == '__main__':
         results = MAGPI_kinemetry(source_cat="MAGPI_csv/MAGPI_master_source_catalogue.csv",sample=galaxies,
                                   n_ells=3, SNR_Star=3, SNR_Gas=20)
         print("Beginning the second easy part...")
-        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         if os.path.exists("MAGPI_Plots/plots/flux_velo_plots"):
             shutil.rmtree("MAGPI_Plots/plots/flux_velo_plots")
             os.mkdir("MAGPI_Plots/plots/flux_velo_plots")
@@ -625,7 +593,8 @@ if __name__ == '__main__':
         if os.path.exists("MAGPI_Plots/plots/kinemetry_model_plots"):
             shutil.rmtree("MAGPI_Plots/plots/kinemetry_model_plots")
             os.mkdir("MAGPI_Plots/plots/kinemetry_model_plots")
-        # stellar_gas_plots_vectorized(results[0])
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
 
     else:
