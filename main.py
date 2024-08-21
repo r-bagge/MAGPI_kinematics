@@ -607,6 +607,9 @@ if __name__ == '__main__':
                            "SNR_s": results[10],
                            "re_over_psf":results[13]
                            })
+        print(len(galaxies),len(GasAsym),len(GasAsymErr),len(StarsAsym),len(StarsAsymErr))
+        for i in results:
+            print(len(i))
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         # df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
         # df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
