@@ -98,12 +98,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
         # Gas kinemetry
         if star_file_catch==False and gas_file_catch:
-            gas_pa = pd.read_csv("MAGPI_csv/MAGPI_gas_PA.csv")
-            gas_pa = gas_pa[gas_pa.ID.isin([galaxy[f]])]
-            kin_pa = gas_pa.PA_gas.to_numpy()[0]
-            if kin_pa == 999:
-                print('Bad Gas Pa, fixing kinPa to photPA')
-                kin_pa=999
             gasfile = fits.open(gas_file)
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
             gasfile.close()
