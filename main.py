@@ -127,7 +127,7 @@ def MAGPI_kinemetry_parrallel(args):
     res_cutoff = 0.7 / 0.2
     cutoff = 1
     n_ells = 3
-    n = 100
+    n = 500
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("MAGPI_Plots/logfile.txt", "w")
