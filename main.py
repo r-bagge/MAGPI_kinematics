@@ -607,9 +607,9 @@ if __name__ == '__main__':
                            "SNR_s": results[10],
                            "re_over_psf":results[13]
                            })
-        print(len(galaxies),len(GasAsym),len(GasAsymErr),len(StarsAsym),len(StarsAsymErr))
-        for i in results:
-            print(len(i))
+        # print(len(galaxies),len(GasAsym),len(GasAsymErr),len(StarsAsym),len(StarsAsymErr))
+        # for i in results:
+        #     print(len(i))
         df = df[~df["MAGPIID"].isin(df[(np.isnan(df.v_asym_s)) & (np.isnan(df.v_asym_g))]["MAGPIID"])]
         # df.loc[np.isnan(df.v_asym_g), 'v_asym_g'] = 3e-3
         # df.loc[np.isnan(df.v_asym_s), 'v_asym_s'] = 3e-3
@@ -626,7 +626,7 @@ if __name__ == '__main__':
             shutil.rmtree("MAGPI_Plots/plots/kinemetry_model_plots")
             os.mkdir("MAGPI_Plots/plots/kinemetry_model_plots")
         # stellar_gas_plots_vectorized(results[0])
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_1re.csv", n_re=1.0)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
 
     else:
         print("Beginning the easy part...")
