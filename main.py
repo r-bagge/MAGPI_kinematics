@@ -161,7 +161,7 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, z = {z:.3f}, Redshift passed!\n")
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
-    star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_4MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_2MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
     gas_file = "MAGPI_Emission_Line/MAGPI"+field+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
@@ -254,7 +254,7 @@ def MAGPI_kinemetry_parrallel(args):
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
         starfile = fits.open(star_file)
-        s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
@@ -318,7 +318,7 @@ def MAGPI_kinemetry_parrallel(args):
     if star_file_catch and gas_file_catch:
         starfile = fits.open(star_file)
         gasfile = fits.open(gas_file)
-        s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
