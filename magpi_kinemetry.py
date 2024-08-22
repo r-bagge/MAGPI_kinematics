@@ -221,7 +221,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
         # Stellar kinemetry
         if star_file_catch and gas_file_catch==False:
             starfile = fits.open(star_file)
-            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+            s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
             starfile.close()
 
             s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)
@@ -342,7 +342,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
         if star_file_catch and gas_file_catch:
             starfile = fits.open(star_file)
             gasfile = fits.open(gas_file)
-            s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+            s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
             starfile.close()
 
             s_velo = clean_images_velo(s_velo, pa[f], r50[f], r50[f] * q[f], img_flux=s_flux,limit=3)

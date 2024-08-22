@@ -254,7 +254,7 @@ def MAGPI_kinemetry_parrallel(args):
     # Stellar kinemetry
     if star_file_catch and gas_file_catch == False:
         starfile = fits.open(star_file)
-        s_flux, s_velo, s_velo_err, s_sigma = starfile[7].data, starfile[1].data, starfile[3].data, starfile[4].data
+        s_flux, s_velo, s_velo_err, s_sigma = starfile[13].data, starfile[1].data, starfile[3].data, starfile[4].data
         starfile.close()
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
