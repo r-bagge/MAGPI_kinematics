@@ -33,44 +33,51 @@ def list_flat(old_list, new_list):
 
 
 def clean_images_velo(img, pa, a, b, img_flux,limit,n_re=2):
+    img_masked = np.zeros_like(img)
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
     pa = np.radians(pa)
+    img_masked[0, :] = np.nan
+    img_masked[:, 0] = np.nan
     for i in range(0,len(img[:, 0])):
         for j in range(0,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > n_re**2:
-                img[i, j] = np.nan
-            if side1+side2<n_re**2:
-                if img_flux[i,j]<limit and i < (len(img[:,0]) - 1) and j < (len(img[0,:])-1) and i > 1 and j > 1:
+                img_masked[i, j] = np.nan
+            else:
+                if img_flux[i,j] < limit and i < (len(img[:,0]) - 1) and j < (len(img[0,:])-1) and i > 1 and j > 1:
                     new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
                     if np.count_nonzero(np.isnan(new_img))>4:
-                        img[i,j]=np.nan
+                        img_masked[i,j]=np.nan
                     if np.isnan(np.nanmedian(new_img)):
-                        img[i,j]=np.nan
+                        img_masked[i,j]=np.nan
                     else:
-                        img[i,j]=np.nanmedian(new_img)
+                        img_masked[i,j]=np.nanmedian(new_img)
     return img
 
 
-def clean_images_flux(img, pa, a, b, img_err=None, SNR=3,n_re=2):
+def clean_images_flux(img, pa, a, b, img_err=None, SNR=3, n_re=2):
+    img_masked = np.zeros_like(img)
     y0, x0 = img.shape
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
     pa = np.radians(pa)
-    img[0,:] = np.nan
-    img[:,0] = np.nan
-    for i in range(1,len(img[:, 0])):
-        for j in range(1,len(img[0, :])):
+    img_masked[0, :] = np.nan
+    img_masked[:, 0] = np.nan
+    for i in range(1, len(img[:, 0])):
+        for j in range(1, len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
-            if side1 + side2 > n_re**2:
-                img[i, j] = np.nan
-            if img_err is not None and abs(img_err[i, j]) < SNR:
-                img[i, j] = np.nan
-    return img
+            if side1 + side2 > n_re ** 2:
+                img_masked[i, j] = np.nan
+            else:
+                if img_err is not None and abs(img_err[i, j]) < SNR:
+                    img_masked[i, j] = np.nan
+                else:
+                    img_masked[i,j]=img[i,j]
+    return img_masked
 
 
 def aperture_photometry(map, pa, a, b, n_re=2):
