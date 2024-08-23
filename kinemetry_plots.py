@@ -55,7 +55,7 @@ def clean_images_velo(img, pa, a, b, img_flux,limit,n_re=2):
                         img_masked[i,j]=np.nan
                     else:
                         img_masked[i,j]=np.nanmedian(new_img)
-    return img
+    return img_masked
 
 
 def clean_images_flux(img, pa, a, b, img_err=None, SNR=3, n_re=2):
