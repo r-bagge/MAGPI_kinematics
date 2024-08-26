@@ -94,7 +94,7 @@ def monte_carlo(args):
 
 def monte_carlo_parallel(pars):
     g_model, g_img, g_img_err, q_g, gas_kin_pa, x0_g, y0_g, rad_g, sg, vg,pa, n, catch, s_model, s_img, s_img_err, q_s, stellar_kin_pa, x0_s, y0_s, rad_s, ss, vs = pars
-    cores = None
+    cores = 3
     if cores is None:
         cores = multiprocessing.cpu_count()
     print(f"Running {n} monte carlos on {cores} Cores!")
@@ -126,7 +126,7 @@ def MAGPI_kinemetry_parrallel(args):
     res_cutoff = 0.7 / 0.2
     cutoff = 1
     n_ells = 3
-    n = 500
+    n = 100
     SNR_Gas = 20
     SNR_Star = 3
     logfile = open("MAGPI_Plots/logfile.txt", "w")
