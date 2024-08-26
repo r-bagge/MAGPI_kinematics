@@ -201,9 +201,7 @@ def BPT_plots(output_file, sample_file, n_re):
         q = csv_file["axrat_it"].to_numpy()[0]
         pa = csv_file["ang_it"].to_numpy()[0]
         DL = cosmo.luminosity_distance(z).to(u.kpc).value
-        file = "MAGPI_Emission_Line/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
-                                                                      :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
-            g) + "_GIST_EmissionLines.fits"
+        file = "MAGPI_Emission_Line/MAGPI"+str(g)[:4]+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(g) + "_GIST_EmissionLines.fits"
         if os.path.exists(file):
             pass
         else:
@@ -245,12 +243,12 @@ def BPT_plots(output_file, sample_file, n_re):
         NII = clean_images_flux(NII, pa, r50, r50 * q, img_err=NII / NII_err)
         SII = clean_images_flux(SII, pa, r50, r50 * q, img_err=SII / SII_err)
 
-        if os.path.exists("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots"):
-            shutil.rmtree("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
-        os.mkdir("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots")
+        if os.path.exists("MAGPI_Plots/plots/BPT_plots"):
+            shutil.rmtree("MAGPI_Plots/plots/BPT_plots")
+        os.mkdir("MAGPI_Plots/plots/BPT_plots")
 
         bpt_map = BPT_pixels(HA, NII, OI, OIII, HB, SII, pa, r50, r50 * q,
-                             "MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g))
+                             "MAGPI_Plots/plots/BPT_plots/" + str(g))
 
         HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err,n_re=n_re)
         HA_err = clean_images_flux(flux_Ha_err, pa, r50, r50 * q)
@@ -262,7 +260,7 @@ def BPT_plots(output_file, sample_file, n_re):
 
         fig, ax = plt.subplots()
         ax.imshow(flux_Ha,origin="lower")
-        plt.savefig("MAGPI_Plots/plots/MAGPI" + str(g)[:4] + "/BPT_plots/" + str(g) + "check.pdf",
+        plt.savefig("MAGPI_Plots/plots/BPT_plots/" + str(g) + "check.pdf",
                     bbox_inches='tight')
 
         if not bpt_map == None:
