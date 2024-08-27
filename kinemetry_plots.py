@@ -38,24 +38,26 @@ def clean_images_velo(img, pa, a, b, img_flux,limit,n_re=2):
     y0, x0 = y0 / 2, x0 / 2
     pa = pa - 90
     pa = np.radians(pa)
-    img_masked[0, :] = np.nan
-    img_masked[:, 0] = np.nan
+    img[0, :] = np.nan
+    img[:, 0] = np.nan
     for i in range(0,len(img[:, 0])):
         for j in range(0,len(img[0, :])):
             side1 = (((j - x0) * np.cos(pa)) + ((i - y0) * np.sin(pa))) ** 2 / (a ** 2)
             side2 = (((j - x0) * np.sin(pa)) - ((i - y0) * np.cos(pa))) ** 2 / (b ** 2)
             if side1 + side2 > n_re**2:
-                img_masked[i, j] = np.nan
+                img[i, j] = np.nan
             else:
                 if img_flux[i,j] < limit and i < (len(img[:,0]) - 1) and j < (len(img[0,:])-1) and i > 1 and j > 1:
                     new_img = [img[i-1,j-1],img[i-1,j],img[i-1,j+1],img[i,j-1],img[i,j+1],img[i+1,j-1],img[i+1,j],img[i+1,j+1]]
                     if np.count_nonzero(np.isnan(new_img))>4:
-                        img_masked[i,j]=np.nan
+                        img[i,j]=np.nan
                     if np.isnan(np.nanmedian(new_img)):
-                        img_masked[i,j]=np.nan
+                        img[i,j]=np.nan
                     else:
-                        img_masked[i,j]=np.nanmedian(new_img)
-    return img_masked
+                        img[i,j]=np.nanmedian(new_img)
+                else:
+                    img[i,j] = img[i,j]
+    return img
 
 
 def clean_images_flux(img, pa, a, b, img_err=None, SNR=3, n_re=2):
@@ -893,7 +895,12 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Finding Brightest Line")
             max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
             max_line = max_line[max_line["MAGPIID"].isin([galaxy])]
-            bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            try:
+                bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            except IndexError:
+                print("Not in MAX LINE cat, skipping")
+                return
+
             print("Brightest line is " + bright_line)
             bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
 
@@ -1095,22 +1102,9 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         if len(rad) < n_ells:
             print(f"{len(rad)} ellipse/s, Not enough ellipses!")
             return
-        if kin_pa == 999:
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
-                           allterms=True)
-        else:
-            ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                           bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
-                           allterms=True)
-        # if gas_kin_pa == 999:
-        #     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-        #                    bmodel=True, paq=np.array([pa, q]),
-        #                    allterms=True)
-        # else:
-        #     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-        #                    bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
-        #                    allterms=True)
+        ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
+                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                       allterms=True)
         ks1 = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         ks1 = ks1 / np.sin(np.arccos(q))
         pa_s = ks.pa[-1]

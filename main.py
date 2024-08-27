@@ -191,9 +191,9 @@ def MAGPI_kinemetry_parrallel(args):
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
             gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
         gasfile.close()
-        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err, limit=3)
         g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
-        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_flux=g_flux / g_flux_err, limit=3)
         g_sigma_err = clean_images_velo(g_sigma_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
@@ -323,13 +323,13 @@ def MAGPI_kinemetry_parrallel(args):
 
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
-        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
+        s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux, limit=3)
 
         g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
         gasfile.close()
 
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
-        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
+        g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux= g_flux / g_flux_err,limit=3)
         g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
         g_flux = g_flux / g_flux_err
 
@@ -514,7 +514,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -593,8 +593,8 @@ if __name__ == '__main__':
         if os.path.exists("MAGPI_Plots/plots/kinemetry_model_plots"):
             shutil.rmtree("MAGPI_Plots/plots/kinemetry_model_plots")
             os.mkdir("MAGPI_Plots/plots/kinemetry_model_plots")
-        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        stellar_gas_plots_vectorized(results[0])
+        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        # stellar_gas_plots_vectorized(results[0])
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
 
     else:
@@ -635,6 +635,6 @@ if __name__ == '__main__':
         file1.to_csv("MAGPI_csv/MAGPI_kinemetry_sample_source_catalogue.csv", index=False)
 
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
-        # stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
-        # stellar_gas_plots_vectorized(results[0])
+        stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
+        stellar_gas_plots_vectorized(results[0])
         BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1)
