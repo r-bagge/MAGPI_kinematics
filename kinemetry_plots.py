@@ -504,7 +504,11 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Finding Brightest Line")
             max_line = pd.read_csv("MAGPI_csv/MAGPI_Emission_Max_Line.csv")
             max_line = max_line[max_line["MAGPIID"].isin([galaxy])]
-            bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            try:
+                bright_line = max_line["MAX_LINE"].to_numpy()[0]
+            except IndexError:
+                print("Not in MAAX_Line Cat, skipping")
+                return
             print("Brightest line is " + bright_line)
             bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
 
