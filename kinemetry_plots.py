@@ -211,7 +211,7 @@ def BPT_plots(output_file, sample_file, n_re):
             SFR.append(np.nan)
             SFR_err.append(np.nan)
             re.append(r50)
-            re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
+            re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc))
             continue
         file = "MAGPI_Emission_Lines/MAGPI" + str(g)[:4] + "/MAGPI" + str(g)[
                                                                       :4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
@@ -300,7 +300,7 @@ def BPT_plots(output_file, sample_file, n_re):
         OI_fluxes.append(OI_flux)
         SII_fluxes.append(SII_flux)
         re.append(r50)
-        re_DL.append(np.radians(r50 / 3600) * DL * u.cm.to(u.kpc))
+        re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc))
 
     HA_fluxes = np.array(HA_fluxes)
     HA_err_fluxes = np.array(HA_err_fluxes)

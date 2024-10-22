@@ -56,4 +56,4 @@ def make_rgb_images(sample=None):
     print("All Done!")
 
 
-make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample.csv")
+make_rgb_images(sample="MAGPI_csv/MAGPI_kinemetry_sample_gas_dom.csv")
