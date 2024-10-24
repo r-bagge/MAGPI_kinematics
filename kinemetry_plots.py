@@ -304,7 +304,7 @@ def BPT_plots(output_file, sample_file, n_re):
         OI_fluxes.append(OI_flux)
         SII_fluxes.append(SII_flux)
         re.append(r50)
-        re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc))
+        re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc).value)
 
     HA_fluxes = np.array(HA_fluxes)
     HA_err_fluxes = np.array(HA_err_fluxes)
