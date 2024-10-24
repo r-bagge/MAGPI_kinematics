@@ -514,7 +514,7 @@ def MAGPI_kinemetry_parrallel(args):
 
 
 if __name__ == '__main__':
-    mc = True
+    mc = False
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
         z = file["z"].to_numpy()
@@ -637,4 +637,4 @@ if __name__ == '__main__':
         print(f"Final sample is {len(df):.0f} out of {len(file):.2f}")
         stellar_gas_plots_vectorized = np.vectorize(stellar_gas_plots)
         stellar_gas_plots_vectorized(results[0])
-        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1)
+        BPT_plots("MAGPI_csv/MAGPI_kinemetry_sample_s05_BPT.csv", "MAGPI_csv/MAGPI_kinemetry_sample_s05.csv", n_re=1.0)
