@@ -78,8 +78,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             pass
         star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_2MOM_v2.2.1/" + str(
             galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "MAGPI_Emission_Line/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+        gas_file = "MAGPI_Emission_Line/MAGPI"+field+"/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             galaxy[f]) + "_GIST_EmissionLines.fits"
+        #print(gas_file)
         if os.path.exists(star_file):
             star_file_catch = True
         else:
