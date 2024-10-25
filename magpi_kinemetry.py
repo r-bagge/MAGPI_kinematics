@@ -174,6 +174,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             kg4 = np.sqrt(kg.cf[:, 6] ** 2 + kg.cf[:, 7] ** 2)
             kg5 = np.sqrt(kg.cf[:, 8] ** 2 + kg.cf[:, 10] ** 2)
 
+            g_velo = g_velo - np.nanmedian(g_velo)
             ny, nx = g_velo.shape
             mx_img = np.max(g_velo.shape)
             x = (np.arange(0, nx))
@@ -182,7 +183,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             xbin = xx.ravel() - np.median(xx.ravel())
             ybin = yy.ravel() - np.median(yy.ravel())
             gas_moment = g_velo.ravel()
-            gas_moment = gas_moment - np.median(gas_moment)
+            xbin = xbin[~np.isnan(gas_moment)]
+            ybin = ybin[~np.isnan(gas_moment)]
+            gas_moment = gas_moment[~np.isnan(gas_moment)]
             pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
             pa_g = pa_g
             pa_s = np.nan
@@ -312,6 +315,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             vasym_s = vasym_s / (4 * ss05)
             vasym_s = vasym_s[-1]
 
+            s_velo = s_velo - np.nanmedian(s_velo)
             ny, nx = s_velo.shape
             mx_img = np.max(s_velo.shape)
             x = (np.arange(0, nx))
@@ -320,7 +324,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             xbin = xx.ravel() - np.median(xx.ravel())
             ybin = yy.ravel() - np.median(yy.ravel())
             star_moment = s_velo.ravel()
-            star_moment = star_moment - np.median(star_moment)
+            xbin = xbin[~np.isnan(star_moment)]
+            ybin = ybin[~np.isnan(star_moment)]
+            star_moment = star_moment[~np.isnan(star_moment)]
             pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
 
             pa_g = np.nan
@@ -462,6 +468,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     vasym_g = vasym_g / (4 * gs05)
                     vasym_g = vasym_g[-1]
 
+                    g_velo = g_velo - np.nanmedian(g_velo)
                     ny, nx = g_velo.shape
                     mx_img = np.max(g_velo.shape)
                     x = (np.arange(0, nx))
@@ -470,7 +477,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     xbin = xx.ravel() - np.median(xx.ravel())
                     ybin = yy.ravel() - np.median(yy.ravel())
                     gas_moment = g_velo.ravel()
-                    gas_moment = gas_moment - np.median(gas_moment)
+                    xbin = xbin[~np.isnan(gas_moment)]
+                    ybin = ybin[~np.isnan(gas_moment)]
+                    gas_moment = gas_moment[~np.isnan(gas_moment)]
                     pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
                     pa_g = pa_g
                     pa_s = np.nan
@@ -588,15 +597,18 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     vasym_s = vasym_s / (4 * ss05)
                     vasym_s = vasym_s[-1]
 
+                    s_velo = s_velo - np.nanmedian(s_velo)
                     ny, nx = s_velo.shape
-                    mx_img = np.max(s_velo.shape)
+                    mx_img = np.max(g_velo.shape)
                     x = (np.arange(0, nx))
                     y = (np.arange(0, ny))
                     xx, yy = np.meshgrid(x, y)
                     xbin = xx.ravel() - np.median(xx.ravel())
                     ybin = yy.ravel() - np.median(yy.ravel())
                     star_moment = s_velo.ravel()
-                    star_moment = star_moment - np.median(star_moment)
+                    xbin = xbin[~np.isnan(star_moment)]
+                    ybin = ybin[~np.isnan(star_moment)]
+                    star_moment = gas_moment[~np.isnan(gas_moment)]
                     pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
                     pa_g = np.nan
                     pa_s = pa_s
@@ -749,6 +761,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             vasym_g = vasym_g / (4 * gs05)
             vasym_g = vasym_g[-1]
 
+            g_velo = g_velo - np.nanmedian(g_velo)
             ny, nx = g_velo.shape
             mx_img = np.max(g_velo.shape)
             x = (np.arange(0, nx))
@@ -757,18 +770,23 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             xbin = xx.ravel() - np.median(xx.ravel())
             ybin = yy.ravel() - np.median(yy.ravel())
             gas_moment = g_velo.ravel()
-            gas_moment = gas_moment - np.median(gas_moment)
+            xbin = xbin[~np.isnan(gas_moment)]
+            ybin = ybin[~np.isnan(gas_moment)]
+            gas_moment = gas_moment[~np.isnan(gas_moment)]
             pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
 
+            s_velo = s_velo - np.nanmedian(s_velo)
             ny, nx = s_velo.shape
-            mx_img = np.max(s_velo.shape)
+            mx_img = np.max(g_velo.shape)
             x = (np.arange(0, nx))
             y = (np.arange(0, ny))
             xx, yy = np.meshgrid(x, y)
             xbin = xx.ravel() - np.median(xx.ravel())
             ybin = yy.ravel() - np.median(yy.ravel())
             star_moment = s_velo.ravel()
-            star_moment = star_moment - np.median(star_moment)
+            xbin = xbin[~np.isnan(star_moment)]
+            ybin = ybin[~np.isnan(star_moment)]
+            star_moment = gas_moment[~np.isnan(star_moment)]
             pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
 
             pa_g = pa_g
