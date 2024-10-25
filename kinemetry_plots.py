@@ -218,7 +218,7 @@ def BPT_plots(output_file, sample_file, n_re):
             SFR.append(np.nan)
             SFR_err.append(np.nan)
             re.append(r50)
-            re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc))
+            re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc).value)
             continue
         fits_file = fits.open(file)
         flux_Ha = fits_file[49].data
@@ -467,7 +467,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     pix = np.radians(0.33 / 3600) * DL
 
     star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_2MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Line/MAGPI" + str(galaxy)[:4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    gas_file = "MAGPI_Emission_Line/MAGPI"+str(galaxy)[:4]+"/MAGPI" + str(galaxy)[:4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(gas_file) and os.path.exists(star_file):
