@@ -608,7 +608,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     star_moment = s_velo.ravel()
                     xbin = xbin[~np.isnan(star_moment)]
                     ybin = ybin[~np.isnan(star_moment)]
-                    star_moment = gas_moment[~np.isnan(gas_moment)]
+                    star_moment = star_moment[~np.isnan(star_moment)]
                     pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
                     pa_g = np.nan
                     pa_s = pa_s
@@ -786,7 +786,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             star_moment = s_velo.ravel()
             xbin = xbin[~np.isnan(star_moment)]
             ybin = ybin[~np.isnan(star_moment)]
-            star_moment = gas_moment[~np.isnan(star_moment)]
+            star_moment = star_moment[~np.isnan(star_moment)]
             pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
 
             pa_g = pa_g
