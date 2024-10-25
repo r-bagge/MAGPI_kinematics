@@ -203,7 +203,7 @@ def BPT_plots(output_file, sample_file, n_re):
         q = csv_file["axrat_it"].to_numpy()[0]
         pa = csv_file["ang_it"].to_numpy()[0]
         DL = cosmo.luminosity_distance(z).to(u.kpc).value
-        file = "MAGPI_Emission_Line/MAGPI"+str(g)[:4]+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(g) + "_GIST_EmissionLines.fits"
+        file = "MAGPI_Emission_Line/MAGPI"+str(g)[:4]+"/MAGPI"+str(g)[:4]+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(g) + "_GIST_EmissionLines.fits"
         if os.path.exists(file):
             pass
         else:
