@@ -244,7 +244,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
-        sg = np.nanmean((kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/kg_flux.cf[:,0])
+        sg = np.nansum(kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:,0])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                        allterms=True)
@@ -308,7 +308,7 @@ def MAGPI_kinemetry_parrallel(args):
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
 
-        ss = np.nanmean((ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/ks_flux.cf[:.0])
+        ss = np.nansum(ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:.0])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                        allterms=True)
@@ -381,7 +381,7 @@ def MAGPI_kinemetry_parrallel(args):
 
                 kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, paq=np.array([pa-90, q]), even=True)
-                sg = np.nanmean((kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/kg_flux.cf[:,0])
+                sg = np.nansum(kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:,0])
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -440,7 +440,7 @@ def MAGPI_kinemetry_parrallel(args):
                                     bmodel=True, paq=np.array([pa-90, q]), even=True)
                 ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                                      bmodel=True, paq=np.array([pa-90, q]), even=True)
-                ss = np.nanmean((ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/ks_flux.cf[:,0])
+                ss = np.nansum(ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:,0])
 
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
@@ -480,7 +480,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         kg_sigma = kinemetry(img=g_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
-        sg = np.nanmean((kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/kg_flux.cf[:,0])
+        sg = np.nansum(kg_flux.cf[:,0]*kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:,0])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
                        allterms=True)
@@ -504,7 +504,7 @@ def MAGPI_kinemetry_parrallel(args):
                             bmodel=True, paq=np.array([pa-90, q]), even=True)
         ks_sigma = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
-        ss = np.nanmean((ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/ks_flux.cf[:,0])
+        ss = np.nansum(ks_flux.cf[:,0]*ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:,0])
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                        bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
