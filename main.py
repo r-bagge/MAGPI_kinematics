@@ -236,7 +236,7 @@ def MAGPI_kinemetry_parrallel(args):
         q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
         if q1 < 0.2 or np.isnan(q1):
             q1 = 0.2
-        vrotg = vrotg / np.sin(np.arccos(q1))
+        vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q1))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -300,7 +300,11 @@ def MAGPI_kinemetry_parrallel(args):
                        bmodel=True, paq=np.array([pa-90, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
-        vrots = np.nanmax(vrots) / np.sin(np.arccos(q))
+        q0 = 0.2
+        q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
+        if q1 < 0.2 or np.isnan(q1):
+            q1 = 0.2
+        vrots = np.nanmax(vrots) / np.sin(np.arccos(q1))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -378,7 +382,7 @@ def MAGPI_kinemetry_parrallel(args):
                 q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
                 if q1 < 0.2 or np.isnan(q1):
                     q1 = 0.2
-                vrotg = vrotg / np.sin(np.arccos(q1))
+                vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q1))
 
                 step = (0.65 / 2) / 0.2
                 start = (0.65 / 2) / 0.2 - step
@@ -443,7 +447,7 @@ def MAGPI_kinemetry_parrallel(args):
                 q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
                 if q1 < 0.2 or np.isnan(q1):
                     q1 = 0.2
-                vrots = vrots / np.sin(np.arccos(q1))
+                vrots = np.nanmax(vrots) / np.sin(np.arccos(q1))
 
                 step = (0.65 / 2) / 0.2
                 start = (0.65 / 2) / 0.2 - step
@@ -486,7 +490,7 @@ def MAGPI_kinemetry_parrallel(args):
         q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
         if q1 < 0.2 or np.isnan(q1):
             q1 = 0.2
-        vrotg = vrotg / np.sin(np.arccos(q1))
+        vrotg = np.nanmax(vrotg) / np.sin(np.arccos(q1))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
@@ -515,7 +519,7 @@ def MAGPI_kinemetry_parrallel(args):
         q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
         if q1 < 0.2 or np.isnan(q1):
             q1 = 0.2
-        vrots = vrots / np.sin(np.arccos(q1))
+        vrots = np.nanmax(vrots) / np.sin(np.arccos(q1))
 
         step = (0.65 / 2) / 0.2
         start = (0.65 / 2) / 0.2 - step
