@@ -37,9 +37,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     pa = master["ang_it"].to_numpy()
     quality = master["QOP"].to_numpy()
     galaxy = master["MAGPIID"].to_numpy()
-    DL = cosmo.luminosity_distance(z).to(u.kpc).value
-    res_cutoff = 0.7/0.2
+    res_cutoff = 0.7 / 0.2
     cutoff = 1
+
     for f in range(len(master)):
         field = str(galaxy[f])[:4]
         if sample is None:
@@ -62,7 +62,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             elif galaxy[f] == int("1207128248") or galaxy[f] == int("1506117050") or galaxy[f] == int("1207197197"):
                 print(f"MAGPIID = {galaxy[f]}, fixing PA")
                 logfile.write(f"MAGPIID = {galaxy[f]}, fixing PA\n")
-                pa = pa - 90
+                pa[f] = pa[f] - 90
             elif galaxy[f] == int("1501180123") or galaxy[f] == int("1502293058") or galaxy[f] == int("1203152196"):
                 print(f"Piece of Shit")
                 logfile.write(f"Piece of Shit\n")
@@ -80,7 +80,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             galaxy[f]) + "_kinematics_ppxf-maps.fits"
         gas_file = "MAGPI_Emission_Line/MAGPI"+field+"/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
             galaxy[f]) + "_GIST_EmissionLines.fits"
-        #print(gas_file)
         if os.path.exists(star_file):
             star_file_catch = True
         else:
@@ -100,6 +99,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
         # Gas kinemetry
         if star_file_catch==False and gas_file_catch:
+
             gasfile = fits.open(gas_file)
             g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
             gasfile.close()
@@ -139,7 +139,11 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
             vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2]**2)
-            vrotg = vrotg / np.sin(np.arccos(q[f]))
+            q0 = 0.2
+            q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+            if q1 < 0.2 or np.isnan(q1):
+                q1 = 0.2
+            vrotg = vrotg / np.sin(np.arccos(q1))
 
             fig, ax = plt.subplots()
             ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Gas")
@@ -276,10 +280,18 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, paq=np.array([pa[f],q[f]]), allterms=True)
 
+            vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
+            q0 = 0.2
+            q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+            if q1 < 0.2 or np.isnan(q1):
+                q1 = 0.2
+            vrots = vrots / np.sin(np.arccos(q1))
+
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
             end = 1 * r50[f]+step
             rad = np.arange(start, end, step)
+
             kss = kinemetry(img=s_sigma, x0=x0, y0=y0, ntrm=10, plot=False, verbose=False, radius=rad,
                             bmodel=True, paq=np.array([pa[f],q[f]]), even=True)
 
@@ -287,8 +299,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                                 bmodel=True, paq=np.array([pa[f],q[f]]), even=True)
 
             sigmas = np.nansum(ks_flux.cf[:,0]*kss.cf[:, 0])/np.nansum(ks_flux.cf[:,0])
-            vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2]**2)
-            vrots = vrots / np.sin(np.arccos(q[f]))
 
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
@@ -427,6 +437,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                    bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
+                    vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2]**2)
+                    q0 = 0.2
+                    q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+                    if q1 < 0.2 or np.isnan(q1):
+                        q1 = 0.2
+                    vrotg = vrotg / np.sin(np.arccos(q1))
 
                     step = (0.65 / 2) / 0.2
                     start = (0.65 / 2) / 0.2 - step
@@ -439,8 +455,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                                         bmodel=True, paq=np.array([pa[f]-90, q[f]]), even=True)
 
                     sigmag = np.nansum(kg_flux.cf[:,0]*kgs.cf[:, 0])/np.nansum(kg_flux.cf[:,0])
-                    vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2]**2)
-                    vrotg = vrotg / np.sin(np.arccos(q[f]))
 
                     fig, ax = plt.subplots()
                     ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Stars")
@@ -556,6 +570,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                                    bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
+                    vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2]**2)
+                    q0 = 0.2
+                    q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+                    if q1 < 0.2 or np.isnan(q1):
+                        q1 = 0.2
+                    vrots = vrots / np.sin(np.arccos(q1))
 
                     step = (0.65 / 2) / 0.2
                     start = (0.65 / 2) / 0.2 - step
@@ -569,8 +589,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                                     bmodel=True, paq=np.array([pa[f]-90, q[f]]), even=True)
 
                     sigmas = np.nansum(ks_flux.cf[:,0]*kss.cf[:, 0])/np.nansum(ks_flux.cf[:,0])
-                    vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2]**2)
-                    vrots = vrots / np.sin(np.arccos(q[f]))
 
                     fig, ax = plt.subplots()
                     ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
@@ -672,6 +690,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
+            vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2]**2)
+            q0 = 0.2
+            q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+            if q1 < 0.2 or np.isnan(q1):
+                q1 = 0.2
+            vrots = vrots / np.sin(np.arccos(q1))
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
@@ -685,8 +709,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                                 bmodel=True, paq=np.array([pa[f]-90, q[f]]), even=True)
 
             sigmas = np.nansum(ks_flux.cf[:,0]*kss.cf[:, 0])/np.nansum(ks_flux.cf[:,0])
-            vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2]**2)
-            vrots = vrots/np.sin(np.arccos(q[f]))
 
             fig, ax = plt.subplots()
             ax.scatter(ks.rad, vrots, ec="k", zorder=2, label="Stars")
@@ -711,6 +733,12 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
                            bmodel=True, paq=np.array([pa[f]-90, q[f]]), allterms=True)
+            vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2]**2)
+            q0 = 0.2
+            q1 = np.sqrt((q[f] ** 2 - q0 ** 2) / (1 - q0 ** 2))
+            if q1 < 0.2 or np.isnan(q1):
+                q1 = 0.2
+            vrotg = vrotg / np.sin(np.arccos(q1))
 
             step = (0.65 / 2) / 0.2
             start = (0.65 / 2) / 0.2 - step
@@ -723,8 +751,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                                 bmodel=True, paq=np.array([pa[f]-90, q[f]]), even=True)
 
             sigmag = np.nansum(kg_flux.cf[:,0]*kgs.cf[:, 0])/np.nansum(kg_flux.cf[:,0])
-            vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2]**2)
-            vrotg = vrotg/np.sin(np.arccos(q[f]))
 
             fig, ax = plt.subplots()
             ax.scatter(kg.rad, vrotg, ec="k", zorder=2, label="Stars")
