@@ -797,11 +797,6 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             gas_moment = gas_moment[~np.isnan(gas_moment)]
             pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
 
-
-            pa_g = pa_g
-            pa_s = np.nan
-            d_pa = np.abs(np.nan)
-
             vasym_g = kg2 + kg3 + kg4 + kg5
             vasym_g = vasym_g / (4 * gs05)
             vasym_g = vasym_g[-1]
