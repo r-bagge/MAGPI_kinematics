@@ -11,6 +11,7 @@ from kinemetry_plots import clean_images_velo
 from kinemetry_plots import clean_images_flux
 from kinemetry_plots import BPT_plots
 from kinemetry_plots import stellar_gas_plots
+from pafit.fit_kinematic_pa import fit_kinematic_pa
 
 def monte_carlo(args):
     g_model, g_img, g_img_err, q_g, gas_kin_pa, x0_g, y0_g, rad_g, sg, vg, pa, n, catch, s_model, s_img, s_img_err, q_s, stellar_kin_pa, x0_s, y0_s, rad_s, ss, vs = args
