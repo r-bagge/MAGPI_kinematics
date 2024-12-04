@@ -229,8 +229,22 @@ def MAGPI_kinemetry_parrallel(args):
         end = 2 * r50
         rad = np.arange(start, end, step)
 
+        g_velo = g_velo - np.nanmedian(g_velo)
+        ny, nx = g_velo.shape
+        mx_img = np.max(g_velo.shape)
+        x = (np.arange(0, nx))
+        y = (np.arange(0, ny))
+        xx, yy = np.meshgrid(x, y)
+        xbin = xx.ravel() - np.median(xx.ravel())
+        ybin = yy.ravel() - np.median(yy.ravel())
+        gas_moment = g_velo.ravel()
+        xbin = xbin[~np.isnan(gas_moment)]
+        ybin = ybin[~np.isnan(gas_moment)]
+        gas_moment = gas_moment[~np.isnan(gas_moment)]
+        pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
+
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa_g, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
         q0 = 0.2
         q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
@@ -250,7 +264,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
         sg = np.nansum(kg_flux.cf[:, 0] * kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:, 0])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                       bmodel=True, paq=np.array([pa_g, q]),
                        allterms=True)
 
         return [kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, pa, n, 1, None, None, None, None, None, None, None, None, None, None]
@@ -296,8 +310,22 @@ def MAGPI_kinemetry_parrallel(args):
         end = 2 * r50
         rad = np.arange(start, end, step)
 
+        s_velo = s_velo - np.nanmedian(s_velo)
+        ny, nx = s_velo.shape
+        mx_img = np.max(g_velo.shape)
+        x = (np.arange(0, nx))
+        y = (np.arange(0, ny))
+        xx, yy = np.meshgrid(x, y)
+        xbin = xx.ravel() - np.median(xx.ravel())
+        ybin = yy.ravel() - np.median(yy.ravel())
+        star_moment = s_velo.ravel()
+        xbin = xbin[~np.isnan(star_moment)]
+        ybin = ybin[~np.isnan(star_moment)]
+        star_moment = star_moment[~np.isnan(star_moment)]
+        pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
+
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa_s, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         q0 = 0.2
@@ -319,7 +347,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         ss = np.nansum(ks_flux.cf[:, 0] * ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:, 0])
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                       bmodel=True, paq=np.array([pa_s, q]),
                        allterms=True)
 
         return [None, None, None, None, None, None, None, None, None, None, pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots]
@@ -375,8 +403,22 @@ def MAGPI_kinemetry_parrallel(args):
                 end = 2 * r50
                 rad = np.arange(start, end, step)
 
+                g_velo = g_velo - np.nanmedian(g_velo)
+                ny, nx = g_velo.shape
+                mx_img = np.max(g_velo.shape)
+                x = (np.arange(0, nx))
+                y = (np.arange(0, ny))
+                xx, yy = np.meshgrid(x, y)
+                xbin = xx.ravel() - np.median(xx.ravel())
+                ybin = yy.ravel() - np.median(yy.ravel())
+                gas_moment = g_velo.ravel()
+                xbin = xbin[~np.isnan(gas_moment)]
+                ybin = ybin[~np.isnan(gas_moment)]
+                gas_moment = gas_moment[~np.isnan(gas_moment)]
+                pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
+
                 kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                               bmodel=True, paq=np.array([pa_g, q]), allterms=True)
                 vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
                 q0 = 0.2
                 q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
@@ -397,7 +439,7 @@ def MAGPI_kinemetry_parrallel(args):
                 sg = np.nansum(kg_flux.cf[:, 0] * kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:, 0])
 
                 kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               bmodel=True, paq=np.array([pa_g, q]),
                                allterms=True)
 
                 return [kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, pa, n, 1, None, None, None, None, None, None, None, None, None, None]
@@ -439,8 +481,22 @@ def MAGPI_kinemetry_parrallel(args):
                 end = 2 * r50
                 rad = np.arange(start, end, step)
 
+                s_velo = s_velo - np.nanmedian(s_velo)
+                ny, nx = s_velo.shape
+                mx_img = np.max(g_velo.shape)
+                x = (np.arange(0, nx))
+                y = (np.arange(0, ny))
+                xx, yy = np.meshgrid(x, y)
+                xbin = xx.ravel() - np.median(xx.ravel())
+                ybin = yy.ravel() - np.median(yy.ravel())
+                star_moment = s_velo.ravel()
+                xbin = xbin[~np.isnan(star_moment)]
+                ybin = ybin[~np.isnan(star_moment)]
+                star_moment = star_moment[~np.isnan(star_moment)]
+                pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
+
                 ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                               bmodel=True, paq=np.array([pa_s, q]), allterms=True)
 
                 vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
                 q0 = 0.2
@@ -461,7 +517,7 @@ def MAGPI_kinemetry_parrallel(args):
                 ss = np.nansum(ks_flux.cf[:, 0] * ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:, 0])
 
                 ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                               bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                               bmodel=True, paq=np.array([pa_s, q]),
                                allterms=True)
 
                 return [None, None, None, None, None, None, None, None, None, None, pa, n, 2, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots]
@@ -483,8 +539,36 @@ def MAGPI_kinemetry_parrallel(args):
         end = 2 * r50
         rad = np.arange(start, end, step)
 
+        g_velo = g_velo - np.nanmedian(g_velo)
+        ny, nx = g_velo.shape
+        mx_img = np.max(g_velo.shape)
+        x = (np.arange(0, nx))
+        y = (np.arange(0, ny))
+        xx, yy = np.meshgrid(x, y)
+        xbin = xx.ravel() - np.median(xx.ravel())
+        ybin = yy.ravel() - np.median(yy.ravel())
+        gas_moment = g_velo.ravel()
+        xbin = xbin[~np.isnan(gas_moment)]
+        ybin = ybin[~np.isnan(gas_moment)]
+        gas_moment = gas_moment[~np.isnan(gas_moment)]
+        pa_g, pa_g_err, vsys = fit_kinematic_pa(xbin, ybin, gas_moment, plot=False, quiet=True, nsteps=50)
+
+        s_velo = s_velo - np.nanmedian(s_velo)
+        ny, nx = s_velo.shape
+        mx_img = np.max(g_velo.shape)
+        x = (np.arange(0, nx))
+        y = (np.arange(0, ny))
+        xx, yy = np.meshgrid(x, y)
+        xbin = xx.ravel() - np.median(xx.ravel())
+        ybin = yy.ravel() - np.median(yy.ravel())
+        star_moment = s_velo.ravel()
+        xbin = xbin[~np.isnan(star_moment)]
+        ybin = ybin[~np.isnan(star_moment)]
+        star_moment = star_moment[~np.isnan(star_moment)]
+        pa_s, pa_s_err, vsys = fit_kinematic_pa(xbin, ybin, star_moment, plot=False, quiet=True, nsteps=50)
+
         kg = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa_g, q]), allterms=True)
         vrotg = np.sqrt(kg.cf[:, 1] ** 2 + kg.cf[:, 2] ** 2)
         q0 = 0.2
         q1 = np.sqrt((q ** 2 - q0 ** 2) / (1 - q0 ** 2))
@@ -504,7 +588,7 @@ def MAGPI_kinemetry_parrallel(args):
                              bmodel=True, paq=np.array([pa-90, q]), even=True)
         sg = np.nansum(kg_flux.cf[:, 0] * kg_sigma.cf[:, 0])/np.nansum(kg_flux.cf[:, 0])
         kg_velo = kinemetry(img=g_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                       bmodel=True, paq=np.array([pa_g, q]),
                        allterms=True)
 
         step = (0.65 / 2) / 0.2
@@ -512,7 +596,7 @@ def MAGPI_kinemetry_parrallel(args):
         end = 2 * r50
         rad = np.arange(start, end, step)
         ks = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, paq=np.array([pa-90, q]), allterms=True)
+                       bmodel=True, paq=np.array([pa_s, q]), allterms=True)
 
         vrots = np.sqrt(ks.cf[:, 1] ** 2 + ks.cf[:, 2] ** 2)
         q0 = 0.2
@@ -533,7 +617,7 @@ def MAGPI_kinemetry_parrallel(args):
         ss = np.nansum(ks_flux.cf[:, 0] * ks_sigma.cf[:, 0])/np.nansum(ks_flux.cf[:, 0])
 
         ks_velo = kinemetry(img=s_velo, x0=x0, y0=y0, ntrm=11, plot=False, verbose=False, radius=rad,
-                       bmodel=True, rangePA=[0, 360], rangeQ=[q - 0.1, q + 0.1],
+                       bmodel=True, paq=np.array([pa_s, q]),
                        allterms=True)
 
         return [kg_velo.velkin, g_velo, g_velo_err, q, pa, x0, y0, rad, sg, vrotg, pa, n, 3, ks_velo.velkin, s_velo, s_velo_err, q, pa, x0, y0, rad, ss, vrots]
