@@ -627,7 +627,7 @@ def MAGPI_kinemetry_parrallel(args):
 if __name__ == '__main__':
     mc = True
     if mc == True:
-        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+        file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=17)
         print(file["z"])
         z = file["z"].to_numpy()
         pa = file["ang_it"].to_numpy()
