@@ -628,7 +628,7 @@ if __name__ == '__main__':
     mc = True
     if mc == True:
         file = pd.read_csv("MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
-        print(file.info())
+        print(file["z"])
         z = file["z"].to_numpy()
         pa = file["ang_it"].to_numpy()
         q = file["axrat_it"].to_numpy()
