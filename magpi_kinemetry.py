@@ -76,9 +76,9 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                 logfile.write(f"MAGPIID = {galaxy[f]} is {(r50[f] / res_cutoff):.3f} beam elements!\n")
         else:
             pass
-        star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_2MOM_v2.2.1/" + str(
+        star_file = "MAGPI_Absorption_Line/kinematic_maps_latest/" + str(
             galaxy[f]) + "_kinematics_ppxf-maps.fits"
-        gas_file = "MAGPI_Emission_Line/MAGPI"+field+"/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+        gas_file = "MAGPI_Emission_Line/MAGPI"+field+"/MAGPI" + field + "_v2.2.2_GIST_EmissionLine_Maps/MAGPI" + str(
             galaxy[f]) + "_GIST_EmissionLines.fits"
         if os.path.exists(star_file):
             star_file_catch = True
@@ -101,7 +101,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
         if star_file_catch==False and gas_file_catch:
 
             gasfile = fits.open(gas_file)
-            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
+            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+                gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
             gasfile.close()
             g_velo = clean_images_velo(g_velo, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)
             g_velo_err = clean_images_velo(g_velo_err, pa[f], r50[f], r50[f] * q[f], img_flux=g_flux / g_flux_err,limit=3)

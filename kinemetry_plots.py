@@ -221,20 +221,20 @@ def BPT_plots(output_file, sample_file, n_re):
             re_DL.append(np.radians(r50 / 3600) * cosmo.angular_diameter_distance(z).to(u.kpc).value)
             continue
         fits_file = fits.open(file)
-        flux_Ha = fits_file[49].data
-        flux_Hb = fits_file[37].data
-        flux_Ha_err = fits_file[50].data
-        flux_Hb_err = fits_file[38].data
-        OIII = fits_file[39].data
-        OIII_err = fits_file[30].data
-        NII = fits_file[51].data
-        NII_err = fits_file[52].data
-        OI = fits_file[47].data
-        OI_err = fits_file[48].data
-        SII = fits_file[53].data
-        SII = SII + fits_file[55].data
-        SII_err = fits_file[54].data
-        SII_err = SII_err + fits_file[56].data
+        flux_Ha = fits_file["HA_F"].data
+        flux_Hb = fits_file["HA_F"].data
+        flux_Ha_err = fits_file["HA_FERR"].data
+        flux_Hb_err = fits_file["HB_FERR"].data
+        OIII = fits_file["OIII_F"].data
+        OIII_err = fits_file["OIII_FERR"].data
+        NII = fits_file["NII_F"].data
+        NII_err = fits_file["NII_FERR"].data
+        OI = fits_file["OI_F"].data
+        OI_err = fits_file["OI_FERR"].data
+        SII = fits_file["SII_6718_F"].data
+        SII = SII + fits_file["SII_6733_F"].data
+        SII_err = fits_file["SII_6718_FERR"].data
+        SII_err = SII_err + fits_file["SII_6733_FERR"].data
         fits_file.close()
 
         HA = clean_images_flux(flux_Ha, pa, r50, r50 * q, img_err=flux_Ha / flux_Ha_err)
@@ -466,7 +466,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     DL = cosmo.luminosity_distance(z).to(u.kpc).value
     pix = np.radians(0.33 / 3600) * DL
 
-    star_file = "MAGPI_Absorption_Line/kinematic_maps_spaxels_2MOM_v2.2.1/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
+    star_file = "MAGPI_Absorption_Line/kinematic_maps_latest/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
     gas_file = "MAGPI_Emission_Line/MAGPI"+str(galaxy)[:4]+"/MAGPI" + str(galaxy)[:4] + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
@@ -478,8 +478,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
         s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
 
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
-            gasfile[10].data, gasfile[11].data
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+            gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
 
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
         g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
@@ -512,7 +512,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Brightest line is " + bright_line)
             bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
 
-            g_velo = gasfile[9].data
+            g_velo = gasfile["V_GAS"].data
             g_flux = gasfile[bright_line].data
             g_flux_err = gasfile[bright_line_err].data
             g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
@@ -524,9 +524,9 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 print(bright_line + " is better!")
             else:
                 print(f"Ha is better")
-                g_velo = gasfile[9].data
-                g_flux = gasfile[49].data
-                g_flux_err = gasfile[50].data
+                g_velo = gasfile["V_GAS"].data
+                g_flux = gasfile["HA_F"].data
+                g_flux_err = gasfile["HA_FERR"].data
                 g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
                 g_flux = clean_images_flux(g_flux, pa, r50, r50 * q, img_err=g_flux / g_flux_err)
 
@@ -597,8 +597,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                 s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
                 s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
 
-                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, \
-                gasfile[10].data, gasfile[11].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+                    gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
                 g_velo = clean_images_flux(g_velo, pa, r50, r50 * q)
                 g_sigma = clean_images_flux(g_sigma, pa, r50, r50 * q)
                 g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
@@ -801,8 +801,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             gasfile = fits.open(gas_file)
 
             s_flux, s_velo, s_sigma = starfile[7].data, starfile[1].data, starfile[4].data
-            g_flux, g_flux_err, g_velo, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
-                11].data
+            g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+                gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
             s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
             s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
             s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux,limit=3)
@@ -874,8 +874,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
     elif os.path.exists(gas_file) and os.path.exists(star_file) == False:
         # log_file.write("Has gas kinematics but no stars!\n")
         gasfile = fits.open(gas_file)
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[
-            10].data, gasfile[11].data
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+            gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
         g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
         g_sigma = clean_images_velo(g_sigma, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
@@ -908,7 +908,7 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             print("Brightest line is " + bright_line)
             bright_line_err = max_line["MAX_LINE"].to_numpy()[0]
 
-            g_velo = gasfile[9].data
+            g_velo = gasfile["V_GAS"].data
             g_flux = gasfile[bright_line].data
             g_flux_err = gasfile[bright_line_err].data
             g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
@@ -976,8 +976,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
             gasfile.close()
             gasfile = fits.open(gas_file)
             if ha_check > bl_check:
-                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[
-                    9].data, gasfile[10].data, gasfile[11].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+                    gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
                 g_velo = clean_images_flux(g_velo, pa, r50, r50 * q)
                 g_sigma = clean_images_flux(g_sigma, pa, r50, r50 * q)
                 g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)
@@ -1028,9 +1028,8 @@ def stellar_gas_plots(galaxy, n_ells=3, SNR_star=3, SNR_gas=20):
                             overwrite=True)
 
             else:
-                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[bright_line].data, gasfile[
-                    bright_line_err].data, gasfile[
-                    9].data, gasfile[10].data, gasfile[11].data
+                g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+                    gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
                 g_velo = clean_images_flux(g_velo, pa, r50, r50 * q)
                 g_sigma = clean_images_flux(g_sigma, pa, r50, r50 * q)
                 g_flux = clean_images_flux(g_flux, pa, r50, r50 * q)

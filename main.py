@@ -163,7 +163,7 @@ def MAGPI_kinemetry_parrallel(args):
         logfile.write(f"MAGPIID = {galaxy}, r50 = {r50:.3f}, Res. passed!\n")
         logfile.write(f"MAGPIID = {galaxy} is {(r50 / res_cutoff):.3f} beam elements!\n")
     star_file = "MAGPI_Absorption_Line/kinematic_maps_latest/" + str(galaxy) + "_kinematics_ppxf-maps.fits"
-    gas_file = "MAGPI_Emission_Line/MAGPI" + field + "/MAGPI" + field + "_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(
+    gas_file = "MAGPI_Emission_Line/MAGPI" + field + "/MAGPI" + field + "_v2.2.2_GIST_EmissionLine_Maps/MAGPI" + str(
         galaxy) + "_GIST_EmissionLines.fits"
 
     if os.path.exists(star_file):
@@ -189,8 +189,8 @@ def MAGPI_kinemetry_parrallel(args):
     # Gas kinemetry
     if star_file_catch == False and gas_file_catch:
         gasfile = fits.open(gas_file)
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile[49].data, gasfile[50].data, \
-            gasfile[9].data, gasfile[10].data, gasfile[11].data, gasfile[12].data
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+            gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
         gasfile.close()
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err, limit=3)
         g_velo_err = clean_images_velo(g_velo_err, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
