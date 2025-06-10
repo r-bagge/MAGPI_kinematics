@@ -26,7 +26,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
     zs = []
     re_over_psf=[]
     logfile = open("MAGPI_csv/MAGPI_kinemetry.txt", "w")
-    master = pd.read_csv(source_cat,skiprows=16)
+    master = pd.read_csv(source_cat,skiprows=17)
     if sample is not None:
         master = master[master["MAGPIID"].isin(sample)]
     else:

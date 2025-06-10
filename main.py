@@ -654,7 +654,6 @@ if __name__ == '__main__':
             print(f"Stars Asym={np.nanmean(mcs[1]):.2f}")
             StarsAsym.append(np.nanmean(mcs[1]))
             StarsAsymErr.append(np.nanstd(mcs[1]))
-        print(galaxies)
 
         print("Beginning the easy part...")
         if os.path.exists("MAGPI_Plots/plots/Gas_Stars_Ellipse"):
