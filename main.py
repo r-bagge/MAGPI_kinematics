@@ -362,8 +362,9 @@ def MAGPI_kinemetry_parrallel(args):
         s_velo = clean_images_velo(s_velo, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         s_velo_err = clean_images_velo(s_velo_err, pa, r50, r50 * q, img_flux=s_flux,limit=3)
         s_sigma = clean_images_velo(s_sigma, pa, r50, r50 * q, img_flux=s_flux, limit=3)
-
-        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma = gasfile[49].data, gasfile[50].data, gasfile[9].data, gasfile[10].data, gasfile[11].data
+        
+        g_flux, g_flux_err, g_velo, g_velo_err, g_sigma, g_sigma_err = gasfile["HA_F"].data, gasfile["HA_FERR"].data, \
+            gasfile["V_GAS"].data, gasfile["VERR_GAS"].data, gasfile["SIGMA_GAS"].data, gasfile["SIGMAERR_GAS"].data
         gasfile.close()
 
         g_velo = clean_images_velo(g_velo, pa, r50, r50 * q, img_flux=g_flux / g_flux_err,limit=3)
