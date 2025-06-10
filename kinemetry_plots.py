@@ -196,14 +196,14 @@ def BPT_plots(output_file, sample_file, n_re):
     for g in galaxies:
         print("Beginning MAGPI" + str(g) + "...")
         csv_file = pd.read_csv(
-            "MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=16)
+            "MAGPI_csv/MAGPI_master_source_catalogue.csv", skiprows=17)
         csv_file = csv_file[csv_file["MAGPIID"].isin([g])]
         z = csv_file["z"].to_numpy()[0]
         r50 = csv_file["R50_it"].to_numpy()[0] / 0.2
         q = csv_file["axrat_it"].to_numpy()[0]
         pa = csv_file["ang_it"].to_numpy()[0]
         DL = cosmo.luminosity_distance(z).to(u.kpc).value
-        file = "MAGPI_Emission_Line/MAGPI"+str(g)[:4]+"/MAGPI"+str(g)[:4]+"_v2.2.1_GIST_EmissionLine_Maps/MAGPI" + str(g) + "_GIST_EmissionLines.fits"
+        file = "MAGPI_Emission_Line/MAGPI"+str(g)[:4]+"/MAGPI"+str(g)[:4]+"_v2.2.2_GIST_EmissionLine_Maps/MAGPI" + str(g) + "_GIST_EmissionLines.fits"
         if os.path.exists(file):
             pass
         else:
