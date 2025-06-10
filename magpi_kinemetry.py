@@ -201,7 +201,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             vasym_g = vasym_g[-1]
 
             gal_id.append(galaxy[f])
-            gas_s05.append(vasym_g)
+            gas_s05.append(gs05)
             star_s05.append(np.nan)
             SNR_g.append(np.nanmean(kg_flux.cf[:,0]))
             SNR_s.append(np.nan)
@@ -343,7 +343,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             vasym_s = vasym_s[-1]
 
             gal_id.append(galaxy[f])
-            star_s05.append(vasym_s)
+            star_s05.append(ss05)
             gas_s05.append(np.nan)
             SNR_g.append(np.nan)
             SNR_s.append(np.nanmean(ks_flux.cf[:, 0]))
@@ -499,7 +499,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
                     vasym_g = vasym_g[-1]
 
                     gal_id.append(galaxy[f])
-                    gas_s05.append(vasym_g)
+                    gas_s05.append(gs05)
                     star_s05.append(np.nan)
                     SNR_g.append(np.nanmean(kg_flux.cf[:, 0]))
                     SNR_s.append(np.nan)
@@ -633,7 +633,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
                     gal_id.append(galaxy[f])
                     gas_s05.append(np.nan)
-                    star_s05.append(vasym_s)
+                    star_s05.append(ss05)
                     v_rot_s.append(np.nanmax(vrots))
                     v_rot_g.append(np.nan)
                     v_sigma_s.append(sigmas)
@@ -819,8 +819,8 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
             d_pa = np.abs(pa_g - pa_s)
 
             gal_id.append(galaxy[f])
-            star_s05.append(vasym_s)
-            gas_s05.append(vasym_g)
+            star_s05.append(ss05)
+            gas_s05.append(gs05)
             v_rot_s.append(np.nanmax(vrots))
             v_rot_g.append(np.nanmax(vrotg))
             v_sigma_g.append(sigmag)
