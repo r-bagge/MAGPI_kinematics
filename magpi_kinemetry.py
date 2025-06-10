@@ -279,7 +279,7 @@ def MAGPI_kinemetry(source_cat, sample=None, n_ells=3, SNR_Star=3, SNR_Gas=20):
 
             s_velo = s_velo - np.nanmedian(s_velo)
             ny, nx = s_velo.shape
-            mx_img = np.max(g_velo.shape)
+            mx_img = np.max(s_velo.shape)
             x = (np.arange(0, nx))
             y = (np.arange(0, ny))
             xx, yy = np.meshgrid(x, y)

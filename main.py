@@ -313,7 +313,7 @@ def MAGPI_kinemetry_parrallel(args):
 
         s_velo = s_velo - np.nanmedian(s_velo)
         ny, nx = s_velo.shape
-        mx_img = np.max(g_velo.shape)
+        mx_img = np.max(s_velo.shape)
         x = (np.arange(0, nx))
         y = (np.arange(0, ny))
         xx, yy = np.meshgrid(x, y)
